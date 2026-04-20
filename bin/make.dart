@@ -6,7 +6,7 @@ import 'package:clean_feature_arch/src/commands/init_command.dart';
 
 Future<void> main(List<String> arguments) async {
   final logger = Logger();
-  
+
   final runner = CommandRunner<int>(
     'clean_feature_arch',
     'A development toolkit for enforcing the Absolute Rule Architecture in Flutter projects.',

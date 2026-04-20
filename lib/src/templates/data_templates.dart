@@ -1,11 +1,10 @@
 import 'package:recase/recase.dart';
 
 class DataTemplates {
-  
   static String requestModel(String featureName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
-    
+
     return '''
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -29,7 +28,7 @@ sealed class ${pascal}RequestModel with _\$${pascal}RequestModel {
   static String responseModel(String featureName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
-    
+
     return '''
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../domain/entities/${snake}_entity.dart';
@@ -63,7 +62,7 @@ sealed class ${pascal}ResponseModel with _\$${pascal}ResponseModel {
   static String localModel(String featureName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
-    
+
     return '''
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../domain/entities/${snake}_entity.dart';
@@ -104,7 +103,7 @@ sealed class ${pascal}LocalModel with _\$${pascal}LocalModel {
   static String remoteDatasource(String featureName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
-    
+
     return '''
 import '../models/requests/${snake}_request_model.dart';
 import '../models/responses/${snake}_response_model.dart';
@@ -129,7 +128,7 @@ class ${pascal}RemoteDataSourceImpl implements ${pascal}RemoteDataSource {
     final pascal = featureName.pascalCase;
     final camel = featureName.camelCase;
     final snake = featureName.snakeCase;
-    
+
     return '''
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/app_error.dart';

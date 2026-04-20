@@ -1,4 +1,4 @@
-import 'package:analyzer/error/error.dart';
+import 'package:analyzer/error/error.dart' hide LintCode;
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 import '../absolute_rule_linter.dart';
@@ -9,15 +9,17 @@ class AvoidIllegalLayerImports extends DartLintRule {
 
   static const _code = LintCode(
     name: 'absolute_rule_avoid_illegal_layer_imports',
-    problemMessage: 'Domain layer cannot import from Data or Presentation layers.',
-    correctionMessage: 'Move the logic to the Domain layer or refactor dependencies.',
-    errorSeverity: ErrorSeverity.ERROR,
+    problemMessage:
+        'Domain layer cannot import from Data or Presentation layers.',
+    correctionMessage:
+        'Move the logic to the Domain layer or refactor dependencies.',
+    errorSeverity: DiagnosticSeverity.ERROR,
   );
 
   @override
   void run(
     CustomLintResolver resolver,
-    ErrorReporter reporter,
+    DiagnosticReporter reporter,
     CustomLintContext context,
   ) {
     final path = resolver.path;
@@ -29,7 +31,7 @@ class AvoidIllegalLayerImports extends DartLintRule {
 
       // Check if importing data or presentation
       if (uri.contains('/data/') || uri.contains('/presentation/')) {
-        reporter.reportErrorForNode(_code, node);
+        reporter.atNode(node, _code);
       }
     });
   }

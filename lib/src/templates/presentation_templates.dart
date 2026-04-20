@@ -1,10 +1,9 @@
 import 'package:recase/recase.dart';
 
 class PresentationTemplates {
-  
   static String screen(String featureName) {
     final pascal = featureName.pascalCase;
-    
+
     return '''
 import 'package:flutter/material.dart';
 
@@ -31,7 +30,7 @@ class ${pascal}Screen extends StatelessWidget {
   static String state(String featureName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
-    
+
     return '''
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/error/app_error.dart';

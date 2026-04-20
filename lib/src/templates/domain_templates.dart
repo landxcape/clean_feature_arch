@@ -1,11 +1,10 @@
 import 'package:recase/recase.dart';
 
 class DomainTemplates {
-  
   static String entity(String featureName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
-    
+
     return '''
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -25,7 +24,7 @@ sealed class ${pascal}Entity with _\$${pascal}Entity {
   static String repository(String featureName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
-    
+
     return '''
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/app_error.dart';
@@ -42,7 +41,7 @@ abstract interface class ${pascal}Repository {
     final pascal = featureName.pascalCase;
     final camel = featureName.camelCase;
     final snake = featureName.snakeCase;
-    
+
     return '''
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/app_error.dart';
