@@ -1,0 +1,19 @@
+# https://dart.dev/guides/libraries/private-files
+# Files and directories created by pub
+.dart_tool/
+.packages
+.pub/
+build/
+
+# Generated files
+*.freezed.dart
+*.g.dart
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# Test projects/artifacts
+testarchitecture/
+docs/scratch/
