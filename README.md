@@ -1,84 +1,50 @@
 # Clean Feature Architecture (Absolute Rule)
 
-A Flutter development toolkit for scaffolding and enforcing the Absolute Rule Architecture. This package provides a CLI for feature generation and a custom linter for architectural verification.
+A Flutter development toolkit for scaffolding and enforcing the **Absolute Rule Architecture**. This package provides a CLI for feature generation and a native Dart analyzer plugin for architectural verification.
 
-## Absolute Rule Architecture
+## Architecture Documentation
 
-The Absolute Rule is a feature-first Clean Architecture pattern designed for large-scale production applications.
+The detailed architectural specification and state management guides are available in the `doc/` directory:
 
-### Core Principles
-- **Feature Isolation**: Features are self-contained and do not import internal classes from other features.
-- **Layer Separation**: 
-    - `domain`: Contains business logic and entities. No dependencies on `data` or `presentation`.
-    - `data`: Implements repository contracts and manages data sources and models.
-    - `presentation`: Contains UI components and state management.
-- **Model Standard**: Data models (`Request`, `Response`, `Local`) and domain entities use `sealed class` with `@freezed` for type safety and exhaustive pattern matching.
-- **Directory Hierarchy**: Models are organized into `requests/`, `responses/`, and `local/` subdirectories within the data layer.
+-   [**Core Architecture Guide**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/flutter_architecture.md): The full specification of the Absolute Rule.
+-   [**State Management: Common Rules**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/common.md): Rules that apply regardless of the tool.
+-   [**State Management: BLoC**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/bloc.md): Implementation guide for BLoC.
+-   [**State Management: Riverpod**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/riverpod.md): Implementation guide for Riverpod.
 
-## Functionality
+---
 
-### Scaffolder (CLI)
-Generates feature structures with architectural boilerplate.
+## Static Analysis (Enforcer)
 
-```bash
-# Initialize core architecture (AppError, InjectionContainer, ApiClient, etc.)
-dart run clean_feature_arch init
+The package includes a native Dart analyzer plugin that enforces architectural boundaries directly within `dart analyze` and your IDE.
 
-# Generate a new feature
-dart run clean_feature_arch feature <name>
-```
-
-### Enforcer (Linter)
-A `custom_lint` plugin providing architectural verification.
-
-- **Feature Isolation**: Prevents cross-feature internal imports.
-- **Layer Boundaries**: Prevents the `domain` layer from depending on other layers.
-- **Model Requirements**: Ensures all `@freezed` models use the `sealed` keyword.
-- **Folder Structure**: Validates that models are located in specified subdirectories.
-
-## Installation
-
-Add the package to `dev_dependencies`:
+### Enabling the Enforcer
+Add the following to your `analysis_options.yaml`:
 
 ```yaml
-dev_dependencies:
-  clean_feature_arch: ^1.0.0
-  custom_lint: ^0.6.0
+plugins:
+  clean_feature_arch:
+    diagnostics:
+      absolute_rule_avoid_illegal_layer_imports: true
+      absolute_rule_enforce_feature_isolation: true
+      absolute_rule_enforce_model_folder_structure: true
+      absolute_rule_prefer_sealed_freezed_models: true
 ```
 
-Enable the plugin in `analysis_options.yaml`:
+---
 
-```yaml
-analyzer:
-  plugins:
-    - custom_lint
-```
-
-## Usage
-
-### Scaffolding a Feature
-The command `dart run clean_feature_arch feature auth` generates the following structure:
-
-```
-lib/features/auth/
-├── data/
-│   ├── datasources/
-│   ├── models/
-│   │   ├── local/
-│   │   ├── requests/
-│   │   └── responses/
-│   └── repositories/
-├── domain/
-│   ├── entities/
-│   ├── repositories/
-│   └── usecases/
-└── presentation/
-    ├── screens/
-    └── state/
-```
+## CLI Features (Scaffolder)
 
 ### Initializing a Project
-The `init` command bootstraps the `lib/core` directory with required utilities and configures `analysis_options.yaml`.
+Bootstraps the `lib/core` directory with required utilities and configures baseline dependencies.
+```bash
+dart run clean_feature_arch init
+```
+
+### Generating a Feature
+Creates a standard feature directory structure (`domain`, `data`, `presentation`) with canonical templates.
+```bash
+dart run clean_feature_arch feature <name>
+```
 
 ## License
 Distributed under the MIT License. See [LICENSE](LICENSE) for details.
