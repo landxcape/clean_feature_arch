@@ -83,6 +83,11 @@ class FeatureGenerator {
     }
   }
 
+  /// Bootstraps a new project with the Absolute Rule core architecture.
+  ///
+  /// This method creates the standard folder hierarchy in `lib/core` and `lib/shared`,
+  /// generates essential utility classes (e.g., ErrorHandler, ApiClient),
+  /// and updates the project's dependencies via `flutter pub add`.
   Future<void> initProject() async {
     _logger.info('Initializing core architecture...');
     final progress = _logger.progress('Generating core structure');
