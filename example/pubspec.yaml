@@ -14,5 +14,7 @@ dev_dependencies:
     sdk: flutter
   clean_feature_arch:
     path: ../
-  custom_lint: ^0.8.1
   lints: ^3.0.0
+
+dependency_overrides:
+  meta: 1.17.0

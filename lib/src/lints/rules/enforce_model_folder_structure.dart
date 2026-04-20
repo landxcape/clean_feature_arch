@@ -1,38 +1,54 @@
-import 'package:analyzer/error/error.dart' hide LintCode;
-import 'package:analyzer/error/listener.dart';
-import 'package:custom_lint_builder/custom_lint_builder.dart';
+import 'package:analyzer/analysis_rule/analysis_rule.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
+import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/ast/visitor.dart';
+import 'package:analyzer/error/error.dart';
 
 /// Lints models that are placed directly in data/models/ instead of subdirectories.
-class EnforceModelFolderStructure extends DartLintRule {
-  const EnforceModelFolderStructure() : super(code: _code);
+class EnforceModelFolderStructure extends AnalysisRule {
+  EnforceModelFolderStructure()
+      : super(
+          name: 'absolute_rule_enforce_model_folder_structure',
+          description:
+              'Models must be organized into requests/, responses/, or local/ subdirectories.',
+        );
 
   static const _code = LintCode(
-    name: 'absolute_rule_enforce_model_folder_structure',
-    problemMessage:
-        'Models must be organized into requests/, responses/, or local/ subdirectories.',
+    'absolute_rule_enforce_model_folder_structure',
+    'Models must be organized into requests/, responses/, or local/ subdirectories.',
     correctionMessage: 'Move the model file into the appropriate subdirectory.',
-    errorSeverity: DiagnosticSeverity.WARNING,
   );
 
   @override
-  void run(
-    CustomLintResolver resolver,
-    DiagnosticReporter reporter,
-    CustomLintContext context,
+  DiagnosticCode get diagnosticCode => _code;
+
+  @override
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
   ) {
-    final path = resolver.path;
-    if (!path.contains('/data/models/')) return;
+    final path = context.currentUnit?.file.path;
+    if (path == null || !path.contains('/data/models/')) return;
 
     // Check if the file is directly under models/
-    // A correct path should be models/requests/file.dart, models/responses/file.dart, or models/local/file.dart
     final containsValidSubdir = path.contains('/models/requests/') ||
         path.contains('/models/responses/') ||
         path.contains('/models/local/');
 
     if (!containsValidSubdir) {
-      context.registry.addCompilationUnit((node) {
-        reporter.atNode(node, _code);
-      });
+      registry.addCompilationUnit(this, _Visitor(this));
     }
+  }
+}
+
+class _Visitor extends SimpleAstVisitor<void> {
+  final EnforceModelFolderStructure rule;
+
+  _Visitor(this.rule);
+
+  @override
+  void visitCompilationUnit(CompilationUnit node) {
+    rule.reportAtNode(node);
   }
 }

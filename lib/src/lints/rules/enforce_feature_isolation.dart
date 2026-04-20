@@ -1,42 +1,62 @@
-import 'package:analyzer/error/error.dart' hide LintCode;
-import 'package:analyzer/error/listener.dart';
-import 'package:custom_lint_builder/custom_lint_builder.dart';
+import 'package:analyzer/analysis_rule/analysis_rule.dart';
+import 'package:analyzer/analysis_rule/rule_context.dart';
+import 'package:analyzer/analysis_rule/rule_visitor_registry.dart';
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/ast/visitor.dart';
+import 'package:analyzer/error/error.dart';
 import '../absolute_rule_linter.dart';
 
 /// Lints a feature attempting to import internals (data/presentation) of another feature.
-class EnforceFeatureIsolation extends DartLintRule {
-  const EnforceFeatureIsolation() : super(code: _code);
+class EnforceFeatureIsolation extends AnalysisRule {
+  EnforceFeatureIsolation()
+      : super(
+          name: 'absolute_rule_enforce_feature_isolation',
+          description:
+              'Features can only depend on the Domain layer of other features.',
+        );
 
   static const _code = LintCode(
-    name: 'absolute_rule_enforce_feature_isolation',
-    problemMessage:
-        'Features can only depend on the Domain layer of other features.',
+    'absolute_rule_enforce_feature_isolation',
+    'Features can only depend on the Domain layer of other features.',
     correctionMessage:
         'Import from domain/ or move shared logic to core/ or shared/.',
-    errorSeverity: DiagnosticSeverity.ERROR,
   );
 
   @override
-  void run(
-    CustomLintResolver resolver,
-    DiagnosticReporter reporter,
-    CustomLintContext context,
+  DiagnosticCode get diagnosticCode => _code;
+
+  @override
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
   ) {
-    final currentPath = resolver.path;
+    final currentPath = context.currentUnit?.file.path;
+    if (currentPath == null) return;
+
     final currentFeature = AbsoluteRuleUtils.getFeatureName(currentPath);
     if (currentFeature == null) return;
 
-    context.registry.addImportDirective((node) {
-      final uri = node.uri.stringValue;
-      if (uri == null) return;
+    registry.addImportDirective(this, _Visitor(this, currentFeature));
+  }
+}
 
-      // Only check inter-feature imports
-      if (uri.contains('/features/') && !uri.contains('/$currentFeature/')) {
-        // Flag if importing data or presentation of another feature
-        if (uri.contains('/data/') || uri.contains('/presentation/')) {
-          reporter.atNode(node, _code);
-        }
+class _Visitor extends SimpleAstVisitor<void> {
+  final EnforceFeatureIsolation rule;
+  final String currentFeature;
+
+  _Visitor(this.rule, this.currentFeature);
+
+  @override
+  void visitImportDirective(ImportDirective node) {
+    final uri = node.uri.stringValue;
+    if (uri == null) return;
+
+    // Only check inter-feature imports
+    if (uri.contains('/features/') && !uri.contains('/$currentFeature/')) {
+      // Flag if importing data or presentation of another feature
+      if (uri.contains('/data/') || uri.contains('/presentation/')) {
+        rule.reportAtNode(node);
       }
-    });
+    }
   }
 }

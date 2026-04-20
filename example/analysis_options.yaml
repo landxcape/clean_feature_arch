@@ -1,0 +1,15 @@
+include: package:lints/recommended.yaml
+
+plugins:
+  clean_feature_arch:
+    path: ../
+    diagnostics:
+      absolute_rule_avoid_illegal_layer_imports: true
+      absolute_rule_enforce_feature_isolation: true
+      absolute_rule_enforce_model_folder_structure: true
+      absolute_rule_prefer_sealed_freezed_models: true
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
