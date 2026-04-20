@@ -15,6 +15,3 @@ dev_dependencies:
   clean_feature_arch:
     path: ../
   lints: ^3.0.0
-
-dependency_overrides:
-  meta: 1.17.0
