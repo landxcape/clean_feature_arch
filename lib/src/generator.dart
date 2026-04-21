@@ -171,7 +171,7 @@ class FeatureGenerator {
           'lib/core/error/error_handler.dart', CoreTemplates.errorHandler(),
           overwrite: true);
       await _createFile('lib/core/di/injection_container.dart',
-          CoreTemplates.injectionContainer(),
+          CoreTemplates.injectionContainer(stateManager),
           overwrite: true);
       await _createFile(
           'lib/core/network/api_client.dart', CoreTemplates.apiClient(),
@@ -183,7 +183,7 @@ class FeatureGenerator {
           overwrite: true);
 
       // 3. Generate Root Files
-      await _createFile('lib/main.dart', CoreTemplates.mainDart(),
+      await _createFile('lib/main.dart', CoreTemplates.mainDart(stateManager),
           overwrite: true);
       await _createFile('lib/app.dart', CoreTemplates.appDart(),
           overwrite: true);

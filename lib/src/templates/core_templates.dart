@@ -80,16 +80,27 @@ class ErrorHandler {
 }
 ''';
 
-  static String injectionContainer() => r'''
+  static String injectionContainer(String? stateManager) {
+    String comment = '';
+    if (stateManager == 'riverpod') {
+      comment =
+          '\n  // Note: Riverpod uses providers for DI within the widget tree.\n  // Use get_it here only for infrastructure (Dio, Storage, etc.).';
+    } else if (stateManager == 'bloc') {
+      comment =
+          '\n  // Register features, repositories, and BLoCs here.\n  // Always register BLoCs as Factory: sl.registerFactory(() => MyBloc(sl()));';
+    }
+
+    return '''
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;
 
 Future<void> configureDependencies() async {
   // TODO: Register network modules, features, etc.
-  // Example: sl.registerLazySingleton<Dio>(() => DioFactory.create());
+  // Example: sl.registerLazySingleton<Dio>(() => DioFactory.create());$comment
 }
 ''';
+  }
 
   static String apiClient() => r'''
 import 'package:dio/dio.dart';
@@ -147,19 +158,75 @@ targets:
           explicit_to_json: true
 ''';
 
-  static String mainDart() => r'''
-import 'package:flutter/material.dart';
-import 'app.dart';
-import 'core/di/injection_container.dart';
+  static String mainDart(String? stateManager) {
+    String imports = '';
+    String observer = '';
+    String appWrapper = 'const MyApp()';
 
+    switch (stateManager) {
+      case 'bloc':
+        imports =
+            "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'core/utils/logger.dart';";
+        observer = '''
+class AppBlocObserver extends BlocObserver {
+  @override
+  void onChange(BlocBase bloc, Change change) {
+    super.onChange(bloc, change);
+    logger.info('Bloc Change: \${bloc.runtimeType} -> \$change');
+  }
+
+  @override
+  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
+    logger.error('Bloc Error: \${bloc.runtimeType}', error: error, stackTrace: stackTrace);
+    super.onError(bloc, error, stackTrace);
+  }
+}
+''';
+        appWrapper = '''
+  Bloc.observer = AppBlocObserver();
+  runApp(const MyApp())''';
+        break;
+      case 'riverpod':
+        imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';";
+        appWrapper = 'runApp(const ProviderScope(child: MyApp()))';
+        break;
+      default:
+        appWrapper = 'runApp(const MyApp())';
+    }
+
+    String mainBody = '''
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   await configureDependencies();
   
-  runApp(const MyApp());
+  $appWrapper;
 }
 ''';
+
+    // Special handling to avoid double semicolon for BLoC
+    if (stateManager == 'bloc') {
+      mainBody = '''
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await configureDependencies();
+  
+  $appWrapper;
+}
+''';
+    }
+
+    return '''
+import 'package:flutter/material.dart';
+$imports
+import 'app.dart';
+import 'core/di/injection_container.dart';
+
+$observer
+$mainBody
+''';
+  }
 
   static String appDart() => r'''
 import 'package:flutter/material.dart';
