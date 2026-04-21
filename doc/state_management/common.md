@@ -37,7 +37,7 @@ In the architecture, the state folder is `presentation/state/`. Each state tool 
 ### What it cannot import
 
 - `ResponseModel`, `RequestModel`, `LocalModel` — these are data layer types. The state layer never sees them.
-- Datasources — the state layer never touches raw data.
+- Data sources — the state layer never touches raw data.
 - Repositories directly — always go through UseCases.
 
 ### What it owns

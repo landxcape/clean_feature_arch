@@ -37,13 +37,25 @@ plugins:
 ### Initializing a Project
 Bootstraps the `lib/core` directory with required utilities and configures baseline dependencies.
 ```bash
+# Default (Pure Dart/No state manager)
 dart run clean_feature_arch init
+
+# With BLoC
+dart run clean_feature_arch init --state bloc
+
+# With Riverpod
+dart run clean_feature_arch init --state riverpod
 ```
 
 ### Generating a Feature
 Creates a standard feature directory structure (`domain`, `data`, `presentation`) with canonical templates.
 ```bash
+# Default
 dart run clean_feature_arch feature <name>
+
+# With specific state management
+dart run clean_feature_arch feature <name> --state bloc
+dart run clean_feature_arch feature <name> --state riverpod
 ```
 
 ## License

@@ -120,18 +120,32 @@ typedef VoidResult = Either<AppError, Unit>;
 
   static String analysisOptions() {
     return '''
-analyzer:
-  plugins:
-    - custom_lint
+include: package:lints/recommended.yaml
 
-# The Absolute Rule linter is enabled by default via custom_lint.
-# Rules: 
-# - absolute_rule_avoid_illegal_layer_imports
-# - absolute_rule_enforce_feature_isolation
-# - absolute_rule_prefer_sealed_freezed_models
-# - absolute_rule_enforce_model_folder_structure
+plugins:
+  clean_feature_arch:
+    diagnostics:
+      absolute_rule_avoid_illegal_layer_imports: true
+      absolute_rule_enforce_feature_isolation: true
+      absolute_rule_enforce_model_folder_structure: true
+      absolute_rule_prefer_sealed_freezed_models: true
+      absolute_rule_enforce_data_source_folder_structure: true
+
+# The Absolute Rule linter is integrated natively into dart analyze.
 ''';
   }
+
+  static String buildYaml() => r'''
+targets:
+  $default:
+    builders:
+      freezed:freezed:
+        enabled: true
+      json_serializable:
+        enabled: true
+        options:
+          explicit_to_json: true
+''';
 
   static String mainDart() => r'''
 import 'package:flutter/material.dart';

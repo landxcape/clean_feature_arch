@@ -4,11 +4,19 @@ import '../generator.dart';
 
 class FeatureCommand extends Command<int> {
   FeatureCommand(this._logger) {
-    argParser.addOption(
-      'dir',
-      abbr: 'd',
-      help: 'The target directory for the feature.',
-    );
+    argParser
+      ..addOption(
+        'dir',
+        abbr: 'd',
+        help: 'The target directory for the feature.',
+      )
+      ..addOption(
+        'state',
+        abbr: 's',
+        allowed: ['bloc', 'riverpod', 'none'],
+        help: 'The state management tool to use.',
+        defaultsTo: 'none',
+      );
   }
 
   @override
@@ -29,11 +37,13 @@ class FeatureCommand extends Command<int> {
 
     final name = argResults!.rest.join('_');
     final targetDir = argResults?['dir'] as String?;
+    final stateManager = argResults?['state'] as String?;
 
     final generator = FeatureGenerator(_logger);
 
     try {
-      await generator.generate(name, targetDirectory: targetDir);
+      await generator.generate(name,
+          targetDirectory: targetDir, stateManager: stateManager);
       _logger.info('Successfully generated feature: $name');
       _logger.info(
           'Run `dart run build_runner build -d` to generate Freezed models.');

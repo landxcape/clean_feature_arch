@@ -11,6 +11,7 @@ import 'src/lints/rules/avoid_illegal_layer_imports.dart';
 import 'src/lints/rules/enforce_feature_isolation.dart';
 import 'src/lints/rules/enforce_model_folder_structure.dart';
 import 'src/lints/rules/prefer_sealed_freezed_models.dart';
+import 'src/lints/rules/enforce_data_source_folder_structure.dart';
 
 /// The entry point for the Absolute Rule analyzer plugin.
 final plugin = _AbsoluteRulePlugin();
@@ -26,5 +27,6 @@ class _AbsoluteRulePlugin extends Plugin {
     registry.registerLintRule(EnforceFeatureIsolation());
     registry.registerLintRule(EnforceModelFolderStructure());
     registry.registerLintRule(PreferSealedFreezedModels());
+    registry.registerLintRule(EnforceDataSourceFolderStructure());
   }
 }

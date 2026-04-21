@@ -7,12 +7,19 @@ import 'templates/data_templates.dart';
 import 'templates/presentation_templates.dart';
 import 'templates/core_templates.dart';
 
+/// A generator responsible for scaffolding architectural layers and core utilities.
 class FeatureGenerator {
+  /// Creates a new [FeatureGenerator] instance with the provided [Logger].
   FeatureGenerator(this._logger);
 
   final Logger _logger;
 
-  Future<void> generate(String name, {String? targetDirectory}) async {
+  /// Scaffolds a new feature directory structure at the specified [targetDirectory].
+  ///
+  /// The [name] parameter is converted to snake_case to match Dart file conventions.
+  /// If [targetDirectory] is null, the feature is generated in `lib/features/<name>`.
+  Future<void> generate(String name,
+      {String? targetDirectory, String? stateManager}) async {
     final snakeCaseName = name.snakeCase;
     final baseDir = targetDirectory ?? p.join('lib', 'features', snakeCaseName);
 
@@ -53,11 +60,19 @@ class FeatureGenerator {
             '${snakeCaseName}_local_model.dart'),
         DataTemplates.localModel(snakeCaseName),
       );
+
+      // Data Sources
       await _createFile(
-        p.join(baseDir, 'data', 'datasources',
-            '${snakeCaseName}_remote_datasource.dart'),
-        DataTemplates.remoteDatasource(snakeCaseName),
+        p.join(baseDir, 'data', 'data_sources', 'remote_data_sources',
+            '${snakeCaseName}_remote_data_source.dart'),
+        DataTemplates.remoteDataSource(snakeCaseName),
       );
+      await _createFile(
+        p.join(baseDir, 'data', 'data_sources', 'local_data_sources',
+            '${snakeCaseName}_local_data_source.dart'),
+        DataTemplates.localDataSource(snakeCaseName),
+      );
+
       await _createFile(
         p.join(baseDir, 'data', 'repositories',
             '${snakeCaseName}_repository_impl.dart'),
@@ -68,13 +83,38 @@ class FeatureGenerator {
       await _createFile(
         p.join(
             baseDir, 'presentation', 'screens', '${snakeCaseName}_screen.dart'),
-        PresentationTemplates.screen(snakeCaseName),
+        PresentationTemplates.screen(snakeCaseName, stateManager: stateManager),
       );
 
-      await _createFile(
-        p.join(baseDir, 'presentation', 'state', '${snakeCaseName}_state.dart'),
-        PresentationTemplates.state(snakeCaseName),
-      );
+      // Create state folder explicitly
+      final stateDir = p.join(baseDir, 'presentation', 'state');
+      await Directory(stateDir).create(recursive: true);
+
+      switch (stateManager) {
+        case 'bloc':
+          await _createFile(
+            p.join(stateDir, '${snakeCaseName}_bloc.dart'),
+            PresentationTemplates.bloc(snakeCaseName),
+          );
+          await _createFile(
+            p.join(stateDir, '${snakeCaseName}_event.dart'),
+            PresentationTemplates.blocEvent(snakeCaseName),
+          );
+          await _createFile(
+            p.join(stateDir, '${snakeCaseName}_state.dart'),
+            PresentationTemplates.blocState(snakeCaseName),
+          );
+          break;
+        case 'riverpod':
+          await _createFile(
+            p.join(stateDir, '${snakeCaseName}_provider.dart'),
+            PresentationTemplates.riverpod(snakeCaseName),
+          );
+          break;
+        default:
+          // Just an empty state folder (already created above)
+          break;
+      }
 
       progress.complete('Feature generated at $baseDir');
     } catch (e) {
@@ -88,7 +128,7 @@ class FeatureGenerator {
   /// This method creates the standard folder hierarchy in `lib/core` and `lib/shared`,
   /// generates essential utility classes (e.g., ErrorHandler, ApiClient),
   /// and updates the project's dependencies via `flutter pub add`.
-  Future<void> initProject() async {
+  Future<void> initProject({String? stateManager}) async {
     _logger.info('Initializing core architecture...');
     final progress = _logger.progress('Generating core structure');
 
@@ -150,9 +190,10 @@ class FeatureGenerator {
       await _createFile(
           'analysis_options.yaml', CoreTemplates.analysisOptions(),
           overwrite: true);
+      await _createFile('build.yaml', CoreTemplates.buildYaml(), overwrite: true);
 
       // 4. Inject Dependencies
-      await _addDependencies();
+      await _addDependencies(stateManager: stateManager);
 
       progress.complete('Project initialized successfully.');
     } catch (e) {
@@ -161,7 +202,7 @@ class FeatureGenerator {
     }
   }
 
-  Future<void> _addDependencies() async {
+  Future<void> _addDependencies({String? stateManager}) async {
     final progress = _logger.progress('Injecting dependencies');
 
     try {
@@ -172,14 +213,28 @@ class FeatureGenerator {
         'fpdart',
         'freezed_annotation',
         'json_annotation',
+        'retrofit',
       ];
+
+      if (stateManager == 'bloc') {
+        deps.add('flutter_bloc');
+      } else if (stateManager == 'riverpod') {
+        deps.add('flutter_riverpod');
+        deps.add('riverpod_annotation');
+      }
 
       final devDeps = [
         'freezed',
         'json_serializable',
         'build_runner',
-        'custom_lint',
+        'retrofit_generator',
+        'mocktail',
+        'clean_feature_arch',
       ];
+
+      if (stateManager == 'riverpod') {
+        devDeps.add('riverpod_generator');
+      }
 
       _logger.detail('Running: flutter pub add ${deps.join(' ')}');
       final depResult = await Process.run('flutter', ['pub', 'add', ...deps]);

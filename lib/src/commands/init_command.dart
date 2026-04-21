@@ -3,7 +3,15 @@ import 'package:mason_logger/mason_logger.dart';
 import '../generator.dart';
 
 class InitCommand extends Command<int> {
-  InitCommand(this._logger);
+  InitCommand(this._logger) {
+    argParser.addOption(
+      'state',
+      abbr: 's',
+      allowed: ['bloc', 'riverpod', 'none'],
+      help: 'Pre-install state management dependencies.',
+      defaultsTo: 'none',
+    );
+  }
 
   @override
   String get name => 'init';
@@ -16,10 +24,11 @@ class InitCommand extends Command<int> {
 
   @override
   Future<int> run() async {
+    final stateManager = argResults?['state'] as String?;
     final generator = FeatureGenerator(_logger);
 
     try {
-      await generator.initProject();
+      await generator.initProject(stateManager: stateManager);
       _logger.info('Project initialized with core architectural layers.');
       return ExitCode.success.code;
     } catch (e) {

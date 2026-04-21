@@ -100,13 +100,13 @@ sealed class ${pascal}LocalModel with _\$${pascal}LocalModel {
 ''';
   }
 
-  static String remoteDatasource(String featureName) {
+  static String remoteDataSource(String featureName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
     return '''
-import '../models/requests/${snake}_request_model.dart';
-import '../models/responses/${snake}_response_model.dart';
+import '../../models/requests/${snake}_request_model.dart';
+import '../../models/responses/${snake}_response_model.dart';
 
 abstract interface class ${pascal}RemoteDataSource {
   Future<${pascal}ResponseModel> get$pascal(${pascal}RequestModel request);
@@ -124,6 +124,34 @@ class ${pascal}RemoteDataSourceImpl implements ${pascal}RemoteDataSource {
 ''';
   }
 
+  static String localDataSource(String featureName) {
+    final pascal = featureName.pascalCase;
+    final snake = featureName.snakeCase;
+
+    return '''
+import '../../models/local/${snake}_local_model.dart';
+
+abstract interface class ${pascal}LocalDataSource {
+  Future<void> save$pascal(${pascal}LocalModel model);
+  Future<${pascal}LocalModel?> get$pascal(String id);
+}
+
+class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {
+  @override
+  Future<void> save$pascal(${pascal}LocalModel model) async {
+    // TODO: Implement local storage
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<${pascal}LocalModel?> get$pascal(String id) async {
+    // TODO: Implement local storage
+    throw UnimplementedError();
+  }
+}
+''';
+  }
+
   static String repositoryImpl(String featureName) {
     final pascal = featureName.pascalCase;
     final camel = featureName.camelCase;
@@ -133,9 +161,10 @@ class ${pascal}RemoteDataSourceImpl implements ${pascal}RemoteDataSource {
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/app_error.dart';
 import '../../../../core/error/error_handler.dart';
+import '../../../../core/types/typedefs.dart';
 import '../../domain/entities/${snake}_entity.dart';
 import '../../domain/repositories/${snake}_repository.dart';
-import '../datasources/${snake}_remote_datasource.dart';
+import '../data_sources/remote_data_sources/${snake}_remote_data_source.dart';
 import '../models/requests/${snake}_request_model.dart';
 
 /// Repository implementation for $pascal.
@@ -145,7 +174,7 @@ class ${pascal}RepositoryImpl implements ${pascal}Repository {
   final ${pascal}RemoteDataSource _${camel}RemoteDataSource;
 
   @override
-  Future<Either<AppError, ${pascal}Entity>> get$pascal(String id) async {
+  Future<Result<${pascal}Entity>> get$pascal(String id) async {
     return ErrorHandler.guard(() async {
       final request = ${pascal}RequestModel(id: id);
       final response = await _${camel}RemoteDataSource.get$pascal(request);

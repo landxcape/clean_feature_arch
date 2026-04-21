@@ -29,7 +29,7 @@ presentation/
 
 ## DI Strategy — Bridging get_it and Riverpod
 
-get_it owns the dependency chain from datasources through usecases. Riverpod owns Notifier lifecycle. These two worlds connect through **bridge providers** — simple providers that expose get_it-managed UseCases to the Riverpod graph.
+get_it owns the dependency chain from data sources through usecases. Riverpod owns Notifier lifecycle. These two worlds connect through **bridge providers** — simple providers that expose get_it-managed UseCases to the Riverpod graph.
 
 ```dart
 @riverpod
