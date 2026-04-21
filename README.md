@@ -2,37 +2,23 @@
 
 A Flutter development toolkit for scaffolding and enforcing the **Absolute Rule Architecture**. This package provides a CLI for feature generation and a native Dart analyzer plugin for architectural verification.
 
-## Architecture Documentation
+## Installation
 
-The detailed architectural specification and state management guides are available in the `doc/` directory:
+### 1. Project Scaffolder (CLI)
+To use the toolkit to bootstrap and generate features, add it to your `dev_dependencies`:
 
--   [**Core Architecture Guide**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/flutter_architecture.md): The full specification of the Absolute Rule.
--   [**State Management: Common Rules**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/common.md): Rules that apply regardless of the tool.
--   [**State Management: BLoC**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/bloc.md): Implementation guide for BLoC.
--   [**State Management: Riverpod**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/riverpod.md): Implementation guide for Riverpod.
-
----
-
-## Static Analysis (Enforcer)
-
-The package includes a native Dart analyzer plugin that enforces architectural boundaries directly within `dart analyze` and your IDE.
-
-### Enabling the Enforcer
-Add the following to your `analysis_options.yaml`:
-
-```yaml
-plugins:
-  clean_feature_arch:
-    diagnostics:
-      absolute_rule_avoid_illegal_layer_imports: true
-      absolute_rule_enforce_feature_isolation: true
-      absolute_rule_enforce_model_folder_structure: true
-      absolute_rule_prefer_sealed_freezed_models: true
+```bash
+dart pub add -d clean_feature_arch
 ```
+
+### 2. Project Enforcer (Linter)
+The enforcer is included in the package. Once added to `dev_dependencies`, enable it in your `analysis_options.yaml` (see the **Enabling the Enforcer** section below).
 
 ---
 
 ## CLI Features (Scaffolder)
+
+Run the toolkit using `dart run clean_feature_arch`:
 
 ### Initializing a Project
 Bootstraps the `lib/core` directory with required utilities and configures baseline dependencies.
@@ -57,6 +43,37 @@ dart run clean_feature_arch feature <name>
 dart run clean_feature_arch feature <name> --state bloc
 dart run clean_feature_arch feature <name> --state riverpod
 ```
+
+---
+
+## Static Analysis (Enforcer)
+
+The package includes a native Dart analyzer plugin that enforces architectural boundaries directly within `dart analyze` and your IDE.
+
+### Enabling the Enforcer
+Add the following to your `analysis_options.yaml`:
+
+```yaml
+plugins:
+  clean_feature_arch:
+    diagnostics:
+      absolute_rule_avoid_illegal_layer_imports: true
+      absolute_rule_enforce_feature_isolation: true
+      absolute_rule_enforce_model_folder_structure: true
+      absolute_rule_prefer_sealed_freezed_models: true
+      absolute_rule_enforce_data_source_folder_structure: true
+```
+
+---
+
+## Architecture Documentation
+
+The detailed architectural specification and state management guides are available in the `doc/` directory:
+
+-   [**Core Architecture Guide**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/flutter_architecture.md): The full specification of the Absolute Rule.
+-   [**State Management: Common Rules**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/common.md): Rules that apply regardless of the tool.
+-   [**State Management: BLoC**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/bloc.md): Implementation guide for BLoC.
+-   [**State Management: Riverpod**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/riverpod.md): Implementation guide for Riverpod.
 
 ## License
 Distributed under the MIT License. See [LICENSE](LICENSE) for details.
