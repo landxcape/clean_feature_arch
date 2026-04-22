@@ -59,14 +59,14 @@ import 'package:$projectName/features/$snake/data/models/requests/${snake}_reque
 import 'package:$projectName/features/$snake/data/models/responses/${snake}_response_model.dart';
 
 class Mock${pascal}RemoteDataSource extends Mock implements ${pascal}RemoteDataSource {}
-class Mock${pascal}RequestModel extends Mock implements ${pascal}RequestModel {}
+class Fake${pascal}RequestModel extends Fake implements ${pascal}RequestModel {}
 
 void main() {
   late ${pascal}RepositoryImpl repository;
   late Mock${pascal}RemoteDataSource mockRemoteDataSource;
 
   setUpAll(() {
-    registerFallbackValue(Mock${pascal}RequestModel());
+    registerFallbackValue(Fake${pascal}RequestModel());
   });
 
   setUp(() {
