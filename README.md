@@ -12,33 +12,28 @@ dart pub add -d clean_feature_arch
 
 ---
 
-## CLI Features (Scaffolder)
+## CLI Features
 
 Run the toolkit using `dart run clean_feature_arch`:
 
-### Initializing a Project
+### 1. Initializing a Project
 Scaffolds a production-ready core (Router, Theme, Storage, Networking) and configures baseline dependencies.
 ```bash
 # Default (Pure Dart)
 dart run clean_feature_arch init
 
-# With BLoC or Riverpod
+# With specific state management
 dart run clean_feature_arch init --state bloc
 dart run clean_feature_arch init --state riverpod
 ```
 
-### Generating a Feature
+### 2. Generating a Feature
 Creates feature layers (`domain`, `data`, `presentation`) with canonical templates.
 ```bash
-# Default
-dart run clean_feature_arch feature <name>
-
-# With specific state management
-dart run clean_feature_arch feature <name> --state bloc
-dart run clean_feature_arch feature <name> --state riverpod
+dart run clean_feature_arch feature <name> --state [bloc|riverpod|none]
 ```
 
-### Adding Permissions
+### 3. Adding Permissions
 Configure system permissions across all platforms and the Dart service:
 ```bash
 # Open interactive menu
@@ -46,22 +41,31 @@ dart run clean_feature_arch permission
 
 # Direct add
 dart run clean_feature_arch permission camera
-dart run clean_feature_arch permission location
 ```
 
-### Accessing Documentation
-Access architectural references directly from the terminal or open full guides in your browser:
+### 4. CI/CD Scaffolding
+Generate automation workflows for your project:
 ```bash
-# Open interactive menu
-dart run clean_feature_arch docs
+# Support for GitHub Actions and GitLab CI
+dart run clean_feature_arch ci
+```
 
-# Instant terminal references
+### 5. Test Scaffolding
+Initialize professional test infrastructure:
+```bash
+# Scaffolds unit tests for core infrastructure (e.g., ApiClient)
+dart run clean_feature_arch test --init
+```
+
+### 6. Accessing Documentation
+```bash
+# Instant terminal references for Absolute Rules and Project Skeleton
 dart run clean_feature_arch docs rules
 dart run clean_feature_arch docs skeleton
 ```
 
 ### Overwriting Files
-Use the `-f` or `--force` flag to overwrite existing files:
+Use the `-f` or `--force` flag to bypass the interactive conflict manager:
 ```bash
 dart run clean_feature_arch init --force
 ```
@@ -73,7 +77,7 @@ dart run clean_feature_arch init --force
 A native analyzer plugin enforces architectural boundaries directly within `dart analyze` and your IDE.
 
 ### Enabling the Enforcer
-Add the following to your `analysis_options.yaml`:
+Add to `analysis_options.yaml`:
 
 ```yaml
 plugins:
@@ -93,9 +97,7 @@ plugins:
 Detailed guides are available in the `doc/` directory or via the `docs` command:
 
 - [**Core Architecture Guide**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/flutter_architecture.md)
-- [**State Management: Common Rules**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/common.md)
-- [**State Management: BLoC**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/bloc.md)
-- [**State Management: Riverpod**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/state_management/riverpod.md)
+- [**State Management Guides**](https://github.com/landxcape/clean_feature_arch/tree/main/doc/state_management)
 
 ## License
 Distributed under the MIT License. See [LICENSE](LICENSE) for details.

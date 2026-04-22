@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:recase/recase.dart';
 import 'package:mason_logger/mason_logger.dart';
+import 'package:yaml/yaml.dart';
 import 'templates/domain_templates.dart';
 import 'templates/data_templates.dart';
 import 'templates/presentation_templates.dart';
@@ -190,6 +191,8 @@ class FeatureGenerator {
       await _createFile('lib/core/constants/route_constants.dart', CoreTemplates.routeConstants());
       await _createFile('lib/core/theme/app_theme.dart', CoreTemplates.appTheme());
       await _createFile('lib/core/theme/app_colors.dart', CoreTemplates.appColors());
+      await _createFile('lib/core/theme/app_spacing.dart', CoreTemplates.appSpacing());
+      await _createFile('lib/core/theme/app_text_theme.dart', CoreTemplates.appTextTheme());
       await _createFile('lib/core/extensions/context_extensions.dart', CoreTemplates.contextExtensions());
       await _createFile('lib/core/extensions/string_extensions.dart', CoreTemplates.stringExtensions());
       await _createFile('lib/core/utils/validator_utils.dart', CoreTemplates.validatorUtils());
@@ -219,6 +222,43 @@ class FeatureGenerator {
       progress.fail('Initialization failed: $e');
       rethrow;
     }
+  }
+
+  /// Scaffolds CI/CD configuration.
+  Future<void> addCI(String platform) async {
+    final progress = _logger.progress('Scaffolding $platform configuration');
+    try {
+      if (platform == 'github_actions') {
+        await _createFile('.github/workflows/verify.yml', CoreTemplates.githubVerify());
+      } else if (platform == 'gitlab_ci') {
+        await _createFile('.gitlab-ci.yml', CoreTemplates.gitlabCI());
+      }
+      progress.complete();
+    } catch (e) {
+      progress.fail('CI scaffolding failed: $e');
+    }
+  }
+
+  /// Scaffolds initial test infrastructure.
+  Future<void> initTests() async {
+    final progress = _logger.progress('Scaffolding test infrastructure');
+    try {
+      final projectName = _getProjectName();
+      var testContent = CoreTemplates.apiClientTest();
+      testContent = testContent.replaceFirst('your_project', projectName);
+
+      await _createFile('test/core/network/api_client_test.dart', testContent);
+      progress.complete();
+    } catch (e) {
+      progress.fail('Test scaffolding failed: $e');
+    }
+  }
+
+  String _getProjectName() {
+    final file = File('pubspec.yaml');
+    if (!file.existsSync()) return 'your_project';
+    final yaml = loadYaml(file.readAsStringSync()) as YamlMap;
+    return yaml['name'] as String? ?? 'your_project';
   }
 
   /// Adds a system permission across Android, iOS, and the Dart service.

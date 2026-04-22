@@ -75,9 +75,9 @@ class ErrorHandler {
 
   // --- Dependency Injection ---
   static String injectionContainer(String? stateManager) {
-    String stateComment = stateManager == 'riverpod' 
-      ? '// Riverpod uses providers for state DI. Use get_it here for infrastructure only.' 
-      : '// Register BLoCs as factory: sl.registerFactory(() => FeatureBloc(sl()));';
+    String stateComment = stateManager == 'riverpod'
+        ? '// Riverpod uses providers for state DI. Use get_it here for infrastructure only.'
+        : '// Register BLoCs as factory: sl.registerFactory(() => FeatureBloc(sl()));';
 
     return '''
 import 'package:get_it/get_it.dart';
@@ -290,6 +290,7 @@ class RouteConstants {
   // --- Extensions & Utils ---
   static String contextExtensions() => r'''
 import 'package:flutter/material.dart';
+import '../theme/app_spacing.dart';
 
 extension ContextExtensions on BuildContext {
   ThemeData get theme => Theme.of(this);
@@ -297,6 +298,10 @@ extension ContextExtensions on BuildContext {
   TextTheme get textTheme => theme.textTheme;
   MediaQueryData get mediaQuery => MediaQuery.of(this);
   Size get screenSize => mediaQuery.size;
+  
+  EdgeInsets get paddingAllSmall => const EdgeInsets.all(AppSpacing.s8);
+  EdgeInsets get paddingAllMedium => const EdgeInsets.all(AppSpacing.s16);
+  EdgeInsets get paddingAllLarge => const EdgeInsets.all(AppSpacing.s32);
 }
 ''';
 
@@ -337,10 +342,11 @@ class PermissionServiceImpl implements PermissionService {
 }
 ''';
 
-  // --- UI & Entry Points ---
+  // --- Design System ---
   static String appTheme() => r'''
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'app_text_theme.dart';
 
 class AppTheme {
   static ThemeData get light => ThemeData(
@@ -349,6 +355,8 @@ class AppTheme {
       seedColor: AppColors.primary,
       brightness: Brightness.light,
     ),
+    textTheme: AppTextTheme.light,
+    elevatedButtonTheme: _elevatedButtonTheme,
   );
 
   static ThemeData get dark => ThemeData(
@@ -356,6 +364,15 @@ class AppTheme {
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.primary,
       brightness: Brightness.dark,
+    ),
+    textTheme: AppTextTheme.dark,
+    elevatedButtonTheme: _elevatedButtonTheme,
+  );
+
+  static final _elevatedButtonTheme = ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      minimumSize: const Size.fromHeight(50),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   );
 }
@@ -366,9 +383,115 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const primary = Colors.deepPurple;
+  static const secondary = Colors.amber;
+  static const success = Colors.green;
+  static const error = Colors.red;
 }
 ''';
 
+  static String appSpacing() => r'''
+class AppSpacing {
+  static const double s4 = 4.0;
+  static const double s8 = 8.0;
+  static const double s12 = 12.0;
+  static const double s16 = 16.0;
+  static const double s24 = 24.0;
+  static const double s32 = 32.0;
+  static const double s48 = 48.0;
+  static const double s64 = 64.0;
+}
+''';
+
+  static String appTextTheme() => r'''
+import 'package:flutter/material.dart';
+
+class AppTextTheme {
+  static const TextTheme light = TextTheme(
+    headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+    bodyLarge: TextStyle(fontSize: 16, color: Colors.black87),
+    bodyMedium: TextStyle(fontSize: 14, color: Colors.black54),
+  );
+
+  static const TextTheme dark = TextTheme(
+    headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+    bodyLarge: TextStyle(fontSize: 16, color: Colors.white70),
+    bodyMedium: TextStyle(fontSize: 14, color: Colors.white60),
+  );
+}
+''';
+
+  // --- CI/CD ---
+  static String githubVerify() => r'''
+name: Verify
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Verify formatting
+        run: dart format --set-exit-if-changed .
+      
+      - name: Analyze project
+        run: flutter analyze
+      
+      - name: Run tests
+        run: flutter test
+''';
+
+  static String gitlabCI() => r'''
+image: "ghcr.io/cirruslabs/flutter:stable"
+
+stages:
+  - test
+
+verify:
+  stage: test
+  script:
+    - flutter pub get
+    - dart format --set-exit-if-changed .
+    - flutter analyze
+    - flutter test
+''';
+
+  // --- Testing ---
+  static String apiClientTest() => r'''
+import 'package:flutter_test/flutter_test.dart';
+import 'package:dio/dio.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:your_project/core/network/api_client.dart';
+
+class MockDio extends Mock implements Dio {}
+
+void main() {
+  late Dio dio;
+
+  setUp(() {
+    dio = ApiClient.create();
+  });
+
+  test('ApiClient should be configured with correct timeouts', () {
+    expect(dio.options.connectTimeout?.inSeconds, 15);
+    expect(dio.options.receiveTimeout?.inSeconds, 15);
+  });
+}
+''';
+
+  // --- App Structure ---
   static String mainDart(String? stateManager) {
     String imports = '';
     String observer = '';
@@ -376,7 +499,8 @@ class AppColors {
 
     switch (stateManager) {
       case 'bloc':
-        imports = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'core/utils/logger.dart';";
+        imports =
+            "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'core/utils/logger.dart';";
         observer = r'''
 class AppBlocObserver extends BlocObserver {
   @override
@@ -386,7 +510,8 @@ class AppBlocObserver extends BlocObserver {
   }
 }
 ''';
-        appWrapper = 'Bloc.observer = AppBlocObserver();\n  runApp(const MyApp())';
+        appWrapper =
+            'Bloc.observer = AppBlocObserver();\n  runApp(const MyApp())';
         break;
       case 'riverpod':
         imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';";
