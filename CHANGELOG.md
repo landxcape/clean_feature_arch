@@ -1,3 +1,8 @@
+# 1.2.1
+
+- **Interactive Conflict Manager**: Added a smart prompt (`Yes/No/Always/Skip-All`) when files already exist during scaffolding.
+- **Improved UX**: Reduced repetitive prompts during bulk operations like `init`.
+
 # 1.2.0
 
 - **Production-Ready Scaffolding**: `init` command now populates `core/` with canonical boilerplate for Router, Theme, Storage, and Networking.
