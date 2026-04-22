@@ -1,3 +1,12 @@
+# 1.3.0
+
+- **Zero-Latency Engine**: `init` command now generates a fully wired, production-ready core.
+- **Implemented Infrastructure**: Added canonical implementations for `SecureStorage` (Secure Storage) and `NetworkInfo` (Connectivity).
+- **Auto-DI Registration**: `injection_container.dart` now automatically registers all core singletons.
+- **Wired Networking**: `ApiClient` is pre-configured with `AppConfig`, `AuthInterceptor`, and `LoggingInterceptor`.
+- **Productivity Utilities**: Added standard extensions (`Context`, `String`) and `ValidatorUtils`.
+- **Reference UI**: Added `PrimaryButton` and `AppScaffold` shared widgets.
+
 # 1.2.1
 
 - **Interactive Conflict Manager**: Added a smart prompt (`Yes/No/Always/Skip-All`) when files already exist during scaffolding.

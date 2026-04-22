@@ -173,35 +173,36 @@ class FeatureGenerator {
       }
 
       // 2. Generate Core Files
-      await _createFile(
-          'lib/core/error/app_error.dart', CoreTemplates.appError());
-      await _createFile(
-          'lib/core/error/error_handler.dart', CoreTemplates.errorHandler());
-      await _createFile('lib/core/di/injection_container.dart',
-          CoreTemplates.injectionContainer(stateManager));
-      await _createFile(
-          'lib/core/network/api_client.dart', CoreTemplates.apiClient());
-      await _createFile(
-          'lib/core/types/typedefs.dart', CoreTemplates.typedefs());
-      await _createFile('lib/core/utils/logger.dart', CoreTemplates.logger());
-
-      // New Infrastructure Files
+      await _createFile('lib/core/error/app_error.dart', CoreTemplates.appError());
+      await _createFile('lib/core/error/error_handler.dart', CoreTemplates.errorHandler());
+      await _createFile('lib/core/di/injection_container.dart', CoreTemplates.injectionContainer(stateManager));
+      await _createFile('lib/core/network/api_client.dart', CoreTemplates.apiClient());
+      await _createFile('lib/core/network/network_info.dart', CoreTemplates.networkInfo());
+      await _createFile('lib/core/network/network_info_impl.dart', CoreTemplates.networkInfoImpl());
+      await _createFile('lib/core/network/interceptors/auth_interceptor.dart', CoreTemplates.authInterceptor());
+      await _createFile('lib/core/network/interceptors/logging_interceptor.dart', CoreTemplates.loggingInterceptor());
+      await _createFile('lib/core/storage/secure_storage.dart', CoreTemplates.secureStorage());
+      await _createFile('lib/core/storage/secure_storage_impl.dart', CoreTemplates.secureStorageImpl());
       await _createFile('lib/core/config/app_config.dart', CoreTemplates.appConfig());
       await _createFile('lib/core/config/flavor_config.dart', CoreTemplates.flavorConfig());
       await _createFile('lib/core/router/app_router.dart', CoreTemplates.appRouter());
+      await _createFile('lib/core/constants/route_constants.dart', CoreTemplates.routeConstants());
       await _createFile('lib/core/theme/app_theme.dart', CoreTemplates.appTheme());
       await _createFile('lib/core/theme/app_colors.dart', CoreTemplates.appColors());
-      await _createFile('lib/core/network/network_info.dart', CoreTemplates.networkInfo());
-      await _createFile('lib/core/storage/secure_storage.dart', CoreTemplates.secureStorage());
-      
+      await _createFile('lib/core/extensions/context_extensions.dart', CoreTemplates.contextExtensions());
+      await _createFile('lib/core/extensions/string_extensions.dart', CoreTemplates.stringExtensions());
+      await _createFile('lib/core/utils/validator_utils.dart', CoreTemplates.validatorUtils());
+      await _createFile('lib/core/utils/logger.dart', CoreTemplates.logger());
+      await _createFile('lib/core/types/typedefs.dart', CoreTemplates.typedefs());
+
       // 3. Generate Shared Files
       await _createFile('lib/shared/widgets/buttons/primary_button.dart', CoreTemplates.sharedButton());
+      await _createFile('lib/shared/widgets/layout/app_scaffold.dart', CoreTemplates.appScaffold());
 
       // 4. Generate Root Files
       await _createFile('lib/main.dart', CoreTemplates.mainDart(stateManager));
       await _createFile('lib/app.dart', CoreTemplates.appDart());
-      await _createFile(
-          'analysis_options.yaml', CoreTemplates.analysisOptions());
+      await _createFile('analysis_options.yaml', CoreTemplates.analysisOptions());
       await _createFile('build.yaml', CoreTemplates.buildYaml());
 
       // 5. Inject Dependencies
@@ -306,8 +307,6 @@ class FeatureGenerator {
             break;
         }
       }
-      
-      // If we are here, strategy is either 'always' or user chose 'Yes'
     }
 
     await file.writeAsString(content);
