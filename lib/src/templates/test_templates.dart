@@ -59,14 +59,14 @@ import 'package:$projectName/features/$snake/data/models/requests/${snake}_reque
 import 'package:$projectName/features/$snake/data/models/responses/${snake}_response_model.dart';
 
 class Mock${pascal}RemoteDataSource extends Mock implements ${pascal}RemoteDataSource {}
-class Fake${pascal}RequestModel extends Fake implements ${pascal}RequestModel {}
 
 void main() {
   late ${pascal}RepositoryImpl repository;
   late Mock${pascal}RemoteDataSource mockRemoteDataSource;
 
   setUpAll(() {
-    registerFallbackValue(Fake${pascal}RequestModel());
+    // For sealed classes, we register a real instance as a fallback for mocktail
+    registerFallbackValue(const ${pascal}RequestModel(id: 'fallback'));
   });
 
   setUp(() {
@@ -79,12 +79,16 @@ void main() {
     const tResponseModel = ${pascal}ResponseModel(id: tId);
 
     test('should return Entity when call to remote data source is successful', () async {
+      // Arrange
       when(() => mockRemoteDataSource.get$pascal(any()))
           .thenAnswer((_) async => tResponseModel);
 
+      // Act
       final result = await repository.get$pascal(tId);
 
+      // Assert
       expect(result.isRight(), true);
+      verify(() => mockRemoteDataSource.get$pascal(any())).called(1);
     });
   });
 }
@@ -119,12 +123,16 @@ void main() {
     const tEntity = ${pascal}Entity(id: tId);
 
     test('should get entity from the repository', () async {
+      // Arrange
       when(() => mockRepository.get$pascal(any()))
           .thenAnswer((_) async => const Right(tEntity));
 
+      // Act
       final result = await usecase(tId);
 
+      // Assert
       expect(result, const Right(tEntity));
+      verify(() => mockRepository.get$pascal(tId)).called(1);
     });
   });
 }
@@ -190,13 +198,17 @@ void main() {
 
   group('$pascal Provider', () {
     test('fetches data successfully', () async {
+      // Arrange
       when(() => mockGetUseCase(any()))
           .thenAnswer((_) async => const Right(${pascal}Entity(id: '1')));
       
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
+      // Act
       await container.read(${camel}Provider.notifier).get$pascal('1');
+
+      // Assert
       expect(container.read(${camel}Provider).hasValue, true);
     });
   });

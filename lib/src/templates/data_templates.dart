@@ -158,8 +158,6 @@ class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {
     final snake = featureName.snakeCase;
 
     return '''
-import 'package:fpdart/fpdart.dart';
-import '../../../../core/error/app_error.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/types/typedefs.dart';
 import '../../domain/entities/${snake}_entity.dart';
