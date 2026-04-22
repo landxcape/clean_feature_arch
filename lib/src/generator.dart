@@ -7,6 +7,7 @@ import 'templates/domain_templates.dart';
 import 'templates/data_templates.dart';
 import 'templates/presentation_templates.dart';
 import 'templates/core_templates.dart';
+import 'templates/test_templates.dart';
 import 'commands/permission_command.dart';
 
 /// Overwrite strategy for file conflicts.
@@ -251,6 +252,63 @@ class FeatureGenerator {
       progress.complete();
     } catch (e) {
       progress.fail('Test scaffolding failed: $e');
+    }
+  }
+
+  /// Scaffolds feature-specific unit and integration tests.
+  Future<void> generateFeatureTests(String name, {bool force = false}) async {
+    final snakeCaseName = name.snakeCase;
+    _strategy = force ? OverwriteStrategy.always : OverwriteStrategy.ask;
+
+    final progress = _logger.progress('Generating tests for $snakeCaseName');
+
+    try {
+      final projectName = _getProjectName();
+
+      // 1. Detect State Manager
+      final stateDir = 'lib/features/$snakeCaseName/presentation/state';
+      String? stateManager;
+      
+      if (await File('$stateDir/${snakeCaseName}_bloc.dart').exists()) {
+        stateManager = 'bloc';
+      } else if (await File('$stateDir/${snakeCaseName}_provider.dart').exists()) {
+        stateManager = 'riverpod';
+      }
+
+      // 2. Integration: Live API Test
+      await _createFile(
+        'test/integration/live_api/${snakeCaseName}_api_test.dart',
+        TestTemplates.liveApiTest(snakeCaseName, projectName),
+      );
+
+      // 3. Unit: Repository Test
+      await _createFile(
+        'test/features/$snakeCaseName/data/repositories/${snakeCaseName}_repository_impl_test.dart',
+        TestTemplates.repositoryTest(snakeCaseName, projectName),
+      );
+
+      // 4. Unit: UseCase Test
+      await _createFile(
+        'test/features/$snakeCaseName/domain/usecases/get_${snakeCaseName}_usecase_test.dart',
+        TestTemplates.usecaseTest(snakeCaseName, projectName),
+      );
+
+      // 5. Unit: State Test
+      if (stateManager == 'bloc') {
+        await _createFile(
+          'test/features/$snakeCaseName/presentation/state/${snakeCaseName}_bloc_test.dart',
+          TestTemplates.blocTest(snakeCaseName, projectName),
+        );
+      } else if (stateManager == 'riverpod') {
+        await _createFile(
+          'test/features/$snakeCaseName/presentation/state/${snakeCaseName}_provider_test.dart',
+          TestTemplates.riverpodTest(snakeCaseName, projectName),
+        );
+      }
+
+      progress.complete('Tests generated for $snakeCaseName');
+    } catch (e) {
+      progress.fail('Test generation failed: $e');
     }
   }
 
