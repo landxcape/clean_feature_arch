@@ -5,7 +5,7 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
 
-/// Lints models that are placed directly in data/models/ instead of subdirectories.
+/// Enforces that models are organized into appropriate subdirectories.
 class EnforceModelFolderStructure extends AnalysisRule {
   EnforceModelFolderStructure()
       : super(

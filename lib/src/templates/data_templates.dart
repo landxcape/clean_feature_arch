@@ -16,7 +16,7 @@ part '${snake}_request_model.g.dart';
 sealed class ${pascal}RequestModel with _\$${pascal}RequestModel {
   const factory ${pascal}RequestModel({
     required String id,
-    // TODO: Add properties
+    // TODO: Define model properties.
   }) = _${pascal}RequestModel;
 
   factory ${pascal}RequestModel.fromJson(Map<String, dynamic> json) => 
@@ -43,7 +43,7 @@ sealed class ${pascal}ResponseModel with _\$${pascal}ResponseModel {
 
   const factory ${pascal}ResponseModel({
     required String id,
-    // TODO: Add properties
+    // TODO: Define model properties.
   }) = _${pascal}ResponseModel;
 
   factory ${pascal}ResponseModel.fromJson(Map<String, dynamic> json) => 
@@ -77,7 +77,7 @@ sealed class ${pascal}LocalModel with _\$${pascal}LocalModel {
 
   const factory ${pascal}LocalModel({
     required String id,
-    // TODO: Add properties
+    // TODO: Define model properties.
   }) = _${pascal}LocalModel;
 
   factory ${pascal}LocalModel.fromJson(Map<String, dynamic> json) => 
@@ -113,11 +113,11 @@ abstract interface class ${pascal}RemoteDataSource {
 }
 
 class ${pascal}RemoteDataSourceImpl implements ${pascal}RemoteDataSource {
-  // TODO: Add HTTP client (Dio) dependency
+  // TODO: Add HTTP client (Dio) dependency.
   
   @override
   Future<${pascal}ResponseModel> get$pascal(${pascal}RequestModel request) async {
-    // TODO: Implement network call
+    // TODO: Implement the network request.
     throw UnimplementedError();
   }
 }
@@ -139,13 +139,13 @@ abstract interface class ${pascal}LocalDataSource {
 class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {
   @override
   Future<void> save$pascal(${pascal}LocalModel model) async {
-    // TODO: Implement local storage
+    // TODO: Implement local storage.
     throw UnimplementedError();
   }
 
   @override
   Future<${pascal}LocalModel?> get$pascal(String id) async {
-    // TODO: Implement local storage
+    // TODO: Implement local storage.
     throw UnimplementedError();
   }
 }

@@ -16,6 +16,12 @@ class FeatureCommand extends Command<int> {
         allowed: ['bloc', 'riverpod', 'none'],
         help: 'The state management tool to use.',
         defaultsTo: 'none',
+      )
+      ..addFlag(
+        'force',
+        abbr: 'f',
+        help: 'Force overwrite existing files.',
+        negatable: false,
       );
   }
 
@@ -38,12 +44,13 @@ class FeatureCommand extends Command<int> {
     final name = argResults!.rest.join('_');
     final targetDir = argResults?['dir'] as String?;
     final stateManager = argResults?['state'] as String?;
+    final force = argResults?['force'] as bool? ?? false;
 
     final generator = FeatureGenerator(_logger);
 
     try {
       await generator.generate(name,
-          targetDirectory: targetDir, stateManager: stateManager);
+          targetDirectory: targetDir, stateManager: stateManager, force: force);
       _logger.info('Successfully generated feature: $name');
       _logger.info(
           'Run `dart run build_runner build -d` to generate Freezed models.');

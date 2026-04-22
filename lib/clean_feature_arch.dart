@@ -1,7 +1,7 @@
-/// The Absolute Rule Architecture toolkit for Flutter.
+/// Architecture toolkit for Flutter.
 ///
-/// This package provides a command-line interface for scaffolding features
-/// and a custom analyzer plugin for enforcing architectural boundaries.
+/// Scaffolds features and enforces architectural boundaries via a native
+/// analyzer plugin.
 library;
 
 import 'package:analysis_server_plugin/plugin.dart';
@@ -13,10 +13,10 @@ import 'src/lints/rules/enforce_model_folder_structure.dart';
 import 'src/lints/rules/prefer_sealed_freezed_models.dart';
 import 'src/lints/rules/enforce_data_source_folder_structure.dart';
 
-/// The entry point for the Absolute Rule analyzer plugin.
+/// Entry point for the analyzer plugin.
 final plugin = _AbsoluteRulePlugin();
 
-/// The internal implementation of the Absolute Rule analyzer plugin.
+/// Internal implementation of the analyzer plugin.
 class _AbsoluteRulePlugin extends Plugin {
   @override
   String get name => 'clean_feature_arch';

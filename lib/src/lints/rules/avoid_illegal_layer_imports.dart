@@ -6,7 +6,7 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
 import '../absolute_rule_linter.dart';
 
-/// Lints Domain layer attempting to import Data or Presentation layers.
+/// Enforces that the Domain layer does not import from Data or Presentation layers.
 class AvoidIllegalLayerImports extends AnalysisRule {
   AvoidIllegalLayerImports()
       : super(

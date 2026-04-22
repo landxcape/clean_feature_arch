@@ -4,13 +4,20 @@ import '../generator.dart';
 
 class InitCommand extends Command<int> {
   InitCommand(this._logger) {
-    argParser.addOption(
-      'state',
-      abbr: 's',
-      allowed: ['bloc', 'riverpod', 'none'],
-      help: 'Pre-install state management dependencies.',
-      defaultsTo: 'none',
-    );
+    argParser
+      ..addOption(
+        'state',
+        abbr: 's',
+        allowed: ['bloc', 'riverpod', 'none'],
+        help: 'Pre-install state management dependencies.',
+        defaultsTo: 'none',
+      )
+      ..addFlag(
+        'force',
+        abbr: 'f',
+        help: 'Force overwrite existing files.',
+        negatable: false,
+      );
   }
 
   @override
@@ -25,10 +32,11 @@ class InitCommand extends Command<int> {
   @override
   Future<int> run() async {
     final stateManager = argResults?['state'] as String?;
+    final force = argResults?['force'] as bool? ?? false;
     final generator = FeatureGenerator(_logger);
 
     try {
-      await generator.initProject(stateManager: stateManager);
+      await generator.initProject(stateManager: stateManager, force: force);
       _logger.info('Project initialized with core architectural layers.');
       return ExitCode.success.code;
     } catch (e) {

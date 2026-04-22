@@ -7,19 +7,19 @@ import 'templates/data_templates.dart';
 import 'templates/presentation_templates.dart';
 import 'templates/core_templates.dart';
 
-/// A generator responsible for scaffolding architectural layers and core utilities.
+/// Generates architectural layers and core utilities.
 class FeatureGenerator {
-  /// Creates a new [FeatureGenerator] instance with the provided [Logger].
+  /// Creates a [FeatureGenerator] with the provided [Logger].
   FeatureGenerator(this._logger);
 
   final Logger _logger;
 
-  /// Scaffolds a new feature directory structure at the specified [targetDirectory].
+  /// Scaffolds a feature directory structure at [targetDirectory].
   ///
-  /// The [name] parameter is converted to snake_case to match Dart file conventions.
-  /// If [targetDirectory] is null, the feature is generated in `lib/features/<name>`.
+  /// Converts [name] to snake_case. Defaults to `lib/features/<name>`
+  /// if [targetDirectory] is null.
   Future<void> generate(String name,
-      {String? targetDirectory, String? stateManager}) async {
+      {String? targetDirectory, String? stateManager, bool force = false}) async {
     final snakeCaseName = name.snakeCase;
     final baseDir = targetDirectory ?? p.join('lib', 'features', snakeCaseName);
 
@@ -32,16 +32,19 @@ class FeatureGenerator {
       await _createFile(
         p.join(baseDir, 'domain', 'entities', '${snakeCaseName}_entity.dart'),
         DomainTemplates.entity(snakeCaseName),
+        overwrite: force,
       );
       await _createFile(
         p.join(baseDir, 'domain', 'repositories',
             '${snakeCaseName}_repository.dart'),
         DomainTemplates.repository(snakeCaseName),
+        overwrite: force,
       );
       await _createFile(
         p.join(
             baseDir, 'domain', 'usecases', 'get_${snakeCaseName}_usecase.dart'),
         DomainTemplates.usecase(snakeCaseName),
+        overwrite: force,
       );
 
       // 2. Data Layer
@@ -49,16 +52,19 @@ class FeatureGenerator {
         p.join(baseDir, 'data', 'models', 'requests',
             '${snakeCaseName}_request_model.dart'),
         DataTemplates.requestModel(snakeCaseName),
+        overwrite: force,
       );
       await _createFile(
         p.join(baseDir, 'data', 'models', 'responses',
             '${snakeCaseName}_response_model.dart'),
         DataTemplates.responseModel(snakeCaseName),
+        overwrite: force,
       );
       await _createFile(
         p.join(baseDir, 'data', 'models', 'local',
             '${snakeCaseName}_local_model.dart'),
         DataTemplates.localModel(snakeCaseName),
+        overwrite: force,
       );
 
       // Data Sources
@@ -66,17 +72,19 @@ class FeatureGenerator {
         p.join(baseDir, 'data', 'data_sources', 'remote_data_sources',
             '${snakeCaseName}_remote_data_source.dart'),
         DataTemplates.remoteDataSource(snakeCaseName),
+        overwrite: force,
       );
       await _createFile(
         p.join(baseDir, 'data', 'data_sources', 'local_data_sources',
             '${snakeCaseName}_local_data_source.dart'),
         DataTemplates.localDataSource(snakeCaseName),
+        overwrite: force,
       );
-
       await _createFile(
         p.join(baseDir, 'data', 'repositories',
             '${snakeCaseName}_repository_impl.dart'),
         DataTemplates.repositoryImpl(snakeCaseName),
+        overwrite: force,
       );
 
       // 3. Presentation Layer
@@ -84,6 +92,7 @@ class FeatureGenerator {
         p.join(
             baseDir, 'presentation', 'screens', '${snakeCaseName}_screen.dart'),
         PresentationTemplates.screen(snakeCaseName, stateManager: stateManager),
+        overwrite: force,
       );
 
       // Create state folder explicitly
@@ -95,24 +104,28 @@ class FeatureGenerator {
           await _createFile(
             p.join(stateDir, '${snakeCaseName}_bloc.dart'),
             PresentationTemplates.bloc(snakeCaseName),
+            overwrite: force,
           );
           await _createFile(
             p.join(stateDir, '${snakeCaseName}_event.dart'),
             PresentationTemplates.blocEvent(snakeCaseName),
+            overwrite: force,
           );
           await _createFile(
             p.join(stateDir, '${snakeCaseName}_state.dart'),
             PresentationTemplates.blocState(snakeCaseName),
+            overwrite: force,
           );
           break;
         case 'riverpod':
           await _createFile(
             p.join(stateDir, '${snakeCaseName}_provider.dart'),
             PresentationTemplates.riverpod(snakeCaseName),
+            overwrite: force,
           );
           break;
         default:
-          // Just an empty state folder (already created above)
+          // Just an empty state folder
           break;
       }
 
@@ -123,12 +136,11 @@ class FeatureGenerator {
     }
   }
 
-  /// Bootstraps a new project with the Absolute Rule core architecture.
+  /// Initializes the project structure and core utilities.
   ///
-  /// This method creates the standard folder hierarchy in `lib/core` and `lib/shared`,
-  /// generates essential utility classes (e.g., ErrorHandler, ApiClient),
-  /// and updates the project's dependencies via `flutter pub add`.
-  Future<void> initProject({String? stateManager}) async {
+  /// Creates the folder hierarchy, generates infrastructure classes,
+  /// and updates project dependencies.
+  Future<void> initProject({String? stateManager, bool force = false}) async {
     _logger.info('Initializing core architecture...');
     final progress = _logger.progress('Generating core structure');
 
@@ -166,33 +178,45 @@ class FeatureGenerator {
       // 2. Generate Core Files
       await _createFile(
           'lib/core/error/app_error.dart', CoreTemplates.appError(),
-          overwrite: true);
+          overwrite: force);
       await _createFile(
           'lib/core/error/error_handler.dart', CoreTemplates.errorHandler(),
-          overwrite: true);
+          overwrite: force);
       await _createFile('lib/core/di/injection_container.dart',
           CoreTemplates.injectionContainer(stateManager),
-          overwrite: true);
+          overwrite: force);
       await _createFile(
           'lib/core/network/api_client.dart', CoreTemplates.apiClient(),
-          overwrite: true);
+          overwrite: force);
       await _createFile(
           'lib/core/types/typedefs.dart', CoreTemplates.typedefs(),
-          overwrite: true);
+          overwrite: force);
       await _createFile('lib/core/utils/logger.dart', CoreTemplates.logger(),
-          overwrite: true);
+          overwrite: force);
 
-      // 3. Generate Root Files
+      // New Infrastructure Files
+      await _createFile('lib/core/config/app_config.dart', CoreTemplates.appConfig(), overwrite: force);
+      await _createFile('lib/core/config/flavor_config.dart', CoreTemplates.flavorConfig(), overwrite: force);
+      await _createFile('lib/core/router/app_router.dart', CoreTemplates.appRouter(), overwrite: force);
+      await _createFile('lib/core/theme/app_theme.dart', CoreTemplates.appTheme(), overwrite: force);
+      await _createFile('lib/core/theme/app_colors.dart', CoreTemplates.appColors(), overwrite: force);
+      await _createFile('lib/core/network/network_info.dart', CoreTemplates.networkInfo(), overwrite: force);
+      await _createFile('lib/core/storage/secure_storage.dart', CoreTemplates.secureStorage(), overwrite: force);
+      
+      // 3. Generate Shared Files
+      await _createFile('lib/shared/widgets/buttons/primary_button.dart', CoreTemplates.sharedButton(), overwrite: force);
+
+      // 4. Generate Root Files
       await _createFile('lib/main.dart', CoreTemplates.mainDart(stateManager),
-          overwrite: true);
+          overwrite: force);
       await _createFile('lib/app.dart', CoreTemplates.appDart(),
-          overwrite: true);
+          overwrite: force);
       await _createFile(
           'analysis_options.yaml', CoreTemplates.analysisOptions(),
-          overwrite: true);
-      await _createFile('build.yaml', CoreTemplates.buildYaml(), overwrite: true);
+          overwrite: force);
+      await _createFile('build.yaml', CoreTemplates.buildYaml(), overwrite: force);
 
-      // 4. Inject Dependencies
+      // 5. Inject Dependencies
       await _addDependencies(stateManager: stateManager);
 
       progress.complete('Project initialized successfully.');
@@ -214,6 +238,8 @@ class FeatureGenerator {
         'freezed_annotation',
         'json_annotation',
         'retrofit',
+        'flutter_secure_storage',
+        'internet_connection_checker_plus',
       ];
 
       if (stateManager == 'bloc') {
@@ -246,7 +272,7 @@ class FeatureGenerator {
       _logger.detail('Running: flutter pub add -d ${devDeps.join(' ')}');
       final devDepResult =
           await Process.run('flutter', ['pub', 'add', '-d', ...devDeps]);
-      if (devDepResult.exitCode != 0) {
+      if (depResult.exitCode != 0) {
         _logger.warn(
             'Note: flutter pub add -d failed. Addition may be required manually.');
       }

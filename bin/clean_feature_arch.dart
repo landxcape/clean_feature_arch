@@ -3,6 +3,7 @@ import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:clean_feature_arch/src/commands/feature_command.dart';
 import 'package:clean_feature_arch/src/commands/init_command.dart';
+import 'package:clean_feature_arch/src/commands/docs_command.dart';
 
 Future<void> main(List<String> arguments) async {
   final logger = Logger();
@@ -12,7 +13,8 @@ Future<void> main(List<String> arguments) async {
     'A development toolkit for enforcing the Absolute Rule Architecture in Flutter projects.',
   )
     ..addCommand(FeatureCommand(logger))
-    ..addCommand(InitCommand(logger));
+    ..addCommand(InitCommand(logger))
+    ..addCommand(DocsCommand(logger));
 
   try {
     final exitCode = await runner.run(arguments);

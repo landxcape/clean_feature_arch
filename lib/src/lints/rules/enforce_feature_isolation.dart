@@ -6,7 +6,7 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
 import '../absolute_rule_linter.dart';
 
-/// Lints a feature attempting to import internals (data/presentation) of another feature.
+/// Enforces that features only depend on the Domain layer of other features.
 class EnforceFeatureIsolation extends AnalysisRule {
   EnforceFeatureIsolation()
       : super(

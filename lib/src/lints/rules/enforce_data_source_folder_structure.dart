@@ -5,8 +5,7 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
 
-/// Lints data sources that are placed directly in data/data_sources/ 
-/// instead of local_data_sources/ or remote_data_sources/ subdirectories.
+/// Enforces that data sources are organized into appropriate subdirectories.
 class EnforceDataSourceFolderStructure extends AnalysisRule {
   EnforceDataSourceFolderStructure()
       : super(

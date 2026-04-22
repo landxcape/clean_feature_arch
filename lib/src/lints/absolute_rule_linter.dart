@@ -1,6 +1,6 @@
 import 'package:path/path.dart' as p;
 
-/// Utilities for the Absolute Rule architecture linter.
+/// Utilities for architectural linting.
 class AbsoluteRuleUtils {
   const AbsoluteRuleUtils._();
 

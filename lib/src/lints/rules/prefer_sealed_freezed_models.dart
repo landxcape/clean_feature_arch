@@ -5,7 +5,7 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/error/error.dart';
 
-/// Lints Freezed classes that are not declared as sealed.
+/// Enforces that Freezed models are declared as sealed.
 class PreferSealedFreezedModels extends AnalysisRule {
   PreferSealedFreezedModels()
       : super(

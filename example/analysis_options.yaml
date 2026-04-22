@@ -8,6 +8,7 @@ plugins:
       absolute_rule_enforce_feature_isolation: true
       absolute_rule_enforce_model_folder_structure: true
       absolute_rule_prefer_sealed_freezed_models: true
+      absolute_rule_enforce_data_source_folder_structure: true
 
 analyzer:
   exclude:
