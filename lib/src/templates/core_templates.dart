@@ -320,9 +320,6 @@ class ValidatorUtils {
 import 'package:permission_handler/permission_handler.dart';
 
 abstract interface class PermissionService {
-  Future<bool> requestCamera();
-  Future<bool> requestLocation();
-  Future<bool> requestStorage();
   Future<bool> isGranted(Permission permission);
   Future<void> openSettings();
 }
@@ -336,24 +333,6 @@ class PermissionServiceImpl implements PermissionService {
   @override
   Future<void> openSettings() async {
     await openAppSettings();
-  }
-
-  @override
-  Future<bool> requestCamera() async {
-    final status = await Permission.camera.request();
-    return status.isGranted;
-  }
-
-  @override
-  Future<bool> requestLocation() async {
-    final status = await Permission.location.request();
-    return status.isGranted;
-  }
-
-  @override
-  Future<bool> requestStorage() async {
-    final status = await Permission.storage.request();
-    return status.isGranted;
   }
 }
 ''';

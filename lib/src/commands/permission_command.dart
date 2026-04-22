@@ -36,6 +36,15 @@ class PermissionCommand extends Command<int> {
       iosDesc: 'This app needs microphone access to record audio.',
     ),
     PermissionMetadata(
+      name: 'storage',
+      android: [
+        'android.permission.READ_EXTERNAL_STORAGE',
+        'android.permission.WRITE_EXTERNAL_STORAGE'
+      ],
+      iosKey: '',
+      iosDesc: '',
+    ),
+    PermissionMetadata(
       name: 'photos',
       android: [
         'android.permission.READ_MEDIA_IMAGES',
@@ -51,9 +60,9 @@ class PermissionCommand extends Command<int> {
       iosDesc: 'This app needs contacts access to sync your friends.',
     ),
     PermissionMetadata(
-      name: 'notifications',
+      name: 'notification',
       android: ['android.permission.POST_NOTIFICATIONS'],
-      iosKey: '', // Not usually required for basic notifications
+      iosKey: '',
       iosDesc: '',
     ),
   ];
