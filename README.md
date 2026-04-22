@@ -38,6 +38,17 @@ dart run clean_feature_arch feature <name> --state bloc
 dart run clean_feature_arch feature <name> --state riverpod
 ```
 
+### Adding Permissions
+Configure system permissions across all platforms and the Dart service:
+```bash
+# Open interactive menu
+dart run clean_feature_arch permission
+
+# Direct add
+dart run clean_feature_arch permission camera
+dart run clean_feature_arch permission location
+```
+
 ### Accessing Documentation
 Access architectural references directly from the terminal or open full guides in your browser:
 ```bash

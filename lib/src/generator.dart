@@ -6,6 +6,7 @@ import 'templates/domain_templates.dart';
 import 'templates/data_templates.dart';
 import 'templates/presentation_templates.dart';
 import 'templates/core_templates.dart';
+import 'commands/permission_command.dart';
 
 /// Overwrite strategy for file conflicts.
 enum OverwriteStrategy { ask, always, skipAll }
@@ -192,6 +193,7 @@ class FeatureGenerator {
       await _createFile('lib/core/extensions/context_extensions.dart', CoreTemplates.contextExtensions());
       await _createFile('lib/core/extensions/string_extensions.dart', CoreTemplates.stringExtensions());
       await _createFile('lib/core/utils/validator_utils.dart', CoreTemplates.validatorUtils());
+      await _createFile('lib/core/utils/permission_service.dart', CoreTemplates.permissionService());
       await _createFile('lib/core/utils/logger.dart', CoreTemplates.logger());
       await _createFile('lib/core/types/typedefs.dart', CoreTemplates.typedefs());
 
@@ -205,7 +207,11 @@ class FeatureGenerator {
       await _createFile('analysis_options.yaml', CoreTemplates.analysisOptions());
       await _createFile('build.yaml', CoreTemplates.buildYaml());
 
-      // 5. Inject Dependencies
+      // 5. Platform Patching
+      await _patchAndroidManifest();
+      await _patchInfoPlist();
+
+      // 6. Inject Dependencies
       await _addDependencies(stateManager: stateManager);
 
       progress.complete('Project initialized successfully.');
@@ -213,6 +219,95 @@ class FeatureGenerator {
       progress.fail('Initialization failed: $e');
       rethrow;
     }
+  }
+
+  /// Adds a system permission across Android, iOS, and the Dart service.
+  Future<void> addPermission(PermissionMetadata permission) async {
+    final progress = _logger.progress('Configuring ${permission.name} permission');
+
+    try {
+      // 1. Android Manifest
+      await _updateAndroidManifest(permission.android);
+
+      // 2. iOS Info.plist
+      if (permission.iosKey.isNotEmpty) {
+        await _updateInfoPlist(permission.iosKey, permission.iosDesc);
+      }
+
+      // 3. Dart PermissionService
+      await _updatePermissionService(permission.name);
+
+      progress.complete('${permission.name} permission configured.');
+    } catch (e) {
+      progress.fail('Failed to configure permission: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> _updateAndroidManifest(List<String> permissions) async {
+    final file = File('android/app/src/main/AndroidManifest.xml');
+    if (!await file.exists()) return;
+
+    var content = await file.readAsString();
+    bool modified = false;
+
+    for (final p in permissions) {
+      if (!content.contains(p)) {
+        final xml = '    <uses-permission android:name="$p" />';
+        content = content.replaceFirst('<application', '$xml\n    <application');
+        modified = true;
+      }
+    }
+
+    if (modified) await file.writeAsString(content);
+  }
+
+  Future<void> _updateInfoPlist(String key, String desc) async {
+    final file = File('ios/Runner/Info.plist');
+    if (!await file.exists()) return;
+
+    var content = await file.readAsString();
+    if (!content.contains(key)) {
+      final entry = '\n\t<key>$key</key>\n\t<string>$desc</string>';
+      content = content.replaceFirst('<dict>', '<dict>$entry');
+      await file.writeAsString(content);
+    }
+  }
+
+  Future<void> _updatePermissionService(String name) async {
+    final path = 'lib/core/utils/permission_service.dart';
+    final file = File(path);
+    if (!await file.exists()) return;
+
+    var content = await file.readAsString();
+    final pascal = name.pascalCase;
+
+    // 1. Add to interface
+    if (!content.contains('request$pascal()')) {
+      final interfaceSearch = 'Future<void> openSettings();';
+      content = content.replaceFirst(
+        interfaceSearch,
+        '$interfaceSearch\n  Future<bool> request$pascal();',
+      );
+    }
+
+    // 2. Add to implementation
+    if (!content.contains('request$pascal() async')) {
+      final implSearch = 'await openAppSettings();\n  }';
+      final implementation = '''
+\n  @override
+  Future<bool> request$pascal() async {
+    final status = await Permission.$name.request();
+    return status.isGranted;
+  }''';
+      
+      content = content.replaceFirst(
+        implSearch,
+        '$implSearch$implementation',
+      );
+    }
+
+    await file.writeAsString(content);
   }
 
   Future<void> _addDependencies({String? stateManager}) async {
@@ -229,6 +324,7 @@ class FeatureGenerator {
         'retrofit',
         'flutter_secure_storage',
         'internet_connection_checker_plus',
+        'permission_handler',
       ];
 
       if (stateManager == 'bloc') {
@@ -269,6 +365,56 @@ class FeatureGenerator {
       progress.complete('Dependencies injected.');
     } catch (e) {
       progress.fail('Dependency injection failed: $e');
+    }
+  }
+
+  Future<void> _patchAndroidManifest() async {
+    final manifestPath = 'android/app/src/main/AndroidManifest.xml';
+    final file = File(manifestPath);
+
+    if (!await file.exists()) return;
+
+    final content = await file.readAsString();
+    const permission = '    <uses-permission android:name="android.permission.INTERNET" />';
+
+    if (!content.contains('android.permission.INTERNET')) {
+      final updatedContent = content.replaceFirst(
+        '<application',
+        '$permission\n    <application',
+      );
+      await file.writeAsString(updatedContent);
+      _logger.detail('Patched AndroidManifest.xml with Internet permission.');
+    }
+  }
+
+  Future<void> _patchInfoPlist() async {
+    final plistPath = 'ios/Runner/Info.plist';
+    final file = File(plistPath);
+
+    if (!await file.exists()) return;
+
+    var content = await file.readAsString();
+    bool modified = false;
+
+    final Map<String, String> permissions = {
+      'NSCameraUsageDescription': 'This app needs camera access to take photos.',
+      'NSLocationWhenInUseUsageDescription': 'This app needs location access to provide relevant data.',
+      'NSPhotoLibraryUsageDescription': 'This app needs photo library access to save and select photos.',
+    };
+
+    for (final entry in permissions.entries) {
+      if (!content.contains(entry.key)) {
+        content = content.replaceFirst(
+          '<dict>',
+          '<dict>\n\t<key>${entry.key}</key>\n\t<string>${entry.value}</string>',
+        );
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      await file.writeAsString(content);
+      _logger.detail('Patched Info.plist with permission descriptions.');
     }
   }
 

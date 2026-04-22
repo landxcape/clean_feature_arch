@@ -90,6 +90,7 @@ import '../network/network_info.dart';
 import '../network/network_info_impl.dart';
 import '../storage/secure_storage.dart';
 import '../storage/secure_storage_impl.dart';
+import '../utils/permission_service.dart';
 
 final sl = GetIt.instance;
 
@@ -97,6 +98,7 @@ Future<void> configureDependencies() async {
   // --- Core ---
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(InternetConnection()));
   sl.registerLazySingleton<SecureStorage>(() => const SecureStorageImpl(FlutterSecureStorage()));
+  sl.registerLazySingleton<PermissionService>(() => PermissionServiceImpl());
   
   // --- Network ---
   sl.registerLazySingleton<Dio>(() => ApiClient.create());
@@ -310,6 +312,48 @@ class ValidatorUtils {
   static String? required(String? value) {
     if (value == null || value.trim().isEmpty) return 'Field required';
     return null;
+  }
+}
+''';
+
+  static String permissionService() => r'''
+import 'package:permission_handler/permission_handler.dart';
+
+abstract interface class PermissionService {
+  Future<bool> requestCamera();
+  Future<bool> requestLocation();
+  Future<bool> requestStorage();
+  Future<bool> isGranted(Permission permission);
+  Future<void> openSettings();
+}
+
+class PermissionServiceImpl implements PermissionService {
+  @override
+  Future<bool> isGranted(Permission permission) async {
+    return permission.isGranted;
+  }
+
+  @override
+  Future<void> openSettings() async {
+    await openAppSettings();
+  }
+
+  @override
+  Future<bool> requestCamera() async {
+    final status = await Permission.camera.request();
+    return status.isGranted;
+  }
+
+  @override
+  Future<bool> requestLocation() async {
+    final status = await Permission.location.request();
+    return status.isGranted;
+  }
+
+  @override
+  Future<bool> requestStorage() async {
+    final status = await Permission.storage.request();
+    return status.isGranted;
   }
 }
 ''';

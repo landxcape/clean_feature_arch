@@ -4,6 +4,7 @@ import 'package:mason_logger/mason_logger.dart';
 import 'package:clean_feature_arch/src/commands/feature_command.dart';
 import 'package:clean_feature_arch/src/commands/init_command.dart';
 import 'package:clean_feature_arch/src/commands/docs_command.dart';
+import 'package:clean_feature_arch/src/commands/permission_command.dart';
 
 Future<void> main(List<String> arguments) async {
   final logger = Logger();
@@ -14,7 +15,8 @@ Future<void> main(List<String> arguments) async {
   )
     ..addCommand(FeatureCommand(logger))
     ..addCommand(InitCommand(logger))
-    ..addCommand(DocsCommand(logger));
+    ..addCommand(DocsCommand(logger))
+    ..addCommand(PermissionCommand(logger));
 
   try {
     final exitCode = await runner.run(arguments);

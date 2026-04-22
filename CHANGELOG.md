@@ -1,3 +1,10 @@
+# 1.3.1
+
+- **Magic Permission Command**: Added `permission` command for automated cross-platform permission configuration.
+- **Multi-Platform Patching**: Automatically updates `AndroidManifest.xml`, `Info.plist`, and `PermissionService` (Dart).
+- **Interactive Menu**: Added interactive selection for common permissions (Camera, Location, etc.).
+- **Improved Scaffolding**: Refined `init` to ensure zero-setup internet connectivity on all platforms.
+
 # 1.3.0
 
 - **Zero-Latency Engine**: `init` command now generates a fully wired, production-ready core.
