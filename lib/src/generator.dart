@@ -491,7 +491,20 @@ class FeatureGenerator {
   Future<void> _addDependencies({String? stateManager}) async {
     final progress = _logger.progress('Injecting dependencies');
     try {
-      final deps = ['get_it', 'go_router', 'dio', 'fpdart', 'freezed_annotation', 'json_annotation', 'retrofit', 'flutter_secure_storage', 'internet_connection_checker_plus', 'permission_handler'];
+      final deps = [
+        'get_it',
+        'go_router',
+        'dio',
+        'fpdart',
+        'freezed_annotation',
+        'json_annotation',
+        'retrofit',
+        'flutter_secure_storage',
+        'internet_connection_checker_plus',
+        'permission_handler',
+        'logger',
+        'pretty_dio_logger',
+      ];
       if (stateManager == 'bloc') {
         deps.add('flutter_bloc');
       } else if (stateManager == 'riverpod') {

@@ -111,12 +111,12 @@ Future<void> configureDependencies() async {
 
   // --- Networking ---
   static String apiClient() => r'''
-import 'package:dio/dio.dart';
-import '../config/app_config.dart';
-import 'interceptors/auth_interceptor.dart';
-import 'interceptors/logging_interceptor.dart';
+  import 'package:dio/dio.dart';
+  import '../config/app_config.dart';
+  import 'interceptors/auth_interceptor.dart';
+  import 'interceptors/logging_interceptor.dart';
 
-class ApiClient {
+  class ApiClient {
   static Dio create() {
     final dio = Dio(
       BaseOptions(
@@ -126,61 +126,48 @@ class ApiClient {
       ),
     );
 
-    dio.interceptors.addAll([
-      AuthInterceptor(),
-      LoggingInterceptor(),
-    ]);
-    
+    dio.interceptors.add(AuthInterceptor());
+    dio.interceptors.add(loggingInterceptor());
+
     return dio;
   }
-}
-''';
+  }
+  ''';
 
   static String authInterceptor() => r'''
-import 'package:dio/dio.dart';
-import '../../di/injection_container.dart';
-import '../../storage/secure_storage.dart';
+  import 'package:dio/dio.dart';
+  import '../../di/injection_container.dart';
+  import '../../storage/secure_storage.dart';
 
-class AuthInterceptor extends Interceptor {
+  class AuthInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     final storage = sl<SecureStorage>();
     final token = await storage.read('token');
-    
+
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
-    
+
     super.onRequest(options, handler);
   }
-}
-''';
+  }
+  ''';
 
   static String loggingInterceptor() => r'''
-import 'package:dio/dio.dart';
-import '../../utils/logger.dart';
+  import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
-class LoggingInterceptor extends Interceptor {
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    logger.info('NETWORK [REQ] -> ${options.method} ${options.path}');
-    super.onRequest(options, handler);
-  }
-
-  @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    logger.info('NETWORK [RES] <- ${response.statusCode} ${response.requestOptions.path}');
-    super.onResponse(response, handler);
-  }
-
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    logger.error('NETWORK [ERR] !! ${err.response?.statusCode} ${err.requestOptions.path}');
-    super.onError(err, handler);
-  }
-}
-''';
-
+  /// Professional API logging interceptor.
+  PrettyDioLogger loggingInterceptor() => PrettyDioLogger(
+      requestHeader: true,
+      requestBody: true,
+      responseBody: true,
+      responseHeader: false,
+      error: true,
+      compact: true,
+      maxWidth: 90,
+    );
+  ''';
   static String networkInfo() => r'''
 abstract interface class NetworkInfo {
   Future<bool> get isConnected;
@@ -621,19 +608,29 @@ class MyApp extends StatelessWidget {
 }
 ''';
 
-  // --- Others ---
   static String logger() => r'''
-import 'dart:developer' as dev;
+import 'package:logger/logger.dart';
 
 class AppLogger {
-  void info(String msg) => _log('INFO', msg);
-  void error(String msg, {Object? error, StackTrace? stackTrace}) => 
-      _log('ERROR', msg, error: error, stackTrace: stackTrace);
+  final _logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 0,
+      errorMethodCount: 8,
+      lineLength: 120,
+      colors: true,
+      printEmojis: true,
+      dateTimeFormat: DateTimeFormat.none,
+    ),
+    filter: DevelopmentFilter(),
+  );
 
-  void _log(String level, String msg, {Object? error, StackTrace? stackTrace}) {
-    dev.log('[$level] $msg', time: DateTime.now(), error: error, stackTrace: stackTrace);
-  }
+  void info(String msg) => _logger.i(msg);
+  void error(String msg, {Object? error, StackTrace? stackTrace}) => 
+      _logger.e(msg, error: error, stackTrace: stackTrace);
+  void debug(String msg) => _logger.d(msg);
+  void warning(String msg) => _logger.w(msg);
 }
+
 final logger = AppLogger();
 ''';
 
