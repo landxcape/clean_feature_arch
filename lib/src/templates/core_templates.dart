@@ -75,7 +75,7 @@ class ErrorHandler {
 
   // --- Dependency Injection ---
   static String injectionContainer(String? stateManager) {
-    String stateComment = stateManager == 'riverpod'
+    final String stateComment = stateManager == 'riverpod'
         ? '// Riverpod uses providers for state DI. Use get_it here for infrastructure only.'
         : '// Register BLoCs as factory: sl.registerFactory(() => FeatureBloc(sl()));';
 
