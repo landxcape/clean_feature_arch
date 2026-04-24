@@ -140,6 +140,7 @@ class FeatureGenerator {
       await _createFile('lib/core/error/error_handler.dart', CoreTemplates.errorHandler());
       await _createFile('lib/core/di/injection_container.dart', CoreTemplates.injectionContainer(stateManager));
       await _createFile('lib/core/network/api_client.dart', CoreTemplates.apiClient());
+      await _createFile('lib/core/network/base_response.dart', CoreTemplates.baseResponse());
       await _createFile('lib/core/network/network_info.dart', CoreTemplates.networkInfo());
       await _createFile('lib/core/network/network_info_impl.dart', CoreTemplates.networkInfoImpl());
       await _createFile('lib/core/network/interceptors/auth_interceptor.dart', CoreTemplates.authInterceptor());
@@ -491,20 +492,7 @@ class FeatureGenerator {
   Future<void> _addDependencies({String? stateManager}) async {
     final progress = _logger.progress('Injecting dependencies');
     try {
-      final deps = [
-        'get_it',
-        'go_router',
-        'dio',
-        'fpdart',
-        'freezed_annotation',
-        'json_annotation',
-        'retrofit',
-        'flutter_secure_storage',
-        'internet_connection_checker_plus',
-        'permission_handler',
-        'logger',
-        'pretty_dio_logger',
-      ];
+      final deps = ['get_it', 'go_router', 'dio', 'fpdart', 'freezed_annotation', 'json_annotation', 'retrofit', 'flutter_secure_storage', 'internet_connection_checker_plus', 'permission_handler', 'logger', 'pretty_dio_logger'];
       if (stateManager == 'bloc') {
         deps.add('flutter_bloc');
       } else if (stateManager == 'riverpod') {

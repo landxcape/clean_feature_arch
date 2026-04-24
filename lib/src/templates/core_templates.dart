@@ -1,31 +1,44 @@
+import 'package:recase/recase.dart';
+
 class CoreTemplates {
   // --- Error Handling ---
   static String appError() => r'''
-sealed class AppError {
-  const AppError(this.message);
-  final String message;
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'app_error.freezed.dart';
+
+@freezed
+sealed class AppError with _$AppError {
+  const factory AppError.network([@Default('Network connection failed.') String message]) = NetworkError;
+  const factory AppError.server({required int statusCode, required String message}) = ServerError;
+  const factory AppError.unauthorized([@Default('Session expired.') String message]) = UnauthorizedError;
+  const factory AppError.notFound([@Default('Resource not found.') String message]) = NotFoundError;
+  const factory AppError.unknown([@Default('An unexpected error occurred.') String message]) = UnknownError;
+}
+''';
+
+  static String baseResponse() => r'''
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'base_response.freezed.dart';
+part 'base_response.g.dart';
+
+/// Interface to allow ErrorHandler to probe for success without generation dependency.
+abstract interface class IBaseResponse {
+  bool get success;
+  String get message;
 }
 
-class NetworkError extends AppError {
-  const NetworkError([super.message = 'Network connection failed.']);
-}
+@Freezed(genericArgumentFactories: true)
+sealed class BaseResponse<T> with _$BaseResponse<T> implements IBaseResponse {
+  const factory BaseResponse({
+    required bool success,
+    required String message,
+    T? data,
+  }) = _BaseResponse<T>;
 
-class ServerError extends AppError {
-  const ServerError({required this.statusCode, required String message})
-      : super(message);
-  final int statusCode;
-}
-
-class UnauthorizedError extends AppError {
-  const UnauthorizedError([super.message = 'Session expired. Please login again.']);
-}
-
-class NotFoundError extends AppError {
-  const NotFoundError([super.message = 'Requested resource not found.']);
-}
-
-class UnknownError extends AppError {
-  const UnknownError([super.message = 'An unexpected error occurred.']);
+  factory BaseResponse.fromJson(Map<String, dynamic> json, T Function(Object?) fromJsonT) => 
+      _$BaseResponseFromJson(json, fromJsonT);
 }
 ''';
 
@@ -34,89 +47,58 @@ import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import '../utils/logger.dart';
 import 'app_error.dart';
+import '../network/base_response.dart';
 
 class ErrorHandler {
   const ErrorHandler._();
 
-  static Future<Either<AppError, T>> guard<T>(
-    Future<T> Function() action,
-  ) async {
+  static Future<Either<AppError, T>> guard<T>(Future<T> Function() action) async {
     try {
       final result = await action();
+      
+      if (result is IBaseResponse) {
+        if (!result.success) {
+          return Left(AppError.server(statusCode: 200, message: result.message));
+        }
+      }
+      
       return Right(result);
     } on DioException catch (e) {
       return Left(_mapDioException(e));
     } catch (e, stack) {
       logger.error('Unhandled exception', error: e, stackTrace: stack);
-      return Left(const UnknownError());
+      return Left(const AppError.unknown());
     }
   }
 
   static AppError _mapDioException(DioException e) {
     return switch (e.type) {
-      DioExceptionType.connectionTimeout ||
-      DioExceptionType.receiveTimeout ||
-      DioExceptionType.sendTimeout =>
-        const NetworkError('Connection timed out.'),
-      _ => _mapStatusCode(e.response?.statusCode),
+      DioExceptionType.connectionTimeout || 
+      DioExceptionType.sendTimeout || 
+      DioExceptionType.receiveTimeout => const AppError.network('Connection timed out.'),
+      _ => _mapStatusCode(e.response?.statusCode, e.response?.data?['message']),
     };
   }
 
-  static AppError _mapStatusCode(int? code) {
+  static AppError _mapStatusCode(int? code, String? message) {
     return switch (code) {
-      401 => const UnauthorizedError(),
-      404 => const NotFoundError(),
-      int c when c >= 500 => ServerError(statusCode: c, message: 'Server error.'),
-      _ => const UnknownError(),
+      401 => const AppError.unauthorized(),
+      404 => const AppError.notFound(),
+      int c when c >= 500 => AppError.server(statusCode: c, message: message ?? 'Server error.'),
+      _ => const AppError.unknown(),
     };
   }
 }
 ''';
-
-  // --- Dependency Injection ---
-  static String injectionContainer(String? stateManager) {
-    final String stateComment = stateManager == 'riverpod'
-        ? '// Riverpod uses providers for state DI. Use get_it here for infrastructure only.'
-        : '// Register BLoCs as factory: sl.registerFactory(() => FeatureBloc(sl()));';
-
-    return '''
-import 'package:get_it/get_it.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
-
-import '../network/api_client.dart';
-import '../network/network_info.dart';
-import '../network/network_info_impl.dart';
-import '../storage/secure_storage.dart';
-import '../storage/secure_storage_impl.dart';
-import '../utils/permission_service.dart';
-
-final sl = GetIt.instance;
-
-Future<void> configureDependencies() async {
-  // --- Core ---
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(InternetConnection()));
-  sl.registerLazySingleton<SecureStorage>(() => const SecureStorageImpl(FlutterSecureStorage()));
-  sl.registerLazySingleton<PermissionService>(() => PermissionServiceImpl());
-  
-  // --- Network ---
-  sl.registerLazySingleton<Dio>(() => ApiClient.create());
-
-  // --- Features ---
-  $stateComment
-}
-''';
-  }
 
   // --- Networking ---
   static String apiClient() => r'''
-  import 'package:dio/dio.dart';
-  import '../config/app_config.dart';
-  import 'interceptors/auth_interceptor.dart';
-  import 'interceptors/logging_interceptor.dart';
+import 'package:dio/dio.dart';
+import '../config/app_config.dart';
+import 'interceptors/auth_interceptor.dart';
+import 'interceptors/logging_interceptor.dart';
 
-  class ApiClient {
+class ApiClient {
   static Dio create() {
     final dio = Dio(
       BaseOptions(
@@ -131,15 +113,15 @@ Future<void> configureDependencies() async {
 
     return dio;
   }
-  }
-  ''';
+}
+''';
 
   static String authInterceptor() => r'''
-  import 'package:dio/dio.dart';
-  import '../../di/injection_container.dart';
-  import '../../storage/secure_storage.dart';
+import 'package:dio/dio.dart';
+import '../../di/injection_container.dart';
+import '../../storage/secure_storage.dart';
 
-  class AuthInterceptor extends Interceptor {
+class AuthInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     final storage = sl<SecureStorage>();
@@ -151,14 +133,14 @@ Future<void> configureDependencies() async {
 
     super.onRequest(options, handler);
   }
-  }
-  ''';
+}
+''';
 
   static String loggingInterceptor() => r'''
-  import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
-  /// Professional API logging interceptor.
-  PrettyDioLogger loggingInterceptor() => PrettyDioLogger(
+/// Professional API logging interceptor.
+PrettyDioLogger loggingInterceptor() => PrettyDioLogger(
       requestHeader: true,
       requestBody: true,
       responseBody: true,
@@ -167,7 +149,8 @@ Future<void> configureDependencies() async {
       compact: true,
       maxWidth: 90,
     );
-  ''';
+''';
+
   static String networkInfo() => r'''
 abstract interface class NetworkInfo {
   Future<bool> get isConnected;
@@ -262,9 +245,6 @@ import 'package:path/path.dart' as p;
 part 'app_database.g.dart';
 
 @DriftDatabase(tables: [])
-// TODO: Register feature-specific tables here:
-// import '../../features/auth/data/data_sources/local_data_sources/auth_table.dart';
-// @DriftDatabase(tables: [AuthTable])
 class AppDatabase extends _\$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -292,40 +272,71 @@ class AppConfig {
 ''';
 
   static String flavorConfig() => r'''
-enum Flavor { dev, staging, prod }
+enum Flavor { dev, prod }
 
 class FlavorConfig {
   final Flavor flavor;
   final String name;
+  final Map<String, dynamic> values;
 
   static FlavorConfig? _instance;
-  FlavorConfig._internal(this.flavor, this.name);
 
-  static void initialize({required Flavor flavor, required String name}) {
-    _instance = FlavorConfig._internal(flavor, name);
+  factory FlavorConfig({required Flavor flavor, required String name, required Map<String, dynamic> values}) {
+    _instance ??= FlavorConfig._internal(flavor, name, values);
+    return _instance!;
   }
 
+  FlavorConfig._internal(this.flavor, this.name, this.values);
   static FlavorConfig get instance => _instance!;
 }
 ''';
 
+  // --- Dependency Injection ---
+  static String injectionContainer(String? stateManager) {
+    final String stateComment = stateManager == 'riverpod'
+        ? '// Riverpod uses providers for state DI. Use get_it here for infrastructure only.'
+        : '// Register BLoCs as factory: sl.registerFactory(() => FeatureBloc(sl()));';
+
+    return '''
+import 'package:get_it/get_it.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+
+import '../network/api_client.dart';
+import '../network/network_info.dart';
+import '../network/network_info_impl.dart';
+import '../storage/secure_storage.dart';
+import '../storage/secure_storage_impl.dart';
+import '../utils/permission_service.dart';
+
+final sl = GetIt.instance;
+
+Future<void> configureDependencies() async {
+  // --- Core ---
+  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(InternetConnection()));
+  sl.registerLazySingleton<SecureStorage>(() => const SecureStorageImpl(FlutterSecureStorage()));
+  sl.registerLazySingleton<PermissionService>(() => PermissionServiceImpl());
+  
+  // --- Network ---
+  sl.registerLazySingleton<Dio>(() => ApiClient.create());
+
+  // --- Features ---
+  $stateComment
+}
+''';
+  }
+
   // --- Router ---
   static String appRouter() => r'''
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
 import '../constants/route_constants.dart';
 
 class AppRouter {
   static final router = GoRouter(
-    initialLocation: RouteConstants.home,
+    initialLocation: RouteConstants.root,
     routes: [
-      GoRoute(
-        path: RouteConstants.home,
-        name: 'home',
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Home')),
-        ),
-      ),
+      // TODO: Add feature routes
     ],
   );
 }
@@ -333,66 +344,11 @@ class AppRouter {
 
   static String routeConstants() => r'''
 class RouteConstants {
-  static const home = '/';
+  static const String root = '/';
 }
 ''';
 
-  // --- Extensions & Utils ---
-  static String contextExtensions() => r'''
-import 'package:flutter/material.dart';
-import '../theme/app_spacing.dart';
-
-extension ContextExtensions on BuildContext {
-  ThemeData get theme => Theme.of(this);
-  ColorScheme get colorScheme => theme.colorScheme;
-  TextTheme get textTheme => theme.textTheme;
-  MediaQueryData get mediaQuery => MediaQuery.of(this);
-  Size get screenSize => mediaQuery.size;
-  
-  EdgeInsets get paddingAllSmall => const EdgeInsets.all(AppSpacing.s8);
-  EdgeInsets get paddingAllMedium => const EdgeInsets.all(AppSpacing.s16);
-  EdgeInsets get paddingAllLarge => const EdgeInsets.all(AppSpacing.s32);
-}
-''';
-
-  static String stringExtensions() => r'''
-extension StringExtensions on String {
-  bool get isValidEmail => RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(this);
-  bool get isNotBlank => trim().isNotEmpty;
-}
-''';
-
-  static String validatorUtils() => r'''
-class ValidatorUtils {
-  static String? required(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Field required';
-    return null;
-  }
-}
-''';
-
-  static String permissionService() => r'''
-import 'package:permission_handler/permission_handler.dart';
-
-abstract interface class PermissionService {
-  Future<bool> isGranted(Permission permission);
-  Future<void> openSettings();
-}
-
-class PermissionServiceImpl implements PermissionService {
-  @override
-  Future<bool> isGranted(Permission permission) async {
-    return permission.isGranted;
-  }
-
-  @override
-  Future<void> openSettings() async {
-    await openAppSettings();
-  }
-}
-''';
-
-  // --- Design System ---
+  // --- Theme ---
   static String appTheme() => r'''
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
@@ -400,31 +356,20 @@ import 'app_text_theme.dart';
 
 class AppTheme {
   static ThemeData get light => ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: Brightness.light,
-    ),
-    textTheme: AppTextTheme.light,
-    elevatedButtonTheme: _elevatedButtonTheme,
-  );
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+        textTheme: AppTextTheme.light,
+      );
 
   static ThemeData get dark => ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: Brightness.dark,
-    ),
-    textTheme: AppTextTheme.dark,
-    elevatedButtonTheme: _elevatedButtonTheme,
-  );
-
-  static final _elevatedButtonTheme = ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      minimumSize: const Size.fromHeight(50),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-  );
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.primary,
+          brightness: Brightness.dark,
+        ),
+        textTheme: AppTextTheme.dark,
+      );
 }
 ''';
 
@@ -432,10 +377,7 @@ class AppTheme {
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const primary = Colors.deepPurple;
-  static const secondary = Colors.amber;
-  static const success = Colors.green;
-  static const error = Colors.red;
+  static const Color primary = Color(0xFF6200EE);
 }
 ''';
 
@@ -443,12 +385,7 @@ class AppColors {
 class AppSpacing {
   static const double s4 = 4.0;
   static const double s8 = 8.0;
-  static const double s12 = 12.0;
   static const double s16 = 16.0;
-  static const double s24 = 24.0;
-  static const double s32 = 32.0;
-  static const double s48 = 48.0;
-  static const double s64 = 64.0;
 }
 ''';
 
@@ -456,69 +393,75 @@ class AppSpacing {
 import 'package:flutter/material.dart';
 
 class AppTextTheme {
-  static const TextTheme light = TextTheme(
-    headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-    bodyLarge: TextStyle(fontSize: 16, color: Colors.black87),
-    bodyMedium: TextStyle(fontSize: 14, color: Colors.black54),
-  );
-
-  static const TextTheme dark = TextTheme(
-    headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
-    bodyLarge: TextStyle(fontSize: 16, color: Colors.white70),
-    bodyMedium: TextStyle(fontSize: 14, color: Colors.white60),
-  );
+  static TextTheme get light => const TextTheme();
+  static TextTheme get dark => const TextTheme();
 }
 ''';
 
   // --- CI/CD ---
   static String githubVerify() => r'''
 name: Verify
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-
+on: [push, pull_request]
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-      
-      - name: Install dependencies
-        run: flutter pub get
-      
-      - name: Verify formatting
-        run: dart format --set-exit-if-changed .
-      
-      - name: Analyze project
-        run: flutter analyze
-      
-      - name: Run tests
-        run: flutter test
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
 ''';
 
   static String gitlabCI() => r'''
-image: "ghcr.io/cirruslabs/flutter:stable"
-
 stages:
   - test
-
 verify:
   stage: test
+  image: "ghcr.io/cirruslabs/flutter:stable"
   script:
     - flutter pub get
-    - dart format --set-exit-if-changed .
     - flutter analyze
     - flutter test
 ''';
 
-  // --- Testing ---
+  // --- Utils ---
+  static String validatorUtils() => r'''
+class ValidatorUtils {
+  static String? required(String? value) => value == null || value.isEmpty ? 'Field required' : null;
+}
+''';
+
+  static String contextExtensions() => r'''
+import 'package:flutter/material.dart';
+
+extension ContextExtensions on BuildContext {
+  ThemeData get theme => Theme.of(this);
+  TextTheme get textTheme => theme.textTheme;
+}
+''';
+
+  static String stringExtensions() => r'''
+extension StringExtensions on String {
+  bool get isValidEmail => RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(this);
+}
+''';
+
+  static String permissionService() => r'''
+import 'package:permission_handler/permission_handler.dart';
+
+abstract interface class PermissionService {
+  Future<void> openSettings();
+}
+
+class PermissionServiceImpl implements PermissionService {
+  @override
+  Future<void> openSettings() async {
+    await openAppSettings();
+  }
+}
+''';
+
   static String apiClientTest() => r'''
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dio/dio.dart';
@@ -541,52 +484,6 @@ void main() {
 }
 ''';
 
-  // --- App Structure ---
-  static String mainDart(String? stateManager) {
-    String imports = '';
-    String observer = '';
-    String appWrapper = 'const MyApp()';
-
-    switch (stateManager) {
-      case 'bloc':
-        imports =
-            "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'core/utils/logger.dart';";
-        observer = r'''
-class AppBlocObserver extends BlocObserver {
-  @override
-  void onChange(BlocBase bloc, Change change) {
-    super.onChange(bloc, change);
-    logger.info('BLOC: ${bloc.runtimeType} -> $change');
-  }
-}
-''';
-        appWrapper =
-            'Bloc.observer = AppBlocObserver();\n  runApp(const MyApp())';
-        break;
-      case 'riverpod':
-        imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';";
-        appWrapper = 'runApp(const ProviderScope(child: MyApp()))';
-        break;
-      default:
-        appWrapper = 'runApp(const MyApp())';
-    }
-
-    return '''
-import 'package:flutter/material.dart';
-$imports
-import 'app.dart';
-import 'core/di/injection_container.dart';
-
-$observer
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await configureDependencies();
-  $appWrapper;
-}
-''';
-  }
-
   static String appDart() => r'''
 import 'package:flutter/material.dart';
 import 'core/router/app_router.dart';
@@ -607,6 +504,49 @@ class MyApp extends StatelessWidget {
   }
 }
 ''';
+
+  static String mainDart(String? stateManager) {
+    String imports = '';
+    String observer = '';
+    String appWrapper = 'const MyApp()';
+
+    switch (stateManager) {
+      case 'bloc':
+        imports = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'core/utils/logger.dart';";
+        observer = r'''
+class AppBlocObserver extends BlocObserver {
+  @override
+  void onChange(BlocBase bloc, Change change) {
+    super.onChange(bloc, change);
+    logger.info('BLOC: ${bloc.runtimeType} -> $change');
+  }
+}
+''';
+        appWrapper = 'Bloc.observer = AppBlocObserver();\n  runApp(const MyApp())';
+        break;
+      case 'riverpod':
+        imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';";
+        appWrapper = 'runApp(const ProviderScope(child: MyApp()))';
+        break;
+      default:
+        appWrapper = 'runApp(const MyApp())';
+    }
+
+    return '''
+import 'package:flutter/material.dart';
+import 'core/di/injection_container.dart';
+$imports
+import 'app.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await configureDependencies();
+  $appWrapper;
+}
+
+$observer
+''';
+  }
 
   static String logger() => r'''
 import 'package:logger/logger.dart';
