@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.4.3
+- **Rule 8 Compliance**: Converted `AppError` to a `@freezed sealed class` for consistent error handling and logging.
+- **API Wrapper Engine**: Added `BaseResponse<T>` generic model and `IBaseResponse` interface to standardize backend envelopes.
+- **Enhanced Error Handler**: Updated `ErrorHandler.guard` to automatically check `IBaseResponse.success` and return backend error messages via `AppError.server`.
+- **Surgical Paths**: Corrected relative import depths for BLoC, providers, and local data sources to ensure analyzer compatibility in nested structures.
+- **Quality Polish**: Resolved all remaining package lints to maintain a 160/160 quality score.
+
+## 1.4.2
+- Feat: Integrated `logger` and `pretty_dio_logger` for professional, production-grade logging.
+- Feat: Added debug-only log filtering to prevent sensitive data leaks in release mode.
+- Fix: Resolved "Undefined name 'logger'" errors in `ErrorHandler` and `main.dart`.
+- Fix: Perfected analyzer scores with final template lint cleanup.
+
 ## 1.4.1
 - Fix: Corrected relative import paths in BLoC and LocalDataSource templates.
 - Fix: Prevented duplicate constructor generation during retroactive storage surgery.

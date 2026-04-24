@@ -1,5 +1,3 @@
-import 'package:recase/recase.dart';
-
 class CoreTemplates {
   // --- Error Handling ---
   static String appError() => r'''

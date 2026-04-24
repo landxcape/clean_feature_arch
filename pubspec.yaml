@@ -1,6 +1,6 @@
 name: clean_feature_arch
 description: The Absolute Rule Architecture - Scaffolder and Enforcer
-version: 1.4.2
+version: 1.4.3
 repository: https://github.com/landxcape/clean_feature_arch
 homepage: https://github.com/landxcape/clean_feature_arch
 
