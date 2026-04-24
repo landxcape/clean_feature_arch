@@ -25,7 +25,7 @@ class InitCommand extends Command<int> {
 
   @override
   String get description =>
-      'Scaffold the Absolute Rule core architecture and folder structure.';
+      'Scaffold the Absolute Rule core architecture (Networking, Theme, Router, Secure Storage).';
 
   final Logger _logger;
 

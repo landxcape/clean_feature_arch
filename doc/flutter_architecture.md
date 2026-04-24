@@ -10,11 +10,29 @@
 | DI | get_it |
 | Navigation | GoRouter |
 | Networking | Dio + Retrofit |
-| Local DB | Drift (relational) / Hive (key-value only) |
+| Local DB | Drift (relational/SQL) |
+| Local Settings | Shared Preferences |
+| Secure Storage | Flutter Secure Storage (Credentials only) |
 | Serialization | Freezed + json_serializable |
 | FP Error Handling | fpdart (Either/Option) |
 
 > State management is a separate decision documented in `state_management/`. Pick one tool per project at kickoff. Never mix. Never revisit. Everything in this document applies regardless of which tool you choose.
+
+---
+
+## Local Storage Strategy
+
+The Absolute Rule follows a **Modular Modular Storage** pattern to minimize bloat and ensure data integrity.
+
+### 1. The Storage Engines
+*   **Secure Storage (`core/`)**: Scaffolded by default. Reserved strictly for credentials and sensitive secrets.
+*   **Local Settings (`core/`)**: Modular. Used for simple key-value flags (e.g., `is_first_launch`, `theme_mode`).
+*   **App Database (`core/`)**: Modular. A single central SQLite engine (Drift) that manages all feature-specific tables.
+
+### 2. Feature Implementation
+When a feature requires persistence, its **Local Data Source** is injected with the specific engine it needs.
+*   **Zero Setup**: Using the `feature` command with the `--storage` flag automatically wires the engine and generates a `Table` class if using SQL.
+*   **Surgical Injection**: Use `storage feature` to retroactively add storage to an existing feature.
 
 ---
 
@@ -95,10 +113,10 @@ lib/
 │       │       ├── get_[thing]_usecase.dart
 │       │       ├── create_[thing]_usecase.dart
 │       │       └── delete_[thing]_usecase.dart
-│       └── presentation/
-│           ├── state/                           # tool-specific — see state_management/
-│           ├── screens/                         # smart widgets — own state, callbacks
-│           └── widgets/                         # dumb widgets — pure UI
+└── presentation/
+    ├── [bloc|providers|state]/         # Dynamic based on state manager
+    ├── screens/                         # smart widgets — own state, callbacks
+    └── widgets/                         # dumb widgets — pure UI
 │
 ├── shared/
 │   ├── widgets/

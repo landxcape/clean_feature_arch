@@ -30,10 +30,20 @@ dart run clean_feature_arch init --state riverpod
 ### 2. Generating a Feature
 Creates feature layers (`domain`, `data`, `presentation`) with canonical templates.
 ```bash
-dart run clean_feature_arch feature <name> --state [bloc|riverpod|none]
+dart run clean_feature_arch feature <name> --state [bloc|riverpod|none] --storage [drift|shared|none]
 ```
 
-### 3. Adding Permissions
+### 3. Modular Storage Management
+Initialize storage engines and surgically inject them into features.
+```bash
+# 1. Initialize a global engine (Drift or Shared Preferences)
+dart run clean_feature_arch storage init
+
+# 2. Add storage to an existing feature (Surgical injection)
+dart run clean_feature_arch storage feature <name> --type [drift|shared]
+```
+
+### 4. Adding Permissions
 Configure system permissions across all platforms and the Dart service:
 ```bash
 # Open interactive menu
@@ -43,21 +53,24 @@ dart run clean_feature_arch permission
 dart run clean_feature_arch permission camera
 ```
 
-### 4. CI/CD Scaffolding
+### 5. CI/CD Scaffolding
 Generate automation workflows for your project:
 ```bash
 # Support for GitHub Actions and GitLab CI
 dart run clean_feature_arch ci
 ```
 
-### 5. Test Scaffolding
+### 6. Test Scaffolding
 Initialize professional test infrastructure:
 ```bash
 # Scaffolds unit tests for core infrastructure (e.g., ApiClient)
 dart run clean_feature_arch test --init
+
+# Scaffolds full test suite for a feature (Integration + Unit)
+dart run clean_feature_arch test <feature_name>
 ```
 
-### 6. Accessing Documentation
+### 7. Accessing Documentation
 ```bash
 # Instant terminal references for Absolute Rules and Project Skeleton
 dart run clean_feature_arch docs rules

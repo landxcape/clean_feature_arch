@@ -7,6 +7,7 @@ import 'package:clean_feature_arch/src/commands/docs_command.dart';
 import 'package:clean_feature_arch/src/commands/permission_command.dart';
 import 'package:clean_feature_arch/src/commands/ci_command.dart';
 import 'package:clean_feature_arch/src/commands/test_command.dart';
+import 'package:clean_feature_arch/src/commands/storage_command.dart';
 
 Future<void> main(List<String> arguments) async {
   final logger = Logger();
@@ -20,7 +21,8 @@ Future<void> main(List<String> arguments) async {
     ..addCommand(DocsCommand(logger))
     ..addCommand(PermissionCommand(logger))
     ..addCommand(CICommand(logger))
-    ..addCommand(TestCommand(logger));
+    ..addCommand(TestCommand(logger))
+    ..addCommand(StorageCommand(logger));
 
   try {
     final exitCode = await runner.run(arguments);

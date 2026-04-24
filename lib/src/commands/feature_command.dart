@@ -17,6 +17,12 @@ class FeatureCommand extends Command<int> {
         help: 'The state management tool to use.',
         defaultsTo: 'none',
       )
+      ..addOption(
+        'storage',
+        abbr: 't',
+        allowed: ['drift', 'shared', 'none'],
+        help: 'The storage engine to use (Requires prior "storage init").',
+      )
       ..addFlag(
         'force',
         abbr: 'f',
@@ -44,13 +50,17 @@ class FeatureCommand extends Command<int> {
     final name = argResults!.rest.join('_');
     final targetDir = argResults?['dir'] as String?;
     final stateManager = argResults?['state'] as String?;
+    final storageType = argResults?['storage'] as String?;
     final force = argResults?['force'] as bool? ?? false;
 
     final generator = FeatureGenerator(_logger);
 
     try {
       await generator.generate(name,
-          targetDirectory: targetDir, stateManager: stateManager, force: force);
+          targetDirectory: targetDir,
+          stateManager: stateManager,
+          storageType: storageType,
+          force: force);
       _logger.info('Successfully generated feature: $name');
       _logger.info(
           'Run `dart run build_runner build -d` to generate Freezed models.');

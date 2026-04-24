@@ -232,6 +232,69 @@ class SecureStorageImpl implements SecureStorage {
 }
 ''';
 
+  static String localSettings() => r'''
+import 'package:shared_preferences/shared_preferences.dart';
+
+abstract interface class LocalSettings {
+  Future<void> setBool(String key, bool value);
+  bool? getBool(String key);
+  Future<void> setString(String key, String value);
+  String? getString(String key);
+  Future<void> remove(String key);
+}
+
+class LocalSettingsImpl implements LocalSettings {
+  const LocalSettingsImpl(this._prefs);
+  final SharedPreferences _prefs;
+
+  @override
+  bool? getBool(String key) => _prefs.getBool(key);
+
+  @override
+  String? getString(String key) => _prefs.getString(key);
+
+  @override
+  Future<void> remove(String key) => _prefs.remove(key);
+
+  @override
+  Future<void> setBool(String key, bool value) => _prefs.setBool(key, value);
+
+  @override
+  Future<void> setString(String key, String value) => _prefs.setString(key, value);
+}
+''';
+
+  static String driftDatabase(String projectName) {
+    return '''
+import 'dart:io';
+import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+
+part 'app_database.g.dart';
+
+@DriftDatabase(tables: [])
+// TODO: Register feature-specific tables here:
+// import '../../features/auth/data/data_sources/local_data_sources/auth_table.dart';
+// @DriftDatabase(tables: [AuthTable])
+class AppDatabase extends _\$AppDatabase {
+  AppDatabase() : super(_openConnection());
+
+  @override
+  int get schemaVersion => 1;
+}
+
+LazyDatabase _openConnection() {
+  return LazyDatabase(() async {
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dbFolder.path, 'db.sqlite'));
+    return NativeDatabase(file);
+  });
+}
+''';
+  }
+
   // --- Configuration ---
   static String appConfig() => r'''
 class AppConfig {
