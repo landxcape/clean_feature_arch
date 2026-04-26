@@ -2,7 +2,7 @@
 
 ## 1.4.4
 - Feat: Implement optional production error reporting via `LogReporter` interface.
-- Feat: Enforce mandatory stacktrace capture for error-level diagnostics.
+- Feat: Automatic stacktrace capture for error-level diagnostics.
 - Refactor: Standardize environment-aware log filtering for production safety.
 
 ## 1.4.3
