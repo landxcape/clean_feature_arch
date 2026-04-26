@@ -1,11 +1,16 @@
 # Changelog
 
+## 1.4.4
+- Feat: Implement optional production error reporting via `LogReporter` interface.
+- Feat: Enforce mandatory stacktrace capture for error-level diagnostics.
+- Refactor: Standardize environment-aware log filtering for production safety.
+
 ## 1.4.3
-- **Rule 8 Compliance**: Converted `AppError` to a `@freezed sealed class` for consistent error handling and logging.
-- **API Wrapper Engine**: Added `BaseResponse<T>` generic model and `IBaseResponse` interface to standardize backend envelopes.
-- **Enhanced Error Handler**: Updated `ErrorHandler.guard` to automatically check `IBaseResponse.success` and return backend error messages via `AppError.server`.
-- **Surgical Paths**: Corrected relative import depths for BLoC, providers, and local data sources to ensure analyzer compatibility in nested structures.
-- **Quality Polish**: Resolved all remaining package lints to maintain a 160/160 quality score.
+- Fix: Corrected relative import paths in BLoC and LocalDataSource templates.
+- Fix: Prevented duplicate constructor generation during retroactive storage surgery.
+- Fix: Ensured idempotent feature registration in `injection_container.dart`.
+- Chore: Updated analyzer dependency constraints for version 13.0.0 compatibility.
+- Style: Resolved all remaining lints to ensure perfect package analysis scores.
 
 ## 1.4.2
 - Feat: Integrated `logger` and `pretty_dio_logger` for professional, production-grade logging.

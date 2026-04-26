@@ -547,24 +547,41 @@ $observer
   }
 
   static String logger() => r'''
+import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
+/// Contract for production error reporting (e.g., Sentry, Crashlytics).
+abstract interface class LogReporter {
+  void report(String message, {Object? error, StackTrace? stackTrace});
+}
+
 class AppLogger {
-  final _logger = Logger(
-    printer: PrettyPrinter(
-      methodCount: 0,
-      errorMethodCount: 8,
-      lineLength: 120,
-      colors: true,
-      printEmojis: true,
-      dateTimeFormat: DateTimeFormat.none,
-    ),
-    filter: DevelopmentFilter(),
-  );
+  AppLogger({this.reporter})
+      : _logger = Logger(
+          printer: PrettyPrinter(
+            methodCount: 0,
+            errorMethodCount: 8,
+            lineLength: 120,
+            colors: true,
+            printEmojis: true,
+            dateTimeFormat: DateTimeFormat.none,
+          ),
+          filter: DevelopmentFilter(),
+        );
+
+  final LogReporter? reporter;
+  final Logger _logger;
 
   void info(String msg) => _logger.i(msg);
-  void error(String msg, {Object? error, StackTrace? stackTrace}) => 
-      _logger.e(msg, error: error, stackTrace: stackTrace);
+
+  void error(String msg, {Object? error, StackTrace? stackTrace}) {
+    _logger.e(msg, error: error, stackTrace: stackTrace);
+
+    if (kReleaseMode) {
+      reporter?.report(msg, error: error, stackTrace: stackTrace);
+    }
+  }
+
   void debug(String msg) => _logger.d(msg);
   void warning(String msg) => _logger.w(msg);
 }
