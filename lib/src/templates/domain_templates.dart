@@ -2,7 +2,6 @@ import 'package:recase/recase.dart';
 
 class DomainTemplates {
   static String entity(String featureName) {
-    final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
     return '''
@@ -10,43 +9,41 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part '${snake}_entity.freezed.dart';
 
-/// Domain entity for $pascal.
+/// Domain entity for ${featureName.pascalCase}.
 @freezed
-sealed class ${pascal}Entity with _\$${pascal}Entity {
-  const factory ${pascal}Entity({
+sealed class ${featureName.pascalCase}Entity with _\$${featureName.pascalCase}Entity {
+  const factory ${featureName.pascalCase}Entity({
     required String id,
     // TODO: Add properties
-  }) = _${pascal}Entity;
+  }) = _${featureName.pascalCase}Entity;
 }
 ''';
   }
 
-  static String repository(String featureName) {
+  static String repository(String featureName, String projectName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
     return '''
-import 'package:fpdart/fpdart.dart';
-import '../../../../core/error/app_error.dart';
-import '../entities/${snake}_entity.dart';
+import 'package:$projectName/core/types/typedefs.dart';
+import 'package:$projectName/features/$snake/domain/entities/${snake}_entity.dart';
 
 /// Repository interface for $pascal.
 abstract interface class ${pascal}Repository {
-  Future<Either<AppError, ${pascal}Entity>> get$pascal(String id);
+  Future<Result<${pascal}Entity>> get$pascal(String id);
 }
 ''';
   }
 
-  static String usecase(String featureName) {
+  static String usecase(String featureName, String projectName) {
     final pascal = featureName.pascalCase;
     final camel = featureName.camelCase;
     final snake = featureName.snakeCase;
 
     return '''
-import 'package:fpdart/fpdart.dart';
-import '../../../../core/error/app_error.dart';
-import '../entities/${snake}_entity.dart';
-import '../repositories/${snake}_repository.dart';
+import 'package:$projectName/core/types/typedefs.dart';
+import 'package:$projectName/features/$snake/domain/entities/${snake}_entity.dart';
+import 'package:$projectName/features/$snake/domain/repositories/${snake}_repository.dart';
 
 /// Use case for fetching a $pascal.
 class Get${pascal}UseCase {
@@ -54,7 +51,7 @@ class Get${pascal}UseCase {
   
   final ${pascal}Repository _${camel}Repository;
 
-  Future<Either<AppError, ${pascal}Entity>> call(String id) {
+  Future<Result<${pascal}Entity>> call(String id) {
     return _${camel}Repository.get$pascal(id);
   }
 }

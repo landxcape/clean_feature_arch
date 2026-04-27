@@ -28,6 +28,7 @@ class FeatureGenerator {
       {String? targetDirectory, String? stateManager, String? storageType, bool force = false}) async {
     final snakeCaseName = name.snakeCase;
     final baseDir = targetDirectory ?? p.join('lib', 'features', snakeCaseName);
+    final projectName = _getProjectName();
 
     _strategy = force ? OverwriteStrategy.always : OverwriteStrategy.ask;
 
@@ -64,24 +65,24 @@ class FeatureGenerator {
 
       // 2. Domain Layer
       await _createFile(p.join(baseDir, 'domain', 'entities', '${snakeCaseName}_entity.dart'), DomainTemplates.entity(snakeCaseName));
-      await _createFile(p.join(baseDir, 'domain', 'repositories', '${snakeCaseName}_repository.dart'), DomainTemplates.repository(snakeCaseName));
-      await _createFile(p.join(baseDir, 'domain', 'usecases', 'get_${snakeCaseName}_usecase.dart'), DomainTemplates.usecase(snakeCaseName));
+      await _createFile(p.join(baseDir, 'domain', 'repositories', '${snakeCaseName}_repository.dart'), DomainTemplates.repository(snakeCaseName, projectName));
+      await _createFile(p.join(baseDir, 'domain', 'usecases', 'get_${snakeCaseName}_usecase.dart'), DomainTemplates.usecase(snakeCaseName, projectName));
 
       // 3. Data Layer
       await _createFile(p.join(baseDir, 'data', 'models', 'requests', '${snakeCaseName}_request_model.dart'), DataTemplates.requestModel(snakeCaseName));
-      await _createFile(p.join(baseDir, 'data', 'models', 'responses', '${snakeCaseName}_response_model.dart'), DataTemplates.responseModel(snakeCaseName));
-      await _createFile(p.join(baseDir, 'data', 'models', 'local', '${snakeCaseName}_local_model.dart'), DataTemplates.localModel(snakeCaseName));
+      await _createFile(p.join(baseDir, 'data', 'models', 'responses', '${snakeCaseName}_response_model.dart'), DataTemplates.responseModel(snakeCaseName, projectName));
+      await _createFile(p.join(baseDir, 'data', 'models', 'local', '${snakeCaseName}_local_model.dart'), DataTemplates.localModel(snakeCaseName, projectName));
 
-      await _createFile(p.join(baseDir, 'data', 'data_sources', 'remote_data_sources', '${snakeCaseName}_remote_data_source.dart'), DataTemplates.remoteDataSource(snakeCaseName));
-      await _createFile(p.join(baseDir, 'data', 'data_sources', 'local_data_sources', '${snakeCaseName}_local_data_source.dart'), DataTemplates.localDataSource(snakeCaseName, storageType: storageSelection));
-      await _createFile(p.join(baseDir, 'data', 'repositories', '${snakeCaseName}_repository_impl.dart'), DataTemplates.repositoryImpl(snakeCaseName));
+      await _createFile(p.join(baseDir, 'data', 'data_sources', 'remote_data_sources', '${snakeCaseName}_remote_data_source.dart'), DataTemplates.remoteDataSource(snakeCaseName, projectName));
+      await _createFile(p.join(baseDir, 'data', 'data_sources', 'local_data_sources', '${snakeCaseName}_local_data_source.dart'), DataTemplates.localDataSource(snakeCaseName, projectName, storageType: storageSelection));
+      await _createFile(p.join(baseDir, 'data', 'repositories', '${snakeCaseName}_repository_impl.dart'), DataTemplates.repositoryImpl(snakeCaseName, projectName));
 
       // 4. Presentation Layer
       final stateFolderName = stateManager == 'bloc' ? 'bloc' : (stateManager == 'riverpod' ? 'providers' : 'state');
       
       await _createFile(
         p.join(baseDir, 'presentation', 'screens', '${snakeCaseName}_screen.dart'), 
-        PresentationTemplates.screen(snakeCaseName, stateManager: stateManager, stateFolderName: stateFolderName)
+        PresentationTemplates.screen(snakeCaseName, projectName, stateManager: stateManager, stateFolderName: stateFolderName)
       );
 
       final stateDir = p.join(baseDir, 'presentation', stateFolderName);
@@ -89,12 +90,12 @@ class FeatureGenerator {
 
       switch (stateManager) {
         case 'bloc':
-          await _createFile(p.join(stateDir, '${snakeCaseName}_bloc.dart'), PresentationTemplates.bloc(snakeCaseName));
+          await _createFile(p.join(stateDir, '${snakeCaseName}_bloc.dart'), PresentationTemplates.bloc(snakeCaseName, projectName));
           await _createFile(p.join(stateDir, '${snakeCaseName}_event.dart'), PresentationTemplates.blocEvent(snakeCaseName));
           await _createFile(p.join(stateDir, '${snakeCaseName}_state.dart'), PresentationTemplates.blocState(snakeCaseName));
           break;
         case 'riverpod':
-          await _createFile(p.join(stateDir, '${snakeCaseName}_provider.dart'), PresentationTemplates.riverpod(snakeCaseName));
+          await _createFile(p.join(stateDir, '${snakeCaseName}_provider.dart'), PresentationTemplates.riverpod(snakeCaseName, projectName));
           break;
         default:
           await _createFile(p.join(stateDir, '${snakeCaseName}_state.dart'), PresentationTemplates.genericState(snakeCaseName));
@@ -131,9 +132,7 @@ class FeatureGenerator {
 
       for (final dir in dirs) {
         final directory = Directory(dir);
-        if (!await directory.exists()) {
-          await directory.create(recursive: true);
-        }
+        if (!await directory.exists()) await directory.create(recursive: true);
       }
 
       await _createFile('lib/core/error/app_error.dart', CoreTemplates.appError());
@@ -249,12 +248,13 @@ class FeatureGenerator {
       return;
     }
     var content = await file.readAsString();
+    final projectName = _getProjectName();
     
     // Remove old empty constructor if it exists
     content = content.replaceFirst('const ${pascal}LocalDataSourceImpl();', '');
 
     if (engine == 'drift' && !content.contains('AppDatabase')) {
-      content = "import 'package:drift/drift.dart';\nimport '../../../../../core/storage/app_database.dart';\n$content";
+      content = "import 'package:drift/drift.dart';\nimport 'package:$projectName/core/storage/app_database.dart';\n$content";
       final tableDef = '\nclass ${pascal}Table extends Table {\n  IntColumn get id => integer().autoIncrement()();\n}\n';
       content = content.replaceFirst('abstract interface class', '$tableDef\nabstract interface class');
       content = content.replaceFirst(
@@ -262,7 +262,7 @@ class FeatureGenerator {
         'class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {\n  final AppDatabase _db;\n  const ${pascal}LocalDataSourceImpl(this._db);',
       );
     } else if (engine == 'shared' && !content.contains('LocalSettings')) {
-      content = "import '../../../../../core/storage/local_settings.dart';\n$content";
+      content = "import 'package:$projectName/core/storage/local_settings.dart';\n$content";
       content = content.replaceFirst(
         'class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {',
         'class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {\n  final LocalSettings _localSettings;\n  const ${pascal}LocalDataSourceImpl(this._localSettings);',
@@ -296,19 +296,16 @@ class FeatureGenerator {
     var content = await file.readAsString();
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
+    final projectName = _getProjectName();
     
-    // Improved idempotency: search only inside tables: [...]
     final tablePattern = RegExp(r'tables: \[(.*?)\]');
     final match = tablePattern.firstMatch(content);
     
     if (match != null && !match.group(1)!.contains('${pascal}Table')) {
-      // Add Import
-      final import = "import '../../features/$snake/data/data_sources/local_data_sources/${snake}_local_data_source.dart';";
+      final import = "import 'package:$projectName/features/$snake/data/data_sources/local_data_sources/${snake}_local_data_source.dart';";
       if (!content.contains(import)) {
         content = "$import\n$content";
       }
-      
-      // Add Table to list
       content = content.replaceFirst('tables: [', 'tables: [${pascal}Table, ');
     }
 
@@ -323,8 +320,8 @@ class FeatureGenerator {
     var content = await file.readAsString();
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
+    final projectName = _getProjectName();
     
-    // Idempotency check for feature block
     if (content.contains('// --- $pascal ---')) {
       return;
     }
@@ -332,17 +329,17 @@ class FeatureGenerator {
     final stateFolderName = stateManager == 'bloc' ? 'bloc' : (stateManager == 'riverpod' ? 'providers' : 'state');
 
     final imps = [
-      "import '../../features/$snake/data/data_sources/local_data_sources/${snake}_local_data_source.dart';",
-      "import '../../features/$snake/data/data_sources/remote_data_sources/${snake}_remote_data_source.dart';",
-      "import '../../features/$snake/data/repositories/${snake}_repository_impl.dart';",
-      "import '../../features/$snake/domain/repositories/${snake}_repository.dart';",
-      "import '../../features/$snake/domain/usecases/get_${snake}_usecase.dart';",
+      "import 'package:$projectName/features/$snake/data/data_sources/local_data_sources/${snake}_local_data_source.dart';",
+      "import 'package:$projectName/features/$snake/data/data_sources/remote_data_sources/${snake}_remote_data_source.dart';",
+      "import 'package:$projectName/features/$snake/data/repositories/${snake}_repository_impl.dart';",
+      "import 'package:$projectName/features/$snake/domain/repositories/${snake}_repository.dart';",
+      "import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';",
     ];
     if (stateManager == 'bloc') {
-      imps.add("import '../../features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';");
+      imps.add("import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';");
     }
     if (stateManager == 'riverpod') {
-      imps.add("import '../../features/$snake/presentation/$stateFolderName/${snake}_provider.dart';");
+      imps.add("import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_provider.dart';");
     }
 
     for (final i in imps) {
@@ -393,7 +390,6 @@ class FeatureGenerator {
     try {
       final projectName = _getProjectName();
       
-      // Detect where the state lives
       final presentationDir = Directory('lib/features/$snake/presentation');
       String stateFolderName = 'state';
       if (await presentationDir.exists()) {
@@ -449,12 +445,7 @@ class FeatureGenerator {
     }
     var c = await file.readAsString();
     bool mod = false;
-    for (final p in ps) {
-      if (!c.contains(p)) {
-        c = c.replaceFirst('<application', '    <uses-permission android:name="$p" />\n    <application');
-        mod = true;
-      }
-    }
+    for (final p in ps) if (!c.contains(p)) { c = c.replaceFirst('<application', '    <uses-permission android:name="$p" />\n    <application'); mod = true; }
     if (mod) {
       await file.writeAsString(c);
     }

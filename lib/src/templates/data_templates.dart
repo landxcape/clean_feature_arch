@@ -25,13 +25,13 @@ sealed class ${pascal}RequestModel with _\$${pascal}RequestModel {
 ''';
   }
 
-  static String responseModel(String featureName) {
+  static String responseModel(String featureName, String projectName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
     return '''
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../domain/entities/${snake}_entity.dart';
+import 'package:$projectName/features/$snake/domain/entities/${snake}_entity.dart';
 
 part '${snake}_response_model.freezed.dart';
 part '${snake}_response_model.g.dart';
@@ -59,13 +59,13 @@ sealed class ${pascal}ResponseModel with _\$${pascal}ResponseModel {
 ''';
   }
 
-  static String localModel(String featureName) {
+  static String localModel(String featureName, String projectName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
     return '''
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../domain/entities/${snake}_entity.dart';
+import 'package:$projectName/features/$snake/domain/entities/${snake}_entity.dart';
 
 part '${snake}_local_model.freezed.dart';
 part '${snake}_local_model.g.dart';
@@ -100,13 +100,13 @@ sealed class ${pascal}LocalModel with _\$${pascal}LocalModel {
 ''';
   }
 
-  static String remoteDataSource(String featureName) {
+  static String remoteDataSource(String featureName, String projectName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
     return '''
-import '../../models/requests/${snake}_request_model.dart';
-import '../../models/responses/${snake}_response_model.dart';
+import 'package:$projectName/features/$snake/data/models/requests/${snake}_request_model.dart';
+import 'package:$projectName/features/$snake/data/models/responses/${snake}_response_model.dart';
 
 abstract interface class ${pascal}RemoteDataSource {
   Future<${pascal}ResponseModel> get$pascal(${pascal}RequestModel request);
@@ -124,7 +124,7 @@ class ${pascal}RemoteDataSourceImpl implements ${pascal}RemoteDataSource {
 ''';
   }
 
-  static String localDataSource(String featureName, {String? storageType}) {
+  static String localDataSource(String featureName, String projectName, {String? storageType}) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
@@ -134,7 +134,7 @@ class ${pascal}RemoteDataSourceImpl implements ${pascal}RemoteDataSource {
     String params = '';
 
     if (storageType == 'drift') {
-      imports = "\nimport 'package:drift/drift.dart';\nimport '../../../../../core/storage/app_database.dart';";
+      imports = "\nimport 'package:drift/drift.dart';\nimport 'package:$projectName/core/storage/app_database.dart';";
       tableDef = '''
 
 /// Local database table for $pascal.
@@ -145,13 +145,13 @@ class ${pascal}Table extends Table {
       fields = "\n  final AppDatabase _db;";
       params = "this._db";
     } else if (storageType == 'shared') {
-      imports = "\nimport '../../../../../core/storage/local_settings.dart';";
+      imports = "\nimport 'package:$projectName/core/storage/local_settings.dart';";
       fields = "\n  final LocalSettings _localSettings;";
       params = "this._localSettings";
     }
 
     return '''
-import '../../models/local/${snake}_local_model.dart';$imports
+import 'package:$projectName/features/$snake/data/models/local/${snake}_local_model.dart';$imports
 $tableDef
 abstract interface class ${pascal}LocalDataSource {
   Future<void> save$pascal(${pascal}LocalModel model);
@@ -176,18 +176,18 @@ class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {$fields
 ''';
   }
 
-  static String repositoryImpl(String featureName) {
+  static String repositoryImpl(String featureName, String projectName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
     return '''
-import '../../../../core/error/error_handler.dart';
-import '../../../../core/types/typedefs.dart';
-import '../../domain/entities/${snake}_entity.dart';
-import '../../domain/repositories/${snake}_repository.dart';
-import '../data_sources/remote_data_sources/${snake}_remote_data_source.dart';
-import '../data_sources/local_data_sources/${snake}_local_data_source.dart';
-import '../models/requests/${snake}_request_model.dart';
+import 'package:$projectName/core/error/error_handler.dart';
+import 'package:$projectName/core/types/typedefs.dart';
+import 'package:$projectName/features/$snake/domain/entities/${snake}_entity.dart';
+import 'package:$projectName/features/$snake/domain/repositories/${snake}_repository.dart';
+import 'package:$projectName/features/$snake/data/data_sources/remote_data_sources/${snake}_remote_data_source.dart';
+import 'package:$projectName/features/$snake/data/data_sources/local_data_sources/${snake}_local_data_source.dart';
+import 'package:$projectName/features/$snake/data/models/requests/${snake}_request_model.dart';
 
 /// Repository implementation for $pascal.
 class ${pascal}RepositoryImpl implements ${pascal}Repository {

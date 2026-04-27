@@ -1,7 +1,7 @@
 import 'package:recase/recase.dart';
 
 class PresentationTemplates {
-  static String screen(String featureName, {String? stateManager, String stateFolderName = 'state'}) {
+  static String screen(String featureName, String projectName, {String? stateManager, String stateFolderName = 'state'}) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
@@ -9,17 +9,17 @@ class PresentationTemplates {
     String body = 'const Center(child: Text(\'$pascal Screen\'))';
 
     if (stateManager == 'bloc') {
-      imports = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport '../$stateFolderName/${snake}_bloc.dart';\nimport '../$stateFolderName/${snake}_state.dart';";
+      imports = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';";
       body = '''BlocBuilder<${pascal}Bloc, ${pascal}State>(
         builder: (context, state) {
           return const Center(child: Text('$pascal Screen with BLoC'));
         },
       )''';
     } else if (stateManager == 'riverpod') {
-      imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';\nimport '../$stateFolderName/${snake}_provider.dart';";
+      imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_provider.dart';";
       body = 'const Center(child: Text(\'$pascal Screen with Riverpod\'))';
     } else {
-      imports = "import '../$stateFolderName/${snake}_state.dart';";
+      imports = "import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';";
     }
 
     return '''
@@ -40,14 +40,14 @@ class ${pascal}Screen extends StatelessWidget {
 ''';
   }
 
-  static String bloc(String featureName) {
+  static String bloc(String featureName, String projectName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
     return '''
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '${snake}_event.dart';
-import '${snake}_state.dart';
-import '../../domain/usecases/get_${snake}_usecase.dart';
+import 'package:$projectName/features/$snake/presentation/bloc/${snake}_event.dart';
+import 'package:$projectName/features/$snake/presentation/bloc/${snake}_state.dart';
+import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';
 
 class ${pascal}Bloc extends Bloc<${pascal}Event, ${pascal}State> {
   final Get${pascal}UseCase _get${pascal}UseCase;
@@ -94,13 +94,13 @@ class ${pascal}State with _\$${pascal}State {
 ''';
   }
 
-  static String riverpod(String featureName) {
+  static String riverpod(String featureName, String projectName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
     return '''
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../domain/usecases/get_${snake}_usecase.dart';
-import '../../../../core/di/injection_container.dart';
+import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';
+import 'package:$projectName/core/di/injection_container.dart';
 
 part '${snake}_provider.g.dart';
 
@@ -122,10 +122,18 @@ class ${pascal}Notifier extends _\$${pascal}Notifier {
 
   static String genericState(String featureName) {
     final pascal = featureName.pascalCase;
+    final snake = featureName.snakeCase;
     return '''
-/// State management for $pascal.
-class ${pascal}State {
-  const ${pascal}State();
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part '${snake}_state.freezed.dart';
+
+@freezed
+sealed class ${pascal}State with _\$${pascal}State {
+  const factory ${pascal}State.initial() = _Initial;
+  const factory ${pascal}State.loading() = _Loading;
+  const factory ${pascal}State.success() = _Success;
+  const factory ${pascal}State.error(String message) = _Error;
 }
 ''';
   }
