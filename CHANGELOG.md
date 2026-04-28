@@ -1,40 +1,56 @@
 # Changelog
 
+## 1.4.6
+- Feat: Implemented standard asset directory structure for images, icons, fonts, and animations.
+- Feat: Integrated `easy_localization` with centralized string management and JSON translation support.
+- Feat: Added `BuildContext` extensions for theme access, media queries, and localization hooks.
+- Feat: Added responsive scaling utilities for multi-dimension UI consistency.
+- Refactor: Standardized all generated imports to fully-qualified package URIs.
+
 ## 1.4.5
-- **Absolute Import Migration**: Migrated all scaffolding and surgical patching to use fully-qualified `package:project_name/...` imports.
-- **Improved Performance**: Standardized import style to improve analyzer efficiency and ensure consistent behavior across deep directory structures.
-- **Bug Fix**: Resolved "Depth Paradox" errors caused by inconsistent relative path calculations in nested features.
+- Refactor: Optimized import style for improved analyzer performance.
+- Fix: Corrected relative path resolution in nested feature structures.
 
 ## 1.4.4
-- **Production-Safe Logging**: Enhanced `AppLogger` with `kReleaseMode` detection and a `LogReporter` interface for optional remote error reporting.
-- **Error Diagnostics**: Automatic stacktrace capture for error-level diagnostics.
-- **Console Silence**: Standardized environment-aware log filtering to ensure local logs are silenced in production builds.
+- Feat: Implemented optional production error reporting via `LogReporter` interface.
+- Feat: Added automatic stacktrace capture for error-level diagnostics.
+- Refactor: Standardized build-mode log filtering for production environment safety.
 
 ## 1.4.3
-- **Rule 8 Compliance**: Converted `AppError` to a `@freezed sealed class` for consistent error handling and logging.
-- **API Wrapper Engine**: Added `BaseResponse<T>` generic model and `IBaseResponse` interface to standardize backend envelopes.
-- **Enhanced Error Handler**: Updated `ErrorHandler.guard` to automatically check `IBaseResponse.success` and return backend error messages via `AppError.server`.
-- **Surgical Paths**: Corrected relative import depths for BLoC, providers, and local data sources.
+- Refactor: Converted infrastructure errors to Freezed models for consistent diagnostics.
+- Feat: Added generic API response wrapper and interface for standardized backend communication.
+- Fix: Enhanced `ErrorHandler.guard` to support automatic backend error message extraction.
 
 ## 1.4.2
-- Feat: Integrated `logger` and `pretty_dio_logger` for professional, production-grade logging.
-- Style: Resolved remaining package lints for a perfect quality score.
+- Feat: Integrated professional logging and API monitoring packages.
+- Style: Resolved package lints to achieve maximum quality score.
 
 ## 1.4.1
-- Fix: Corrected relative import paths and prevented duplicate constructor generation.
-- Fix: Ensured idempotent feature registration in `injection_container.dart`.
-- Chore: Updated analyzer dependency constraints for version 13.0.0 compatibility.
+- Fix: Resolved import depth and constructor duplication bugs in feature scaffolding.
+- Chore: Updated dependency constraints for latest analyzer compatibility.
 
 ## 1.4.0
-- Feat: Added modular storage system via `storage init` and `storage feature` commands.
-- Feat: Implemented surgical code patching for non-destructive feature upgrades.
-- Feat: Implemented dynamic presentation folder naming (`bloc/`, `providers/`) based on state management.
-
-## 1.3.1
+- Feat: Added modular storage command suite with support for Drift and Shared Preferences.
+- Feat: Implemented surgical code patching for non-destructive existing feature upgrades.
+- Feat: Added dynamic directory naming based on state management selection.
 - Feat: Added `permission` command and `test` command for cross-platform and QA scaffolding.
 
 ## 1.3.0
 - Feat: Enhanced `init` to generate fully wired production core infrastructure.
+- Feat: Added canonical implementations for `SecureStorage` and `NetworkInfo`.
+- Feat: Automated DI registration for all core singletons.
+- Feat: Pre-configured `ApiClient` with interceptors and flavor support.
+
+## 1.2.1
+- UX: Added interactive conflict manager (Yes/No/Always/Skip-All) for scaffolding.
+
+## 1.2.0
+- Feat: Populated `core/` with Router, Theme, Storage, and Networking boilerplate.
+- Feat: Added `docs` command for terminal-based architectural reference.
+
+## 1.1.0
+- Feat: Added state management selection for BLoC and Riverpod.
+- Refactor: Migrated to native Dart Analyzer Plugin system.
 
 ## 1.0.0
 - Initial release with Absolute Rule Architecture scaffolding and enforcement.

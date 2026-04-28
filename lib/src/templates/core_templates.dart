@@ -1,3 +1,5 @@
+import 'package:recase/recase.dart';
+
 class CoreTemplates {
   // --- Error Handling ---
   static String appError() => r'''
@@ -289,6 +291,19 @@ class FlavorConfig {
 }
 ''';
 
+  // --- Localization ---
+  static String stringManager() => r'''
+import 'package:easy_localization/easy_localization.dart';
+
+class AppStrings {
+  static final example = 'example'.tr();
+}
+''';
+
+  static String emptyJson() => r'''
+{}
+''';
+
   // --- Dependency Injection ---
   static String injectionContainer(String? stateManager) {
     final String stateComment = stateManager == 'riverpod'
@@ -343,6 +358,30 @@ class AppRouter {
   static String routeConstants() => r'''
 class RouteConstants {
   static const String root = '/';
+}
+''';
+
+  static String assetConstants() => r'''
+class AssetConstants {
+  static const String _imagePath = 'assets/images';
+  static const String _iconPath = 'assets/icons';
+
+  // --- Icons ---
+  // static const String logo = '$_iconPath/logo.svg';
+
+  // --- Images ---
+  // static const String placeholder = '$_imagePath/placeholder.png';
+}
+''';
+
+  static String appConstants() => r'''
+class AppConstants {
+  static const String appName = 'Absolute App';
+  static const String appVersion = '1.0.0';
+  
+  // Design Dimensions (Target)
+  static const double designWidth = 375.0;
+  static const double designHeight = 812.0;
 }
 ''';
 
@@ -430,12 +469,48 @@ class ValidatorUtils {
 }
 ''';
 
-  static String contextExtensions() => r'''
+  static String responsiveUtils() => r'''
 import 'package:flutter/material.dart';
 
+extension ResponsiveExtension on BuildContext {
+  double get screenWidth => MediaQuery.sizeOf(this).width;
+  double get screenHeight => MediaQuery.sizeOf(this).height;
+
+  bool get isMobile => screenWidth < 600;
+  bool get isTablet => screenWidth >= 600 && screenWidth < 1200;
+  bool get isDesktop => screenWidth >= 1200;
+
+  double get scaleWidth => screenWidth / 375.0; // Based on designWidth
+  double get scaleHeight => screenHeight / 812.0;
+}
+
+extension SizeExtension on num {
+  double h(BuildContext context) => this * (MediaQuery.sizeOf(context).height / 812.0);
+  double w(BuildContext context) => this * (MediaQuery.sizeOf(context).width / 375.0);
+}
+''';
+
+  static String contextExtensions() => r'''
+import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+
 extension ContextExtensions on BuildContext {
+  // Theme
   ThemeData get theme => Theme.of(this);
   TextTheme get textTheme => theme.textTheme;
+  ColorScheme get colorScheme => theme.colorScheme;
+  
+  // UI / Responsive
+  double get screenWidth => MediaQuery.sizeOf(this).width;
+  double get screenHeight => MediaQuery.sizeOf(this).height;
+  EdgeInsets get padding => MediaQuery.paddingOf(this);
+  
+  bool get isMobile => screenWidth < 600;
+  bool get isTablet => screenWidth >= 600 && screenWidth < 1200;
+  bool get isDesktop => screenWidth >= 1200;
+
+  // i18n
+  String translate(String key) => tr(key);
 }
 ''';
 
@@ -484,6 +559,7 @@ void main() {
 
   static String appDart() => r'''
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 
@@ -498,6 +574,9 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.dark,
       routerConfig: AppRouter.router,
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
     );
   }
 }
@@ -520,25 +599,35 @@ class AppBlocObserver extends BlocObserver {
   }
 }
 ''';
-        appWrapper = 'Bloc.observer = AppBlocObserver();\n  runApp(const MyApp())';
+        appWrapper = 'Bloc.observer = AppBlocObserver();\n  runApp(localizationWrapper)';
         break;
       case 'riverpod':
         imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';";
-        appWrapper = 'runApp(const ProviderScope(child: MyApp()))';
+        appWrapper = 'runApp(ProviderScope(child: localizationWrapper))';
         break;
       default:
-        appWrapper = 'runApp(const MyApp())';
+        appWrapper = 'runApp(localizationWrapper)';
     }
 
     return '''
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'core/di/injection_container.dart';
 $imports
 import 'app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
   await configureDependencies();
+
+  final localizationWrapper = EasyLocalization(
+    supportedLocales: const [Locale('en', 'US')],
+    path: 'assets/translations',
+    fallbackLocale: const Locale('en', 'US'),
+    child: const MyApp(),
+  );
+
   $appWrapper;
 }
 
