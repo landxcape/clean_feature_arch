@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.8
+- Refactor: Aligned localization file naming with core patterns (`string_manager.dart` -> `app_strings.dart`).
+
 ## 1.4.7
 - **Quality Perfection**: Resolved all remaining package lints to achieve a 160/160 quality score on pub.dev.
 - **Style Standardization**: Enforced curly braces across all flow control structures in the generator and templates.

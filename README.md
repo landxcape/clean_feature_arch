@@ -17,7 +17,7 @@ dart pub add -d clean_feature_arch
 Run the toolkit using `dart run clean_feature_arch`:
 
 ### 1. Initializing a Project
-Scaffolds a production-ready core (Router, Theme, Storage, Networking) and configures baseline dependencies.
+Scaffolds a production-ready core (Router, Theme, Storage, Networking) and the **Absolute Resource Suite** (Assets, Localization, Context Extensions).
 ```bash
 # Default (Pure Dart)
 dart run clean_feature_arch init

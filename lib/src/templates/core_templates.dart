@@ -289,11 +289,11 @@ class FlavorConfig {
 ''';
 
   // --- Localization ---
-  static String stringManager() => r'''
+  static String appStrings() => r'''
 import 'package:easy_localization/easy_localization.dart';
 
 class AppStrings {
-  static final example = 'example'.tr();
+  static String get example => 'example'.tr();
 }
 ''';
 

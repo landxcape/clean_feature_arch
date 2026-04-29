@@ -36,6 +36,27 @@ When a feature requires persistence, its **Local Data Source** is injected with 
 
 ---
 
+## The Absolute Resource Suite
+
+The `init` command generates a centralized resource ecosystem in `core/` to prevent logic duplication and magic strings.
+
+### 1. Asset Management (`core/constants/`)
+*   **`app_constants.dart`**: Global metadata (App name, version, design dimensions).
+*   **`asset_constants.dart`**: Type-safe paths for `assets/` (Images, Icons, Fonts, Animations).
+
+### 2. Localization (`core/localization/`)
+*   **Engine**: Powered by `easy_localization`.
+*   **`app_strings.dart`**: Centralized getters (e.g., `AppStrings.login`) that fetch translations in real-time without app restarts.
+*   **Samples**: Scaffolds `en-US.json` and `ne-NP.json` in `assets/translations/`.
+
+### 3. BuildContext Extensions (`core/extensions/`)
+*   **`context_extensions.dart`**: Hooks for `theme`, `mediaQuery`, `responsive scaling`, and `tr()` localization shortcuts.
+
+### 4. Responsive Utilities (`core/utils/`)
+*   **`responsive_utils.dart`**: Sizing logic (`.w`, `.h`) to ensure UI consistency across multiple device dimensions.
+
+---
+
 ## Part 1 — Folder Structure
 
 ```

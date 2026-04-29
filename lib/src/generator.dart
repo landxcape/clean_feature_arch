@@ -228,8 +228,8 @@ class FeatureGenerator {
           CoreTemplates.assetConstants());
       await _createFile(
           'lib/core/constants/app_constants.dart', CoreTemplates.appConstants());
-      await _createFile('lib/core/localization/string_manager.dart',
-          CoreTemplates.stringManager());
+      await _createFile('lib/core/localization/app_strings.dart',
+          CoreTemplates.appStrings());
       await _createFile('lib/core/theme/app_theme.dart', CoreTemplates.appTheme());
       await _createFile('lib/core/theme/app_colors.dart', CoreTemplates.appColors());
       await _createFile('lib/core/theme/app_spacing.dart', CoreTemplates.appSpacing());
@@ -257,6 +257,8 @@ class FeatureGenerator {
       await _createFile('build.yaml', CoreTemplates.buildYaml());
       await _createFile(
           'assets/translations/en-US.json', CoreTemplates.emptyJson());
+      await _createFile(
+          'assets/translations/ne-NP.json', CoreTemplates.emptyJson());
 
       await _patchAndroidManifest();
       await _patchInfoPlist();
