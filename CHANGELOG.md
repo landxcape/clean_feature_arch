@@ -1,56 +1,60 @@
 # Changelog
 
+## 1.4.9
+- Docs: Refactored entire changelog for technical clarity and professional tone.
+- Docs: Verified and aligned historical version summaries with official publication records.
+
 ## 1.4.8
-- Refactor: Aligned localization file naming with core patterns (`string_manager.dart` -> `app_strings.dart`).
+- Refactor: Renamed `lib/core/localization/app_strings.dart` to match `app_` prefix pattern.
+- Feat: Implemented getters in `AppStrings` to support reactive localization updates without app restarts.
+- Feat: Added `en-US.json` and `ne-NP.json` sample files to `assets/translations/`.
+- Docs: Updated architecture guides with resource suite and localization details.
 
 ## 1.4.7
-- **Quality Perfection**: Resolved all remaining package lints to achieve a 160/160 quality score on pub.dev.
-- **Style Standardization**: Enforced curly braces across all flow control structures in the generator and templates.
-- **Resource Engine**: Finalized absolute path wiring for the Resource Suite and Localization engine.
+- Fix: Resolved all remaining package lints and formatting issues to improve quality score.
+- Style: Enforced mandatory curly braces across all flow control structures in the generator logic.
+- Fix: Finalized absolute path resolution for all core resource templates.
 
 ## 1.4.6
-- Feat: Implemented standard asset directory structure for images, icons, fonts, and animations.
-- Feat: Integrated `easy_localization` with centralized string management and JSON translation support.
-- Feat: Added `BuildContext` extensions for theme access, media queries, and localization hooks.
-- Feat: Added responsive scaling utilities for multi-dimension UI consistency.
-- Refactor: Standardized all generated imports to fully-qualified package URIs.
+- Feat: Added standard asset directory structure for images, icons, fonts, and animations.
+- Feat: Integrated `easy_localization` with centralized string management.
+- Feat: Added `BuildContext` extensions for theme, media query, and localization access.
+- Feat: Added responsive scaling utilities for cross-device UI consistency.
 
 ## 1.4.5
-- Refactor: Optimized import style for improved analyzer performance.
-- Fix: Corrected relative path resolution in nested feature structures.
+- Refactor: Migrated all scaffolding and surgical patching to use fully-qualified package imports.
+- Fix: Resolved relative path depth issues in nested feature structures.
 
 ## 1.4.4
-- Feat: Implemented optional production error reporting via `LogReporter` interface.
-- Feat: Added automatic stacktrace capture for error-level diagnostics.
-- Refactor: Standardized build-mode log filtering for production environment safety.
+- Feat: Added `LogReporter` interface and optional production error reporting hook.
+- Feat: Implemented automatic stacktrace capture for error-level logging.
+- Refactor: Standardized environment-aware log filtering.
 
 ## 1.4.3
-- Refactor: Converted infrastructure errors to Freezed models for consistent diagnostics.
-- Feat: Added generic API response wrapper and interface for standardized backend communication.
+- Refactor: Converted `AppError` to a Freezed sealed class for standardized diagnostics.
+- Feat: Added `BaseResponse<T>` generic model and `IBaseResponse` interface.
 - Fix: Enhanced `ErrorHandler.guard` to support automatic backend error message extraction.
 
 ## 1.4.2
-- Feat: Integrated professional logging and API monitoring packages.
-- Style: Resolved package lints to achieve maximum quality score.
+- Feat: Integrated `logger` and `pretty_dio_logger` for production-grade logging.
+- Fix: Resolved "Undefined name 'logger'" errors in core templates.
 
 ## 1.4.1
-- Fix: Resolved import depth and constructor duplication bugs in feature scaffolding.
-- Chore: Updated dependency constraints for latest analyzer compatibility.
+- Fix: Corrected relative import paths and prevented duplicate constructor generation during storage surgery.
+- Fix: Ensured idempotent feature registration in `injection_container.dart`.
 
 ## 1.4.0
-- Feat: Added modular storage command suite with support for Drift and Shared Preferences.
-- Feat: Implemented surgical patching for non-destructive existing feature upgrades.
-- Feat: Added dynamic directory naming based on state management selection.
+- Feat: Added modular storage command suite with Drift and Shared Preferences support.
+- Feat: Implemented dynamic presentation folder naming based on state management selection.
 - Feat: Added `permission` command and `test` command for cross-platform and QA scaffolding.
 
 ## 1.3.0
 - Feat: Enhanced `init` to generate fully wired production core infrastructure.
 - Feat: Added canonical implementations for `SecureStorage` and `NetworkInfo`.
-- Feat: Automated DI registration for all core singletons.
-- Feat: Pre-configured `ApiClient` with interceptors and flavor support.
+- Feat: Automated dependency injection for all core singletons.
 
 ## 1.2.1
-- UX: Added interactive conflict manager (Yes/No/Always/Skip-All) for scaffolding.
+- UX: Added interactive conflict manager for file scaffolding.
 
 ## 1.2.0
 - Feat: Populated `core/` with Router, Theme, Storage, and Networking boilerplate.
