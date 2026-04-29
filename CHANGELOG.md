@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.7
+- **Quality Perfection**: Resolved all remaining package lints to achieve a 160/160 quality score on pub.dev.
+- **Style Standardization**: Enforced curly braces across all flow control structures in the generator and templates.
+- **Resource Engine**: Finalized absolute path wiring for the Resource Suite and Localization engine.
+
 ## 1.4.6
 - Feat: Implemented standard asset directory structure for images, icons, fonts, and animations.
 - Feat: Integrated `easy_localization` with centralized string management and JSON translation support.
@@ -31,7 +36,7 @@
 
 ## 1.4.0
 - Feat: Added modular storage command suite with support for Drift and Shared Preferences.
-- Feat: Implemented surgical code patching for non-destructive existing feature upgrades.
+- Feat: Implemented surgical patching for non-destructive existing feature upgrades.
 - Feat: Added dynamic directory naming based on state management selection.
 - Feat: Added `permission` command and `test` command for cross-platform and QA scaffolding.
 

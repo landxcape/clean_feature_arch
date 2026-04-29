@@ -1,5 +1,3 @@
-import 'package:recase/recase.dart';
-
 class CoreTemplates {
   // --- Error Handling ---
   static String appError() => r'''
@@ -56,10 +54,9 @@ class ErrorHandler {
     try {
       final result = await action();
       
-      if (result is IBaseResponse) {
-        if (!result.success) {
-          return Left(AppError.server(statusCode: 200, message: result.message));
-        }
+      final dynamic dynamicResult = result;
+      if (dynamicResult is BaseResponse && !dynamicResult.success) {
+        return Left(AppError.server(statusCode: 200, message: dynamicResult.message));
       }
       
       return Right(result);
