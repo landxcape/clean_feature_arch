@@ -2,10 +2,12 @@
 
 ## 1.6.0
 - Feat: Implemented modern declarative bootstrap process using Record destructuring and high-level abstraction.
-- Feat: Modernized all templates to utilize Dart 3.x features (Switch Expressions, Records, Pattern Matching).
+- Feat: Modernized all templates to utilize Dart 3.x features, including native Switch Expressions for UI state rendering.
+- Refactor: Adopted idiomatic part/part of pattern for BLoC triads to consolidate Bloc, Event, and State into a single logical library.
 - Feat: Converted environment and localization configuration to type-safe Enhanced Enums.
+- Fix: Resolved strict_raw_type warnings and standardized template imports to achieve a Warning-Zero analysis state.
 - Fix: Synchronized unit and integration test templates with updated constructor signatures and modern assertions.
-- Refactor: Standardized core configuration naming conventions and import path resolution.
+- Refactor: Standardized core configuration naming conventions and absolute import path resolution.
 
 ## 1.5.0
 - Feat: Migrated dependency injection to a Modular Registry pattern.
