@@ -1,13 +1,11 @@
 # Changelog
 
 ## 1.6.0
-- Feat: Modernized all templates with Dart 3.x features including Switch Expressions, Records, and Pattern Matching.
-- Feat: Implemented a modern declarative bootstrap process in `AppBootstrap`.
-- Feat: Purified `main.dart` using Record destructuring and high-level abstraction.
-- Feat: Converted `FlavorConfig` to an enhanced enum `AppFlavor`.
-- Feat: Encapsulated localization configuration within the `AppLocales` enhanced enum.
-- Refactor: Standardized `ErrorHandler` with Map Pattern matching for dynamic JSON destructuring.
-- Style: Aligned core configuration naming with the `app_` prefix pattern.
+- Feat: Implemented modern declarative bootstrap process using Record destructuring and high-level abstraction.
+- Feat: Modernized all templates to utilize Dart 3.x features (Switch Expressions, Records, Pattern Matching).
+- Feat: Converted environment and localization configuration to type-safe Enhanced Enums.
+- Fix: Synchronized unit and integration test templates with updated constructor signatures and modern assertions.
+- Refactor: Standardized core configuration naming conventions and import path resolution.
 
 ## 1.5.0
 - Feat: Migrated dependency injection to a Modular Registry pattern.

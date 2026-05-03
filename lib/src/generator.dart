@@ -544,22 +544,19 @@ class FeatureGenerator {
         state = 'riverpod';
       }
 
-      await _createFile('test/integration/live_api/${snake}_api_test.dart',
-          TestTemplates.liveApiTest(snake, projectName));
-      await _createFile(
-          'test/features/$snake/data/repositories/${snake}_repository_impl_test.dart',
-          TestTemplates.repositoryTest(snake, projectName));
-      await _createFile(
-          'test/features/$snake/domain/usecases/get_${snake}_usecase_test.dart',
-          TestTemplates.usecaseTest(snake, projectName));
+      await _createFile('test/integration/live_api/${snake}_api_test.dart', TestTemplates.liveApiTest(snake, projectName));
+      await _createFile('test/features/$snake/data/repositories/${snake}_repository_impl_test.dart', TestTemplates.repositoryTest(snake, projectName));
+      await _createFile('test/features/$snake/domain/usecases/get_${snake}_usecase_test.dart', TestTemplates.usecaseTest(snake, projectName));
       if (state == 'bloc') {
         await _createFile(
             'test/features/$snake/presentation/$stateFolderName/${snake}_bloc_test.dart',
-            TestTemplates.blocTest(snake, projectName));
+            TestTemplates.blocTest(snake, projectName,
+                stateFolderName: stateFolderName));
       } else if (state == 'riverpod') {
         await _createFile(
             'test/features/$snake/presentation/$stateFolderName/${snake}_provider_test.dart',
-            TestTemplates.riverpodTest(snake, projectName));
+            TestTemplates.riverpodTest(snake, projectName,
+                stateFolderName: stateFolderName));
       }
       progress.complete();
     } catch (e) {

@@ -34,7 +34,7 @@ void main() {
 
       try {
         final data = response.data;
-        final model = ${pascal}ResponseModel.fromJson(data);
+        final model = ${pascal}ResponseModel.fromJson(data as Map<String, dynamic>);
         expect(model, isNotNull);
       } catch (e) {
         fail('Parse Failed!\\nError: \$e\\nJSON: \${response.data}');
@@ -53,42 +53,46 @@ void main() {
     return '''
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:$projectName/features/$snake/data/repositories/${snake}_repository_impl.dart';
 import 'package:$projectName/features/$snake/data/data_sources/remote_data_sources/${snake}_remote_data_source.dart';
+import 'package:$projectName/features/$snake/data/data_sources/local_data_sources/${snake}_local_data_source.dart';
 import 'package:$projectName/features/$snake/data/models/requests/${snake}_request_model.dart';
 import 'package:$projectName/features/$snake/data/models/responses/${snake}_response_model.dart';
 
 class Mock${pascal}RemoteDataSource extends Mock implements ${pascal}RemoteDataSource {}
+class Mock${pascal}LocalDataSource extends Mock implements ${pascal}LocalDataSource {}
 
 void main() {
   late ${pascal}RepositoryImpl repository;
-  late Mock${pascal}RemoteDataSource mockRemoteDataSource;
+  late Mock${pascal}RemoteDataSource mockRemote;
+  late Mock${pascal}LocalDataSource mockLocal;
 
   setUpAll(() {
-    // For sealed classes, we register a real instance as a fallback for mocktail
     registerFallbackValue(const ${pascal}RequestModel(id: 'fallback'));
   });
 
   setUp(() {
-    mockRemoteDataSource = Mock${pascal}RemoteDataSource();
-    repository = ${pascal}RepositoryImpl(mockRemoteDataSource);
+    mockRemote = Mock${pascal}RemoteDataSource();
+    mockLocal = Mock${pascal}LocalDataSource();
+    repository = ${pascal}RepositoryImpl(mockRemote, mockLocal);
   });
 
   group('$pascal Repository', () {
     const tId = 'test_id';
-    const tResponseModel = ${pascal}ResponseModel(id: tId);
+    const tResponse = ${pascal}ResponseModel(id: tId);
 
-    test('should return Entity when call to remote data source is successful', () async {
+    test('should return Entity when call is successful', () async {
       // Arrange
-      when(() => mockRemoteDataSource.get$pascal(any()))
-          .thenAnswer((_) async => tResponseModel);
+      when(() => mockRemote.get$pascal(any()))
+          .thenAnswer((_) async => tResponse);
 
       // Act
       final result = await repository.get$pascal(tId);
 
       // Assert
-      expect(result.isRight(), true);
-      verify(() => mockRemoteDataSource.get$pascal(any())).called(1);
+      expect(result, isA<Right>());
+      verify(() => mockRemote.get$pascal(any())).called(1);
     });
   });
 }
@@ -139,15 +143,15 @@ void main() {
 ''';
   }
 
-  static String blocTest(String featureName, String projectName) {
+  static String blocTest(String featureName, String projectName, {String stateFolderName = 'bloc'}) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
     return '''
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:fpdart/fpdart.dart';
-import 'package:$projectName/features/$snake/presentation/state/${snake}_bloc.dart';
+import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';
+import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';
 import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';
 
 class MockGet${pascal}UseCase extends Mock implements Get${pascal}UseCase {}
@@ -170,7 +174,7 @@ void main() {
 ''';
   }
 
-  static String riverpodTest(String featureName, String projectName) {
+  static String riverpodTest(String featureName, String projectName, {String stateFolderName = 'providers'}) {
     final pascal = featureName.pascalCase;
     final camel = featureName.camelCase;
     final snake = featureName.snakeCase;
@@ -180,7 +184,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:$projectName/features/$snake/presentation/state/${snake}_provider.dart';
+import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_provider.dart';
 import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';
 import 'package:$projectName/features/$snake/domain/entities/${snake}_entity.dart';
 import 'package:$projectName/core/di/injection_container.dart';
@@ -206,10 +210,10 @@ void main() {
       addTearDown(container.dispose);
 
       // Act
-      await container.read(${camel}Provider.notifier).get$pascal('1');
+      await container.read(${camel}NotifierProvider.notifier).fetchData();
 
       // Assert
-      expect(container.read(${camel}Provider).hasValue, true);
+      expect(container.read(${camel}NotifierProvider).hasValue, true);
     });
   });
 }
