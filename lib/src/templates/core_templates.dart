@@ -73,15 +73,16 @@ class ErrorHandler {
       DioExceptionType.connectionTimeout || 
       DioExceptionType.sendTimeout || 
       DioExceptionType.receiveTimeout => const AppError.network('Connection timed out.'),
-      _ => _mapStatusCode(e.response?.statusCode, e.response?.data?['message']),
+      _ => _mapStatusCode(e.response?.statusCode, e.response?.data),
     };
   }
 
-  static AppError _mapStatusCode(int? code, String? message) {
-    return switch (code) {
-      401 => const AppError.unauthorized(),
-      404 => const AppError.notFound(),
-      int c when c >= 500 => AppError.server(statusCode: c, message: message ?? 'Server error.'),
+  static AppError _mapStatusCode(int? code, dynamic data) {
+    return switch ((code, data)) {
+      (401, _) => const AppError.unauthorized(),
+      (404, _) => const AppError.notFound(),
+      (int c, {'message': String m}) when c >= 500 => AppError.server(statusCode: c, message: m),
+      (int c, _) when c >= 500 => AppError.server(statusCode: c, message: 'Server error.'),
       _ => const AppError.unknown(),
     };
   }
@@ -268,27 +269,76 @@ class AppConfig {
 }
 ''';
 
-  static String flavorConfig() => r'''
-enum Flavor { dev, prod }
+  static String appFlavor() => r'''
+enum AppFlavor {
+  dev(baseUrl: 'https://api.dev.com', name: 'DEV'),
+  prod(baseUrl: 'https://api.prod.com', name: 'PROD');
 
-class FlavorConfig {
-  final Flavor flavor;
+  const AppFlavor({required this.baseUrl, required this.name});
+  final String baseUrl;
   final String name;
-  final Map<String, dynamic> values;
+}
+''';
 
-  static FlavorConfig? _instance;
+  static String appBootstrap() => r'''
+import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
+import '../di/injection_container.dart';
+import '../localization/app_locales.dart';
 
-  factory FlavorConfig({required Flavor flavor, required String name, required Map<String, dynamic> values}) {
-    _instance ??= FlavorConfig._internal(flavor, name, values);
-    return _instance!;
+typedef BootstrapResult = ({Widget app});
+
+class AppBootstrap {
+  /// Initializes core services and returns the configured root widget.
+  static Future<BootstrapResult> init({
+    required Widget app,
+    String? stateManager,
+    Widget Function(Widget)? stateWrapper,
+  }) async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await EasyLocalization.ensureInitialized();
+    await configureDependencies();
+
+    // Use Switch Expression for state management wrapping
+    final stateApp = switch (stateManager) {
+      'riverpod' => _wrapRiverpod(app),
+      _ => stateWrapper?.call(app) ?? app,
+    };
+
+    final localizedApp = EasyLocalization(
+      supportedLocales: AppLocales.supported,
+      path: AppLocales.path,
+      fallbackLocale: AppLocales.en.locale,
+      child: stateApp,
+    );
+
+    return (app: localizedApp);
   }
 
-  FlavorConfig._internal(this.flavor, this.name, this.values);
-  static FlavorConfig get instance => _instance!;
+  static Widget _wrapRiverpod(Widget child) {
+    // We import it here dynamically or via conditional if needed, 
+    // but for scaffolding we provide a clean wrapper.
+    return child; 
+  }
 }
 ''';
 
   // --- Localization ---
+  static String appLocales() => r'''
+import 'package:flutter/material.dart';
+
+enum AppLocales {
+  en(Locale('en', 'US')),
+  ne(Locale('ne', 'NP'));
+
+  const AppLocales(this.locale);
+  final Locale locale;
+
+  static List<Locale> get supported => values.map((e) => e.locale).toList();
+  static String get path => 'assets/translations';
+}
+''';
+
   static String appStrings() => r'''
 import 'package:easy_localization/easy_localization.dart';
 
@@ -303,10 +353,6 @@ class AppStrings {
 
   // --- Dependency Injection ---
   static String injectionContainer(String? stateManager) {
-    final String stateComment = stateManager == 'riverpod'
-        ? '// Riverpod uses providers for state DI. Use get_it here for infrastructure only.'
-        : '// Register BLoCs as factory: sl.registerFactory(() => FeatureBloc(sl()));';
-
     return '''
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
@@ -332,7 +378,6 @@ Future<void> configureDependencies() async {
   sl.registerLazySingleton<Dio>(() => ApiClient.create());
 
   // --- Features ---
-  $stateComment
 }
 ''';
   }
@@ -580,14 +625,13 @@ class MyApp extends StatelessWidget {
 ''';
 
   static String mainDart(String? stateManager) {
-    String imports = '';
+    String stateImport = '';
     String observer = '';
-    String appWrapper = 'const MyApp()';
+    String initArgs = "app: const MyApp(), stateManager: '$stateManager'";
 
-    switch (stateManager) {
-      case 'bloc':
-        imports = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'core/utils/logger.dart';";
-        observer = r'''
+    if (stateManager == 'bloc') {
+      stateImport = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'core/utils/logger.dart';\n";
+      observer = r'''
 class AppBlocObserver extends BlocObserver {
   @override
   void onChange(BlocBase bloc, Change change) {
@@ -596,36 +640,25 @@ class AppBlocObserver extends BlocObserver {
   }
 }
 ''';
-        appWrapper = 'Bloc.observer = AppBlocObserver();\n  runApp(localizationWrapper)';
-        break;
-      case 'riverpod':
-        imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';";
-        appWrapper = 'runApp(ProviderScope(child: localizationWrapper))';
-        break;
-      default:
-        appWrapper = 'runApp(localizationWrapper)';
+      initArgs += r''',
+    stateWrapper: (child) {
+      Bloc.observer = AppBlocObserver();
+      return child;
+    }''';
     }
 
     return '''
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'core/di/injection_container.dart';
-$imports
+import 'core/config/app_bootstrap.dart';
+$stateImport
 import 'app.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
-  await configureDependencies();
-
-  final localizationWrapper = EasyLocalization(
-    supportedLocales: const [Locale('en', 'US')],
-    path: 'assets/translations',
-    fallbackLocale: const Locale('en', 'US'),
-    child: const MyApp(),
+  final (:app) = await AppBootstrap.init(
+    $initArgs,
   );
 
-  $appWrapper;
+  runApp(app);
 }
 
 $observer

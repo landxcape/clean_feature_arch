@@ -11,13 +11,25 @@ class PresentationTemplates {
     if (stateManager == 'bloc') {
       imports = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';";
       body = '''BlocBuilder<${pascal}Bloc, ${pascal}State>(
-        builder: (context, state) {
-          return const Center(child: Text('$pascal Screen with BLoC'));
-        },
+        builder: (context, state) => state.when(
+          initial: () => const Center(child: Text('Initial')),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          success: () => const Center(child: Text('Success')),
+          error: (message) => Center(child: Text(message)),
+        ),
       )''';
     } else if (stateManager == 'riverpod') {
       imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_provider.dart';";
-      body = 'const Center(child: Text(\'$pascal Screen with Riverpod\'))';
+      body = '''Consumer(
+        builder: (context, ref, child) {
+          final state = ref.watch(${pascal.camelCase}NotifierProvider);
+          return state.when(
+            data: (_) => const Center(child: Text('Success')),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(child: Text(err.toString())),
+          );
+        },
+      )''';
     } else {
       imports = "import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';";
     }

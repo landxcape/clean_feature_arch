@@ -226,7 +226,7 @@ class FeatureGenerator {
       await _createFile(
           'lib/core/config/app_config.dart', CoreTemplates.appConfig());
       await _createFile(
-          'lib/core/config/flavor_config.dart', CoreTemplates.flavorConfig());
+          'lib/core/config/app_flavor.dart', CoreTemplates.appFlavor());
       await _createFile(
           'lib/core/router/app_router.dart', CoreTemplates.appRouter());
       await _createFile('lib/core/constants/route_constants.dart',
@@ -235,8 +235,11 @@ class FeatureGenerator {
           CoreTemplates.assetConstants());
       await _createFile(
           'lib/core/constants/app_constants.dart', CoreTemplates.appConstants());
+      await _createFile(
+          'lib/core/localization/app_locales.dart', CoreTemplates.appLocales());
       await _createFile('lib/core/localization/app_strings.dart',
           CoreTemplates.appStrings());
+      await _createFile('lib/core/config/app_bootstrap.dart', CoreTemplates.appBootstrap());
       await _createFile('lib/core/theme/app_theme.dart', CoreTemplates.appTheme());
       await _createFile('lib/core/theme/app_colors.dart', CoreTemplates.appColors());
       await _createFile('lib/core/theme/app_spacing.dart', CoreTemplates.appSpacing());
