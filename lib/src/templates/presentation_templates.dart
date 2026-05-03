@@ -11,20 +11,20 @@ class PresentationTemplates {
     if (stateManager == 'bloc') {
       imports = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';";
       body = '''BlocBuilder<${pascal}Bloc, ${pascal}State>(
-        builder: (context, state) => state.when(
-          initial: () => const Center(
+        builder: (context, state) => switch (state) {
+          ${pascal}Initial() => const Center(
             child: Text('Initial'),
           ),
-          loading: () => const Center(
+          ${pascal}Loading() => const Center(
             child: CircularProgressIndicator(),
           ),
-          success: () => const Center(
+          ${pascal}Success() => const Center(
             child: Text('Success'),
           ),
-          error: (String message) => Center(
+          ${pascal}Error(:final message) => Center(
             child: Text(message),
           ),
-        ),
+        },
       )''';
     } else if (stateManager == 'riverpod') {
       imports =
@@ -32,19 +32,20 @@ class PresentationTemplates {
       body = '''Consumer(
         builder: (context, ref, child) {
           final state = ref.watch(${snake.camelCase}Provider);
-          return state.when(
-            data: (_) => const Center(
+          return switch (state) {
+            AsyncData() => const Center(
               child: Text('Success'),
             ),
-            loading: () => const Center(
+            AsyncLoading() => const Center(
               child: CircularProgressIndicator(),
             ),
-            error: (err, stack) => Center(
+            AsyncError(:final error) => Center(
               child: Text(
-                err.toString(),
+                error.toString(),
               ),
             ),
-          );
+            _ => const SizedBox.shrink(),
+          };
         },
       )''';
     } else {
