@@ -245,7 +245,7 @@ class FeatureGenerator {
           'lib/core/localization/app_locales.dart', CoreTemplates.appLocales());
       await _createFile('lib/core/localization/app_strings.dart',
           CoreTemplates.appStrings());
-      await _createFile('lib/core/config/app_bootstrap.dart', CoreTemplates.appBootstrap(projectName, stateManager));
+      await _createFile('lib/core/config/app_runner.dart', CoreTemplates.appRunner(projectName, stateManager));
       await _createFile('lib/core/theme/app_theme.dart', CoreTemplates.appTheme(projectName));
       await _createFile('lib/core/theme/app_colors.dart', CoreTemplates.appColors());
       await _createFile('lib/core/theme/app_spacing.dart', CoreTemplates.appSpacing());

@@ -17,7 +17,7 @@ dart pub add -d clean_feature_arch
 ### Modern Dart 3.x Support
 Scaffolded templates utilize modern Dart standards:
 - **Switch Expressions**: Functional and exhaustive UI state rendering.
-- **Record Destructuring**: Declarative application bootstrap and result handling.
+- **Record Destructuring**: Declarative application initialization and result handling via AppRunner.
 - **Enhanced Enums**: Type-safe configuration and flavor management.
 - **Sealed Classes**: Compiler-verified state and error handling.
 

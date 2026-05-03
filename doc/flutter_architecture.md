@@ -63,8 +63,9 @@ The `init` command generates a centralized resource ecosystem in `core/` to prev
 lib/
 ├── core/
 │   ├── config/
-│   │   ├── app_config.dart              # env vars, base URLs, feature flags
-│   │   └── flavor_config.dart           # dev/staging/prod flavors
+│   │   ├── app_runner.dart              # declarative initialization
+│   │   ├── app_config.dart              # static configuration
+│   │   └── app_flavor.dart              # type-safe flavor enums
 │   ├── constants/
 │   │   ├── app_constants.dart
 │   │   ├── asset_constants.dart

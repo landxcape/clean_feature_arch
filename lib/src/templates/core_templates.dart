@@ -301,7 +301,7 @@ enum AppFlavor {
 }
 ''';
 
-  static String appBootstrap(String projectName, String? stateManager) {
+  static String appRunner(String projectName, String? stateManager) {
     final riverpodImport = stateManager == 'riverpod' 
         ? "import 'package:flutter_riverpod/flutter_riverpod.dart';\n" 
         : "";
@@ -313,11 +313,11 @@ $riverpodImport
 import 'package:$projectName/core/di/injection_container.dart';
 import 'package:$projectName/core/localization/app_locales.dart';
 
-typedef BootstrapResult = ({Widget app});
+typedef RunnerResult = ({Widget app});
 
-class AppBootstrap {
+class AppRunner {
   /// Initializes core services and returns the configured root widget.
-  static Future<BootstrapResult> init({
+  static Future<RunnerResult> init({
     required Widget app,
     String? stateManager,
     Widget Function(Widget)? stateWrapper,
@@ -707,12 +707,12 @@ class AppBlocObserver extends BlocObserver {
 
     return '''
 import 'package:flutter/material.dart';
-import 'package:$projectName/core/config/app_bootstrap.dart';
+import 'package:$projectName/core/config/app_runner.dart';
 $stateImport
 import 'package:$projectName/app.dart';
 
 void main() async {
-  final (:app) = await AppBootstrap.init(
+  final (:app) = await AppRunner.init(
     $initArgs,
   );
 

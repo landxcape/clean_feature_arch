@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.6.0
-- Feat: Implemented modern declarative bootstrap process using Record destructuring and high-level abstraction.
+- Feat: Implemented modern declarative AppRunner process using Record destructuring and high-level abstraction.
 - Feat: Modernized all templates to utilize Dart 3.x features, including native Switch Expressions for UI state rendering.
 - Refactor: Adopted idiomatic part/part of pattern for BLoC triads to consolidate Bloc, Event, and State into a single logical library.
 - Feat: Converted environment and localization configuration to type-safe Enhanced Enums.
