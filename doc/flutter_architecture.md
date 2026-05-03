@@ -1,5 +1,5 @@
 # Flutter Production Architecture
-### The Absolute Rule — Feature-First Clean Architecture
+### Feature-First Clean Architecture
 
 ---
 
@@ -16,29 +16,29 @@
 | Serialization | Freezed + json_serializable |
 | FP Error Handling | fpdart (Either/Option) |
 
-> State management is a separate decision documented in `state_management/`. Pick one tool per project at kickoff. Never mix. Never revisit. Everything in this document applies regardless of which tool you choose.
+> State management is a separate decision documented in `state_management/`. Select one tool per project at initialization.
 
 ---
 
 ## Local Storage Strategy
 
-The Absolute Rule follows a **Modular Modular Storage** pattern to minimize bloat and ensure data integrity.
+The architecture follows a modular storage pattern to ensure data integrity and minimize dependency bloat.
 
-### 1. The Storage Engines
-*   **Secure Storage (`core/`)**: Scaffolded by default. Reserved strictly for credentials and sensitive secrets.
-*   **Local Settings (`core/`)**: Modular. Used for simple key-value flags (e.g., `is_first_launch`, `theme_mode`).
-*   **App Database (`core/`)**: Modular. A single central SQLite engine (Drift) that manages all feature-specific tables.
+### 1. Storage Engines
+*   **Secure Storage (`core/`)**: Initialized by default. Reserved strictly for credentials and sensitive data.
+*   **Local Settings (`core/`)**: Used for simple key-value configuration (e.g., `theme_mode`).
+*   **App Database (`core/`)**: A central SQLite engine (Drift) that manages feature-specific tables.
 
 ### 2. Feature Implementation
-When a feature requires persistence, its **Local Data Source** is injected with the specific engine it needs.
-*   **Zero Setup**: Using the `feature` command with the `--storage` flag automatically wires the engine and generates a `Table` class if using SQL.
-*   **Surgical Injection**: Use `storage feature` to retroactively add storage to an existing feature.
+When a feature requires persistence, its **Local Data Source** is injected with the specific engine required.
+*   **Initialization**: Using the `feature` command with the `--storage` flag automatically configures the engine and generates the necessary `Table` classes.
+*   **Injection**: The `storage feature` command allows for adding storage to an existing feature.
 
 ---
 
-## The Absolute Resource Suite
+## Core Resource Ecosystem
 
-The `init` command generates a centralized resource ecosystem in `core/` to prevent logic duplication and magic strings.
+The `init` command generates a centralized resource ecosystem in `core/` to prevent logic duplication and ensure type safety.
 
 ### 1. Asset Management (`core/constants/`)
 *   **`app_constants.dart`**: Global metadata (App name, version, design dimensions).
@@ -46,18 +46,18 @@ The `init` command generates a centralized resource ecosystem in `core/` to prev
 
 ### 2. Localization (`core/localization/`)
 *   **Engine**: Powered by `easy_localization`.
-*   **`app_strings.dart`**: Centralized getters (e.g., `AppStrings.login`) that fetch translations in real-time without app restarts.
-*   **Samples**: Scaffolds `en-US.json` and `ne-NP.json` in `assets/translations/`.
+*   **`app_strings.dart`**: Centralized getters that fetch translations in real-time.
+*   **Samples**: Provides `en-US.json` and `ne-NP.json` templates in `assets/translations/`.
 
 ### 3. BuildContext Extensions (`core/extensions/`)
-*   **`context_extensions.dart`**: Hooks for `theme`, `mediaQuery`, `responsive scaling`, and `tr()` localization shortcuts.
+*   **`context_extensions.dart`**: Utility hooks for `theme`, `mediaQuery`, responsive scaling, and localization shortcuts.
 
 ### 4. Responsive Utilities (`core/utils/`)
-*   **`responsive_utils.dart`**: Sizing logic (`.w`, `.h`) to ensure UI consistency across multiple device dimensions.
+*   **`responsive_utils.dart`**: Sizing logic to ensure UI consistency across multiple device dimensions.
 
 ---
 
-## Part 1 — Folder Structure
+## Folder Structure
 
 ```
 lib/
@@ -154,66 +154,25 @@ lib/
 │   │   │   └── error_widget.dart
 │   │   └── layout/
 │   │       └── app_scaffold.dart
-│   └── state/                                   # cross-feature shared state — see Part 7
+│   └── state/                                   # cross-feature shared state
 │
 └── app.dart
 ```
 
 ---
 
-## Part 2 — Naming Conventions
-
-**Files:** `snake_case` — always, no exceptions.
-**Classes:** `PascalCase` — always.
-
-| Layer | File Name Pattern | Class Name Pattern |
-|---|---|---|
-| Entity | `user_entity.dart` | `UserEntity` |
-| Request Model | `login_request_model.dart` | `LoginRequestModel` |
-| Response Model | `login_response_model.dart` | `LoginResponseModel` |
-| Local Model | `user_local_model.dart` | `UserLocalModel` |
-| Repository (abstract) | `auth_repository.dart` | `AuthRepository` |
-| Repository (impl) | `auth_repository_impl.dart` | `AuthRepositoryImpl` |
-| Remote Data Source | `auth_remote_data_source.dart` | `AuthRemoteDataSource` |
-| Local Data Source | `auth_local_data_source.dart` | `AuthLocalDataSource` |
-| Use Case | `login_usecase.dart` | `LoginUseCase` |
-| Screen | `login_screen.dart` | `LoginScreen` |
-| Widget (shared) | `primary_button.dart` | `PrimaryButton` |
-| DI Module | `auth_module.dart` | — (top-level functions only) |
-| Router | `app_router.dart` | `AppRouter` |
-
----
-
-## Part 6 — The Repository Contract
-
-The repository implementation is the model↔entity translation boundary.
-
-**What the repository impl does:**
-- Constructs Request Models from domain parameters.
-- Calls the data source with the Request Model.
-- Maps the Response Model to an Entity via `.toEntity()`.
-- Wraps the operation in `ErrorHandler.guard()`.
-- Data orchestration — source selection (remote vs local), cache fallback.
-
-**What the repository impl does NOT do:**
-- Business logic. That's the UseCase.
-- Direct JSON manipulation.
-- Exposing models upstream.
-
----
-
-## The Absolute Rules
+## Architectural Principles
 
 | # | Rule |
 |---|---|
-| 1 | **Pick one state manager per project. Never mix.** |
-| 2 | **get_it owns all DI** from data sources through usecases. |
-| 3 | **UI never touches a model.** |
-| 4 | **Repositories return `Result<T>`.** No raw exceptions cross the repository boundary. |
-| 5 | **The state layer owns no business logic.** It dispatches to UseCases. |
-| 6 | **The domain layer has zero Flutter dependencies.** Pure Dart only. |
-| 7 | **One feature = one folder.** |
-| 8 | **Freezed for every model, entity, event, and state.** |
-| 9 | **All errors are typed, end-to-end.** |
-| 10 | **The repository implementation is the model↔entity translation boundary.** |
-| 11 | **UseCases are mandatory.** |
+| 1 | **Maintain state manager consistency within a project.** |
+| 2 | **Use get_it for dependency injection across all layers.** |
+| 3 | **UI layers must not interact with data models directly.** |
+| 4 | **Repositories must return `Result<T>` to ensure functional error handling.** |
+| 5 | **State management layers should delegate business logic to UseCases.** |
+| 6 | **The domain layer must remain independent of Flutter dependencies.** |
+| 7 | **Enforce feature-based directory organization.** |
+| 8 | **Utilize Freezed for models, entities, and state objects.** |
+| 9 | **Implement strongly-typed error handling throughout the application.** |
+| 10 | **The repository implementation serves as the boundary for model-entity translation.** |
+| 11 | **UseCases are required for all domain operations.** |

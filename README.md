@@ -1,6 +1,6 @@
-# Clean Feature Architecture (Absolute Rule)
+# Clean Feature Architecture
 
-CLI and analyzer for scaffolding and enforcing the **Absolute Rule Architecture** in Flutter projects.
+CLI and analyzer for scaffolding and enforcing Clean Architecture in Flutter projects. Version 1.6.0 provides full support for modern Dart 3.x patterns and modular dependency injection.
 
 ## Installation
 
@@ -12,85 +12,88 @@ dart pub add -d clean_feature_arch
 
 ---
 
-## CLI Features
+## Features
 
-Run the toolkit using `dart run clean_feature_arch`:
+### Modern Dart 3.x Support
+Scaffolded templates utilize modern Dart standards:
+- **Switch Expressions**: Functional and exhaustive UI state rendering.
+- **Record Destructuring**: Declarative application bootstrap and result handling.
+- **Enhanced Enums**: Type-safe configuration and flavor management.
+- **Sealed Classes**: Compiler-verified state and error handling.
 
-### 1. Initializing a Project
-Scaffolds a production-ready core (Router, Theme, Storage, Networking) and the **Absolute Resource Suite** (Assets, Localization, Context Extensions).
+### Modular Dependency Injection
+Dependency injection follows a Modular Registry Pattern:
+- **Core Module**: Centralized management for infrastructure, network, and storage.
+- **Feature Modules**: Localized registration logic within each feature's `di/` directory.
+- **Dispatcher**: A clean `injection_container.dart` that coordinates modular registries.
+
+---
+
+## CLI Usage
+
+All commands are executed via `dart run clean_feature_arch`:
+
+### 1. Project Initialization
+Initializes the core architecture (Router, Theme, Storage, Networking) and shared resources (Assets, Localization, Context Extensions).
 ```bash
-# Default (Pure Dart)
+# Default
 dart run clean_feature_arch init
 
-# With specific state management
+# With BLoC or Riverpod
 dart run clean_feature_arch init --state bloc
 dart run clean_feature_arch init --state riverpod
 ```
 
-### 2. Generating a Feature
-Creates feature layers (`domain`, `data`, `presentation`) with canonical templates.
+### 2. Feature Generation
+Creates the `domain`, `data`, and `presentation` layers for a new feature.
 ```bash
 dart run clean_feature_arch feature <name> --state [bloc|riverpod|none] --storage [drift|shared|none]
 ```
 
-### 3. Modular Storage Management
-Initialize storage engines and surgically inject them into features.
+### 3. Storage Management
+Configure storage engines or integrate them into existing features.
 ```bash
-# 1. Initialize a global engine (Drift or Shared Preferences)
+# Initialize a global engine (Drift or Shared Preferences)
 dart run clean_feature_arch storage init
 
-# 2. Add storage to an existing feature (Surgical injection)
+# Add storage to an existing feature
 dart run clean_feature_arch storage feature <name> --type [drift|shared]
 ```
 
-### 4. Adding Permissions
-Configure system permissions across all platforms and the Dart service:
+### 4. Permission Configuration
+Configure system permissions across all supported platforms.
 ```bash
-# Open interactive menu
+# Interactive menu
 dart run clean_feature_arch permission
 
-# Direct add
+# Direct command
 dart run clean_feature_arch permission camera
 ```
 
 ### 5. CI/CD Scaffolding
-Generate automation workflows for your project:
+Generate automated workflows for GitHub Actions or GitLab CI.
 ```bash
-# Support for GitHub Actions and GitLab CI
 dart run clean_feature_arch ci
 ```
 
 ### 6. Test Scaffolding
-Initialize professional test infrastructure:
+Initialize unit and integration test infrastructure.
 ```bash
-# Scaffolds unit tests for core infrastructure (e.g., ApiClient)
+# Core infrastructure tests
 dart run clean_feature_arch test --init
 
-# Scaffolds full test suite for a feature (Integration + Unit)
+# Feature-specific test suite
 dart run clean_feature_arch test <feature_name>
-```
-
-### 7. Accessing Documentation
-```bash
-# Instant terminal references for Absolute Rules and Project Skeleton
-dart run clean_feature_arch docs rules
-dart run clean_feature_arch docs skeleton
-```
-
-### Overwriting Files
-Use the `-f` or `--force` flag to bypass the interactive conflict manager:
-```bash
-dart run clean_feature_arch init --force
 ```
 
 ---
 
-## Static Analysis (Enforcer)
+## Static Analysis
 
-A native analyzer plugin enforces architectural boundaries directly within `dart analyze` and your IDE.
+A native analyzer plugin enforces architectural boundaries and standards.
 
-### Enabling the Enforcer
-Add to `analysis_options.yaml`:
+### Configuration
+Add the plugin to your `analysis_options.yaml`:
 
 ```yaml
 plugins:
@@ -105,12 +108,12 @@ plugins:
 
 ---
 
-## Architecture Documentation
+## Documentation
 
-Detailed guides are available in the `doc/` directory or via the `docs` command:
+Detailed technical guides:
 
-- [**Core Architecture Guide**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/flutter_architecture.md)
-- [**State Management Guides**](https://github.com/landxcape/clean_feature_arch/tree/main/doc/state_management)
+- [**Core Architecture**](https://github.com/landxcape/clean_feature_arch/blob/main/doc/flutter_architecture.md)
+- [**State Management**](https://github.com/landxcape/clean_feature_arch/tree/main/doc/state_management)
 
 ## License
 Distributed under the MIT License. See [LICENSE](LICENSE) for details.
