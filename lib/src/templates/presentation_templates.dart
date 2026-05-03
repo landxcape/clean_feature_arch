@@ -9,8 +9,7 @@ class PresentationTemplates {
     String body = "const Center(child: Text('$pascal Screen'))";
 
     if (stateManager == 'bloc') {
-      imports =
-          "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';";
+      imports = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';";
       body = '''BlocBuilder<${pascal}Bloc, ${pascal}State>(
         builder: (context, state) => state.when(
           initial: () => const Center(
@@ -76,12 +75,15 @@ class ${pascal}Screen extends StatelessWidget {
     final snake = featureName.snakeCase;
     return '''
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';
-import 'package:$projectName/features/$snake/presentation/bloc/${snake}_event.dart';
-import 'package:$projectName/features/$snake/presentation/bloc/${snake}_state.dart';
+
+part '${snake}_event.dart';
+part '${snake}_state.dart';
+part '${snake}_bloc.freezed.dart';
 
 class ${pascal}Bloc extends Bloc<${pascal}Event, ${pascal}State> {
-  ${pascal}Bloc(this._get${pascal}UseCase) : super(const ${pascal}State.initial()) {
+  ${pascal}Bloc(this._get${pascal}UseCase) : super(const ${pascal}Initial()) {
     on<${pascal}Started>((event, emit) {
       // TODO: Implement event handler
     });
@@ -97,9 +99,7 @@ class ${pascal}Bloc extends Bloc<${pascal}Event, ${pascal}State> {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
     return '''
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part '${snake}_event.freezed.dart';
+part of '${snake}_bloc.dart';
 
 @freezed
 sealed class ${pascal}Event with _\$${pascal}Event {
@@ -112,9 +112,7 @@ sealed class ${pascal}Event with _\$${pascal}Event {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
     return '''
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part '${snake}_state.freezed.dart';
+part of '${snake}_bloc.dart';
 
 @freezed
 sealed class ${pascal}State with _\$${pascal}State {
