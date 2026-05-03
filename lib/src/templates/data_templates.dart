@@ -151,11 +151,11 @@ class ${pascal}Table extends Table {
   IntColumn get id => integer().autoIncrement()();
 }
 ''';
-      fields = "\n  final AppDatabase _db;";
+      fields = "\n  // ignore: unused_field\n  final AppDatabase _db;";
       params = "this._db";
     } else if (storageType == 'shared') {
       imports = "\nimport 'package:$projectName/core/storage/local_settings.dart';";
-      fields = "\n  final LocalSettings _localSettings;";
+      fields = "\n  // ignore: unused_field\n  final LocalSettings _localSettings;";
       params = "this._localSettings";
     }
 
@@ -212,10 +212,12 @@ import 'package:$projectName/features/$snake/data/models/requests/${snake}_reque
 class ${pascal}RepositoryImpl implements ${pascal}Repository {
   const ${pascal}RepositoryImpl(
     this._remoteDataSource,
+    // ignore: unused_element
     this._localDataSource,
   );
 
   final ${pascal}RemoteDataSource _remoteDataSource;
+  // ignore: unused_field
   final ${pascal}LocalDataSource _localDataSource;
 
   @override

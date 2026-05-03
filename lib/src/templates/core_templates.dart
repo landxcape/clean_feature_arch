@@ -55,7 +55,7 @@ class ErrorHandler {
       final result = await action();
       
       final dynamic dynamicResult = result;
-      if (dynamicResult is BaseResponse && !dynamicResult.success) {
+      if (dynamicResult is BaseResponse<Object?> && !dynamicResult.success) {
         return Left(
           AppError.server(
             statusCode: 200,
@@ -199,9 +199,9 @@ abstract interface class SecureStorage {
 }
 ''';
 
-  static String secureStorageImpl() => r'''
+  static String secureStorageImpl(String projectName) => '''
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'secure_storage.dart';
+import 'package:$projectName/core/storage/secure_storage.dart';
 
 class SecureStorageImpl implements SecureStorage {
   const SecureStorageImpl(this._storage);
@@ -452,6 +452,7 @@ class RouteConstants {
 ''';
 
   static String assetConstants() => r'''
+// ignore_for_file: unused_field
 class AssetConstants {
   static const String _imagePath = 'assets/images';
   static const String _iconPath = 'assets/icons';
@@ -689,8 +690,8 @@ class MyApp extends StatelessWidget {
 class AppBlocObserver extends BlocObserver {
   @override
   void onChange(
-    BlocBase bloc,
-    Change change,
+    BlocBase<Object?> bloc,
+    Change<Object?> change,
   ) {
     super.onChange(bloc, change);
     logger.info('BLOC: ${bloc.runtimeType} -> $change');

@@ -229,9 +229,8 @@ class FeatureGenerator {
       await _createFile(
           'lib/core/storage/secure_storage.dart', CoreTemplates.secureStorage());
       await _createFile('lib/core/storage/secure_storage_impl.dart',
-          CoreTemplates.secureStorageImpl());
-      await _createFile(
-          'lib/core/config/app_config.dart', CoreTemplates.appConfig());
+          CoreTemplates.secureStorageImpl(projectName));
+      await _createFile(          'lib/core/config/app_config.dart', CoreTemplates.appConfig());
       await _createFile(
           'lib/core/config/app_flavor.dart', CoreTemplates.appFlavor());
       await _createFile(

@@ -22,7 +22,7 @@ class PresentationTemplates {
           success: () => const Center(
             child: Text('Success'),
           ),
-          error: (message) => Center(
+          error: (String message) => Center(
             child: Text(message),
           ),
         ),
@@ -77,8 +77,8 @@ class ${pascal}Screen extends StatelessWidget {
     return '''
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';
-import '${snake}_event.dart';
-import '${snake}_state.dart';
+import 'package:$projectName/features/$snake/presentation/bloc/${snake}_event.dart';
+import 'package:$projectName/features/$snake/presentation/bloc/${snake}_state.dart';
 
 class ${pascal}Bloc extends Bloc<${pascal}Event, ${pascal}State> {
   ${pascal}Bloc(this._get${pascal}UseCase) : super(const ${pascal}State.initial()) {
@@ -87,6 +87,7 @@ class ${pascal}Bloc extends Bloc<${pascal}Event, ${pascal}State> {
     });
   }
 
+  // ignore: unused_field
   final Get${pascal}UseCase _get${pascal}UseCase;
 }
 ''';
@@ -145,6 +146,7 @@ class ${pascal}Notifier extends _\$${pascal}Notifier {
 
   Future<void> fetchData() async {
     state = const AsyncValue.loading();
+    // ignore: unused_local_variable
     final useCase = sl<Get${pascal}UseCase>();
     // TODO: Implement logic
   }
