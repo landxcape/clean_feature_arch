@@ -154,14 +154,14 @@ lib/
 │   │   │   └── error_widget.dart
 │   │   └── layout/
 │   │       └── app_scaffold.dart
-│   └── state/                                   # cross-feature shared state
-│
-└── app.dart
-```
+## Part 1 — Folder Structure
 
+```
+lib/
+...
 ---
 
-## Architectural Principles
+## The Absolute Rules
 
 | # | Rule |
 |---|---|

@@ -86,6 +86,16 @@ dart run clean_feature_arch test --init
 dart run clean_feature_arch test <feature_name>
 ```
 
+### 7. Terminal Documentation
+Access technical references directly from the terminal.
+```bash
+# Display the Absolute Rules
+dart run clean_feature_arch docs rules
+
+# Display the project skeleton
+dart run clean_feature_arch docs skeleton
+```
+
 ---
 
 ## Static Analysis

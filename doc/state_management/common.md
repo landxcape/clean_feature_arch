@@ -103,7 +103,7 @@ Tool-specific test patterns are in `bloc.md` and `riverpod.md`.
 
 ## Shared State
 
-When cross-feature state lives in `shared/state/` (see `flutter_architecture.md` Part 9), the state tool manages it:
+When cross-feature state lives in `lib/shared/state/`, the state tool manages it:
 
 | Tool | Pattern |
 |---|---|

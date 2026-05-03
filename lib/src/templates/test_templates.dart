@@ -207,7 +207,6 @@ void main() {
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';
-import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';
 import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';
 
 class MockGet${pascal}UseCase extends Mock implements Get${pascal}UseCase {}
