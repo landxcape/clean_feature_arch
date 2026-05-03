@@ -283,6 +283,7 @@ enum AppFlavor {
   static String appBootstrap() => r'''
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../di/injection_container.dart';
 import '../localization/app_locales.dart';
 
@@ -316,9 +317,7 @@ class AppBootstrap {
   }
 
   static Widget _wrapRiverpod(Widget child) {
-    // We import it here dynamically or via conditional if needed, 
-    // but for scaffolding we provide a clean wrapper.
-    return child; 
+    return ProviderScope(child: child);
   }
 }
 ''';

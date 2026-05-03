@@ -22,7 +22,7 @@ class PresentationTemplates {
       imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_provider.dart';";
       body = '''Consumer(
         builder: (context, ref, child) {
-          final state = ref.watch(${pascal.camelCase}NotifierProvider);
+          final state = ref.watch(${snake.camelCase}Provider);
           return state.when(
             data: (_) => const Center(child: Text('Success')),
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -110,6 +110,7 @@ class ${pascal}State with _\$${pascal}State {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
     return '''
+import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';
 import 'package:$projectName/core/di/injection_container.dart';

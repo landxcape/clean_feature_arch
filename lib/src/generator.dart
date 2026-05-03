@@ -159,6 +159,11 @@ class FeatureGenerator {
       await _patchDI(snakeCaseName,
           stateManager: stateManager, storageType: storageSelection);
 
+      // 7. Dependency Sync
+      if (stateManager != null) {
+        await _addDependencies(stateManager: stateManager);
+      }
+
       progress.complete('Feature generated and wired at $baseDir');
     } catch (e) {
       progress.fail('Generation failed: $e');
