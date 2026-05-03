@@ -6,27 +6,45 @@ class PresentationTemplates {
     final snake = featureName.snakeCase;
 
     String imports = '';
-    String body = 'const Center(child: Text(\'$pascal Screen\'))';
+    String body = "const Center(child: Text('$pascal Screen'))";
 
     if (stateManager == 'bloc') {
-      imports = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';";
+      imports =
+          "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';";
       body = '''BlocBuilder<${pascal}Bloc, ${pascal}State>(
         builder: (context, state) => state.when(
-          initial: () => const Center(child: Text('Initial')),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          success: () => const Center(child: Text('Success')),
-          error: (message) => Center(child: Text(message)),
+          initial: () => const Center(
+            child: Text('Initial'),
+          ),
+          loading: () => const Center(
+            child: CircularProgressIndicator(),
+          ),
+          success: () => const Center(
+            child: Text('Success'),
+          ),
+          error: (message) => Center(
+            child: Text(message),
+          ),
         ),
       )''';
     } else if (stateManager == 'riverpod') {
-      imports = "import 'package:flutter_riverpod/flutter_riverpod.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_provider.dart';";
+      imports =
+          "import 'package:flutter_riverpod/flutter_riverpod.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_provider.dart';";
       body = '''Consumer(
         builder: (context, ref, child) {
           final state = ref.watch(${snake.camelCase}Provider);
           return state.when(
-            data: (_) => const Center(child: Text('Success')),
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(child: Text(err.toString())),
+            data: (_) => const Center(
+              child: Text('Success'),
+            ),
+            loading: () => const Center(
+              child: CircularProgressIndicator(),
+            ),
+            error: (err, stack) => Center(
+              child: Text(
+                err.toString(),
+              ),
+            ),
           );
         },
       )''';
@@ -37,14 +55,15 @@ class PresentationTemplates {
     return '''
 import 'package:flutter/material.dart';
 $imports
+import 'package:$projectName/shared/widgets/layout/app_scaffold.dart';
 
 class ${pascal}Screen extends StatelessWidget {
   const ${pascal}Screen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('$pascal')),
+    return AppScaffold(
+      title: '$pascal',
       body: $body,
     );
   }
@@ -57,18 +76,18 @@ class ${pascal}Screen extends StatelessWidget {
     final snake = featureName.snakeCase;
     return '''
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:$projectName/features/$snake/presentation/bloc/${snake}_event.dart';
-import 'package:$projectName/features/$snake/presentation/bloc/${snake}_state.dart';
 import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';
+import '${snake}_event.dart';
+import '${snake}_state.dart';
 
 class ${pascal}Bloc extends Bloc<${pascal}Event, ${pascal}State> {
-  final Get${pascal}UseCase _get${pascal}UseCase;
-
   ${pascal}Bloc(this._get${pascal}UseCase) : super(const ${pascal}State.initial()) {
     on<${pascal}Started>((event, emit) {
       // TODO: Implement event handler
     });
   }
+
+  final Get${pascal}UseCase _get${pascal}UseCase;
 }
 ''';
   }
@@ -82,7 +101,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part '${snake}_event.freezed.dart';
 
 @freezed
-class ${pascal}Event with _\$${pascal}Event {
+sealed class ${pascal}Event with _\$${pascal}Event {
   const factory ${pascal}Event.started() = ${pascal}Started;
 }
 ''';
@@ -97,7 +116,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part '${snake}_state.freezed.dart';
 
 @freezed
-class ${pascal}State with _\$${pascal}State {
+sealed class ${pascal}State with _\$${pascal}State {
   const factory ${pascal}State.initial() = ${pascal}Initial;
   const factory ${pascal}State.loading() = ${pascal}Loading;
   const factory ${pascal}State.success() = ${pascal}Success;

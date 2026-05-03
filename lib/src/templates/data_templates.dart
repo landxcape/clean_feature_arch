@@ -19,8 +19,9 @@ sealed class ${pascal}RequestModel with _\$${pascal}RequestModel {
     // TODO: Define model properties.
   }) = _${pascal}RequestModel;
 
-  factory ${pascal}RequestModel.fromJson(Map<String, dynamic> json) => 
-      _\$${pascal}RequestModelFromJson(json);
+  factory ${pascal}RequestModel.fromJson(
+    Map<String, dynamic> json,
+  ) => _\$${pascal}RequestModelFromJson(json);
 }
 ''';
   }
@@ -46,8 +47,9 @@ sealed class ${pascal}ResponseModel with _\$${pascal}ResponseModel {
     // TODO: Define model properties.
   }) = _${pascal}ResponseModel;
 
-  factory ${pascal}ResponseModel.fromJson(Map<String, dynamic> json) => 
-      _\$${pascal}ResponseModelFromJson(json);
+  factory ${pascal}ResponseModel.fromJson(
+    Map<String, dynamic> json,
+  ) => _\$${pascal}ResponseModelFromJson(json);
 
   /// Map to domain entity.
   ${pascal}Entity toEntity() {
@@ -80,8 +82,9 @@ sealed class ${pascal}LocalModel with _\$${pascal}LocalModel {
     // TODO: Define model properties.
   }) = _${pascal}LocalModel;
 
-  factory ${pascal}LocalModel.fromJson(Map<String, dynamic> json) => 
-      _\$${pascal}LocalModelFromJson(json);
+  factory ${pascal}LocalModel.fromJson(
+    Map<String, dynamic> json,
+  ) => _\$${pascal}LocalModelFromJson(json);
 
   /// Map to domain entity
   ${pascal}Entity toEntity() {
@@ -91,7 +94,9 @@ sealed class ${pascal}LocalModel with _\$${pascal}LocalModel {
   }
 
   /// Map from domain entity
-  factory ${pascal}LocalModel.fromEntity(${pascal}Entity entity) {
+  factory ${pascal}LocalModel.fromEntity(
+    ${pascal}Entity entity,
+  ) {
     return ${pascal}LocalModel(
       id: entity.id,
     );
@@ -109,14 +114,18 @@ import 'package:$projectName/features/$snake/data/models/requests/${snake}_reque
 import 'package:$projectName/features/$snake/data/models/responses/${snake}_response_model.dart';
 
 abstract interface class ${pascal}RemoteDataSource {
-  Future<${pascal}ResponseModel> get$pascal(${pascal}RequestModel request);
+  Future<${pascal}ResponseModel> get$pascal(
+    ${pascal}RequestModel request,
+  );
 }
 
 class ${pascal}RemoteDataSourceImpl implements ${pascal}RemoteDataSource {
   // TODO: Add HTTP client (Dio) dependency via DI.
   
   @override
-  Future<${pascal}ResponseModel> get$pascal(${pascal}RequestModel request) async {
+  Future<${pascal}ResponseModel> get$pascal(
+    ${pascal}RequestModel request,
+  ) async {
     // TODO: Implement the network request.
     throw UnimplementedError();
   }
@@ -154,21 +163,31 @@ class ${pascal}Table extends Table {
 import 'package:$projectName/features/$snake/data/models/local/${snake}_local_model.dart';$imports
 $tableDef
 abstract interface class ${pascal}LocalDataSource {
-  Future<void> save$pascal(${pascal}LocalModel model);
-  Future<${pascal}LocalModel?> get$pascal(String id);
+  Future<void> save$pascal(
+    ${pascal}LocalModel model,
+  );
+  Future<${pascal}LocalModel?> get$pascal(
+    String id,
+  );
 }
 
 class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {$fields
-  const ${pascal}LocalDataSourceImpl($params);
+  const ${pascal}LocalDataSourceImpl(
+    $params,
+  );
 
   @override
-  Future<void> save$pascal(${pascal}LocalModel model) async {
+  Future<void> save$pascal(
+    ${pascal}LocalModel model,
+  ) async {
     // TODO: Implement local storage.
     throw UnimplementedError();
   }
 
   @override
-  Future<${pascal}LocalModel?> get$pascal(String id) async {
+  Future<${pascal}LocalModel?> get$pascal(
+    String id,
+  ) async {
     // TODO: Implement local storage.
     throw UnimplementedError();
   }
@@ -191,18 +210,29 @@ import 'package:$projectName/features/$snake/data/models/requests/${snake}_reque
 
 /// Repository implementation for $pascal.
 class ${pascal}RepositoryImpl implements ${pascal}Repository {
-  const ${pascal}RepositoryImpl(this._remoteDataSource, this._localDataSource);
+  const ${pascal}RepositoryImpl(
+    this._remoteDataSource,
+    this._localDataSource,
+  );
 
   final ${pascal}RemoteDataSource _remoteDataSource;
   final ${pascal}LocalDataSource _localDataSource;
 
   @override
-  Future<Result<${pascal}Entity>> get$pascal(String id) async {
-    return ErrorHandler.guard(() async {
-      final request = ${pascal}RequestModel(id: id);
-      final response = await _remoteDataSource.get$pascal(request);
-      return response.toEntity();
-    });
+  Future<Result<${pascal}Entity>> get$pascal(
+    String id,
+  ) async {
+    return ErrorHandler.guard(
+      () async {
+        final request = ${pascal}RequestModel(
+          id: id,
+        );
+        final response = await _remoteDataSource.get$pascal(
+          request,
+        );
+        return response.toEntity();
+      },
+    );
   }
 }
 ''';

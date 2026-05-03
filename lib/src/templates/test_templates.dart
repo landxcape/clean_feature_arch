@@ -19,28 +19,36 @@ void main() {
     dio = ApiClient.create();
   });
 
-  group('Live Fire: $pascal API Integration', () {
-    test('Fetch and Parse $pascal', () async {
-      const url = '/your-endpoint-here'; 
-      
-      late Response response;
-      try {
-        response = await dio.get(url);
-      } on DioException catch (e) {
-        fail('API Request Failed.\\nStatus: \${e.response?.statusCode}\\nBody: \${e.response?.data}');
-      }
+  group(
+    'Live Fire: $pascal API Integration',
+    () {
+      test(
+        'Fetch and Parse $pascal',
+        () async {
+          const url = '/your-endpoint-here'; 
+          
+          late Response response;
+          try {
+            response = await dio.get(url);
+          } on DioException catch (e) {
+            fail('API Request Failed.\\nStatus: \${e.response?.statusCode}\\nBody: \${e.response?.data}');
+          }
 
-      expect(response.statusCode, 200);
+          expect(response.statusCode, 200);
 
-      try {
-        final data = response.data;
-        final model = ${pascal}ResponseModel.fromJson(data as Map<String, dynamic>);
-        expect(model, isNotNull);
-      } catch (e) {
-        fail('Parse Failed!\\nError: \$e\\nJSON: \${response.data}');
-      }
-    });
-  });
+          try {
+            final data = response.data;
+            final model = ${pascal}ResponseModel.fromJson(
+              data as Map<String, dynamic>,
+            );
+            expect(model, isNotNull);
+          } catch (e) {
+            fail('Parse Failed!\\nError: \$e\\nJSON: \${response.data}');
+          }
+        },
+      );
+    },
+  );
 }
 ''';
   }
@@ -69,32 +77,56 @@ void main() {
   late Mock${pascal}LocalDataSource mockLocal;
 
   setUpAll(() {
-    registerFallbackValue(const ${pascal}RequestModel(id: 'fallback'));
+    registerFallbackValue(
+      const ${pascal}RequestModel(
+        id: 'fallback',
+      ),
+    );
   });
 
   setUp(() {
     mockRemote = Mock${pascal}RemoteDataSource();
     mockLocal = Mock${pascal}LocalDataSource();
-    repository = ${pascal}RepositoryImpl(mockRemote, mockLocal);
+    repository = ${pascal}RepositoryImpl(
+      mockRemote,
+      mockLocal,
+    );
   });
 
-  group('$pascal Repository', () {
-    const tId = 'test_id';
-    const tResponse = ${pascal}ResponseModel(id: tId);
+  group(
+    '$pascal Repository',
+    () {
+      const tId = 'test_id';
+      const tResponse = ${pascal}ResponseModel(
+        id: tId,
+      );
 
-    test('should return Entity when call is successful', () async {
-      // Arrange
-      when(() => mockRemote.get$pascal(any()))
-          .thenAnswer((_) async => tResponse);
+      test(
+        'should return Entity when call is successful',
+        () async {
+          // Arrange
+          when(
+            () => mockRemote.get$pascal(
+              any(),
+            ),
+          ).thenAnswer(
+            (_) async => tResponse,
+          );
 
-      // Act
-      final result = await repository.get$pascal(tId);
+          // Act
+          final result = await repository.get$pascal(tId);
 
-      // Assert
-      expect(result, isA<Right>());
-      verify(() => mockRemote.get$pascal(any())).called(1);
-    });
-  });
+          // Assert
+          expect(result, isA<Right>());
+          verify(
+            () => mockRemote.get$pascal(
+              any(),
+            ),
+          ).called(1);
+        },
+      );
+    },
+  );
 }
 ''';
   }
@@ -122,23 +154,47 @@ void main() {
     usecase = Get${pascal}UseCase(mockRepository);
   });
 
-  group('Get $pascal UseCase', () {
-    const tId = 'test_id';
-    const tEntity = ${pascal}Entity(id: tId);
+  group(
+    'Get $pascal UseCase',
+    () {
+      const tId = 'test_id';
+      const tEntity = ${pascal}Entity(
+        id: tId,
+      );
 
-    test('should get entity from the repository', () async {
-      // Arrange
-      when(() => mockRepository.get$pascal(any()))
-          .thenAnswer((_) async => const Right(tEntity));
+      test(
+        'should get entity from the repository',
+        () async {
+          // Arrange
+          when(
+            () => mockRepository.get$pascal(
+              any(),
+            ),
+          ).thenAnswer(
+            (_) async => const Right(
+              tEntity,
+            ),
+          );
 
-      // Act
-      final result = await usecase(tId);
+          // Act
+          final result = await usecase(tId);
 
-      // Assert
-      expect(result, const Right(tEntity));
-      verify(() => mockRepository.get$pascal(tId)).called(1);
-    });
-  });
+          // Assert
+          expect(
+            result,
+            const Right(
+              tEntity,
+            ),
+          );
+          verify(
+            () => mockRepository.get$pascal(
+              tId,
+            ),
+          ).called(1);
+        },
+      );
+    },
+  );
 }
 ''';
   }
@@ -165,11 +221,20 @@ void main() {
     bloc = ${pascal}Bloc(mockGetUseCase);
   });
 
-  group('$pascal Bloc', () {
-    test('initial state should be Initial', () {
-      expect(bloc.state, const ${pascal}State.initial());
-    });
-  });
+  group(
+    '$pascal Bloc',
+    () {
+      test(
+        'initial state should be Initial',
+        () {
+          expect(
+            bloc.state,
+            const ${pascal}State.initial(),
+          );
+        },
+      );
+    },
+  );
 }
 ''';
   }
@@ -197,25 +262,45 @@ void main() {
   setUp(() {
     mockGetUseCase = MockGet${pascal}UseCase();
     sl.allowReassignment = true;
-    sl.registerLazySingleton<Get${pascal}UseCase>(() => mockGetUseCase);
+    sl.registerLazySingleton<Get${pascal}UseCase>(
+      () => mockGetUseCase,
+    );
   });
 
-  group('$pascal Provider', () {
-    test('fetches data successfully', () async {
-      // Arrange
-      when(() => mockGetUseCase(any()))
-          .thenAnswer((_) async => const Right(${pascal}Entity(id: '1')));
-      
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
+  group(
+    '$pascal Provider',
+    () {
+      test(
+        'fetches data successfully',
+        () async {
+          // Arrange
+          when(
+            () => mockGetUseCase(
+              any(),
+            ),
+          ).thenAnswer(
+            (_) async => const Right(
+              ${pascal}Entity(
+                id: '1',
+              ),
+            ),
+          );
+          
+          final container = ProviderContainer();
+          addTearDown(container.dispose);
 
-      // Act
-      await container.read(${camel}NotifierProvider.notifier).fetchData();
+          // Act
+          await container.read(${camel}Provider.notifier).fetchData();
 
-      // Assert
-      expect(container.read(${camel}NotifierProvider).hasValue, true);
-    });
-  });
+          // Assert
+          expect(
+            container.read(${camel}Provider).hasValue,
+            true,
+          );
+        },
+      );
+    },
+  );
 }
 ''';
   }

@@ -40,12 +40,12 @@ sealed class BaseResponse<T> with _$BaseResponse<T> implements IBaseResponse {
 }
 ''';
 
-  static String errorHandler() => r'''
+  static String errorHandler(String projectName) => '''
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
-import '../utils/logger.dart';
-import 'app_error.dart';
-import '../network/base_response.dart';
+import 'package:$projectName/core/utils/logger.dart';
+import 'package:$projectName/core/error/app_error.dart';
+import 'package:$projectName/core/network/base_response.dart';
 
 class ErrorHandler {
   const ErrorHandler._();
@@ -56,14 +56,23 @@ class ErrorHandler {
       
       final dynamic dynamicResult = result;
       if (dynamicResult is BaseResponse && !dynamicResult.success) {
-        return Left(AppError.server(statusCode: 200, message: dynamicResult.message));
+        return Left(
+          AppError.server(
+            statusCode: 200,
+            message: dynamicResult.message,
+          ),
+        );
       }
       
       return Right(result);
     } on DioException catch (e) {
       return Left(_mapDioException(e));
     } catch (e, stack) {
-      logger.error('Unhandled exception', error: e, stackTrace: stack);
+      logger.error(
+        'Unhandled exception',
+        error: e,
+        stackTrace: stack,
+      );
       return Left(const AppError.unknown());
     }
   }
@@ -73,7 +82,10 @@ class ErrorHandler {
       DioExceptionType.connectionTimeout || 
       DioExceptionType.sendTimeout || 
       DioExceptionType.receiveTimeout => const AppError.network('Connection timed out.'),
-      _ => _mapStatusCode(e.response?.statusCode, e.response?.data),
+      _ => _mapStatusCode(
+          e.response?.statusCode,
+          e.response?.data,
+        ),
     };
   }
 
@@ -81,8 +93,14 @@ class ErrorHandler {
     return switch ((code, data)) {
       (401, _) => const AppError.unauthorized(),
       (404, _) => const AppError.notFound(),
-      (int c, {'message': String m}) when c >= 500 => AppError.server(statusCode: c, message: m),
-      (int c, _) when c >= 500 => AppError.server(statusCode: c, message: 'Server error.'),
+      (int c, {'message': String m}) when c >= 500 => AppError.server(
+          statusCode: c,
+          message: m,
+        ),
+      (int c, _) when c >= 500 => AppError.server(
+          statusCode: c,
+          message: 'Server error.',
+        ),
       _ => const AppError.unknown(),
     };
   }
@@ -90,11 +108,11 @@ class ErrorHandler {
 ''';
 
   // --- Networking ---
-  static String apiClient() => r'''
+  static String apiClient(String projectName) => '''
 import 'package:dio/dio.dart';
-import '../config/app_config.dart';
-import 'interceptors/auth_interceptor.dart';
-import 'interceptors/logging_interceptor.dart';
+import 'package:$projectName/core/config/app_config.dart';
+import 'package:$projectName/core/network/interceptors/auth_interceptor.dart';
+import 'package:$projectName/core/network/interceptors/logging_interceptor.dart';
 
 class ApiClient {
   static Dio create() {
@@ -114,19 +132,22 @@ class ApiClient {
 }
 ''';
 
-  static String authInterceptor() => r'''
+  static String authInterceptor(String projectName) => '''
 import 'package:dio/dio.dart';
-import '../../di/injection_container.dart';
-import '../../storage/secure_storage.dart';
+import 'package:$projectName/core/di/injection_container.dart';
+import 'package:$projectName/core/storage/secure_storage.dart';
 
 class AuthInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     final storage = sl<SecureStorage>();
     final token = await storage.read('token');
 
     if (token != null) {
-      options.headers['Authorization'] = 'Bearer $token';
+      options.headers['Authorization'] = 'Bearer \$token';
     }
 
     super.onRequest(options, handler);
@@ -155,9 +176,9 @@ abstract interface class NetworkInfo {
 }
 ''';
 
-  static String networkInfoImpl() => r'''
+  static String networkInfoImpl(String projectName) => '''
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
-import 'network_info.dart';
+import 'package:$projectName/core/network/network_info.dart';
 
 class NetworkInfoImpl implements NetworkInfo {
   const NetworkInfoImpl(this._connection);
@@ -280,12 +301,17 @@ enum AppFlavor {
 }
 ''';
 
-  static String appBootstrap() => r'''
+  static String appBootstrap(String projectName, String? stateManager) {
+    final riverpodImport = stateManager == 'riverpod' 
+        ? "import 'package:flutter_riverpod/flutter_riverpod.dart';\n" 
+        : "";
+    
+    return '''
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../di/injection_container.dart';
-import '../localization/app_locales.dart';
+$riverpodImport
+import 'package:$projectName/core/di/injection_container.dart';
+import 'package:$projectName/core/localization/app_locales.dart';
 
 typedef BootstrapResult = ({Widget app});
 
@@ -317,10 +343,11 @@ class AppBootstrap {
   }
 
   static Widget _wrapRiverpod(Widget child) {
-    return ProviderScope(child: child);
+    return ${stateManager == 'riverpod' ? 'ProviderScope(child: child)' : 'child'};
   }
 }
 ''';
+  }
 
   // --- Localization ---
   static String appLocales() => r'''
@@ -351,40 +378,62 @@ class AppStrings {
 ''';
 
   // --- Dependency Injection ---
-  static String injectionContainer(String? stateManager) {
-    return '''
+  static String coreModuleFile(String projectName) => '''
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
-import '../network/api_client.dart';
-import '../network/network_info.dart';
-import '../network/network_info_impl.dart';
-import '../storage/secure_storage.dart';
-import '../storage/secure_storage_impl.dart';
-import '../utils/permission_service.dart';
+import 'package:$projectName/core/network/api_client.dart';
+import 'package:$projectName/core/network/network_info.dart';
+import 'package:$projectName/core/network/network_info_impl.dart';
+import 'package:$projectName/core/storage/secure_storage.dart';
+import 'package:$projectName/core/storage/secure_storage_impl.dart';
+import 'package:$projectName/core/utils/permission_service.dart';
+
+class CoreModule {
+  static Future<void> init(GetIt sl) async {
+    // --- Infrastructure ---
+    sl.registerLazySingleton<NetworkInfo>(
+      () => NetworkInfoImpl(
+        InternetConnection(),
+      ),
+    );
+    sl.registerLazySingleton<SecureStorage>(
+      () => const SecureStorageImpl(
+        FlutterSecureStorage(),
+      ),
+    );
+    sl.registerLazySingleton<PermissionService>(
+      () => PermissionServiceImpl(),
+    );
+    
+    // --- Network ---
+    sl.registerLazySingleton<Dio>(
+      () => ApiClient.create(),
+    );
+  }
+}
+''';
+
+  static String injectionContainer(String projectName) => '''
+import 'package:get_it/get_it.dart';
+import 'package:$projectName/core/di/modules/core_module.dart';
 
 final sl = GetIt.instance;
 
 Future<void> configureDependencies() async {
   // --- Core ---
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(InternetConnection()));
-  sl.registerLazySingleton<SecureStorage>(() => const SecureStorageImpl(FlutterSecureStorage()));
-  sl.registerLazySingleton<PermissionService>(() => PermissionServiceImpl());
-  
-  // --- Network ---
-  sl.registerLazySingleton<Dio>(() => ApiClient.create());
+  await CoreModule.init(sl);
 
   // --- Features ---
 }
 ''';
-  }
 
   // --- Router ---
-  static String appRouter() => r'''
+  static String appRouter(String projectName) => '''
 import 'package:go_router/go_router.dart';
-import '../constants/route_constants.dart';
+import 'package:$projectName/core/constants/route_constants.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -427,15 +476,17 @@ class AppConstants {
 ''';
 
   // --- Theme ---
-  static String appTheme() => r'''
+  static String appTheme(String projectName) => '''
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
-import 'app_text_theme.dart';
+import 'package:$projectName/core/theme/app_colors.dart';
+import 'package:$projectName/core/theme/app_text_theme.dart';
 
 class AppTheme {
   static ThemeData get light => ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.primary,
+        ),
         textTheme: AppTextTheme.light,
       );
 
@@ -576,11 +627,11 @@ class PermissionServiceImpl implements PermissionService {
 }
 ''';
 
-  static String apiClientTest() => r'''
+  static String apiClientTest(String projectName) => '''
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:your_project/core/network/api_client.dart';
+import 'package:$projectName/core/network/api_client.dart';
 
 class MockDio extends Mock implements Dio {}
 
@@ -591,18 +642,21 @@ void main() {
     dio = ApiClient.create();
   });
 
-  test('ApiClient should be configured with correct timeouts', () {
-    expect(dio.options.connectTimeout?.inSeconds, 15);
-    expect(dio.options.receiveTimeout?.inSeconds, 15);
-  });
+  test(
+    'ApiClient should be configured with correct timeouts',
+    () {
+      expect(dio.options.connectTimeout?.inSeconds, 15);
+      expect(dio.options.receiveTimeout?.inSeconds, 15);
+    },
+  );
 }
 ''';
 
-  static String appDart() => r'''
+  static String appDart(String projectName) => '''
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'core/router/app_router.dart';
-import 'core/theme/app_theme.dart';
+import 'package:$projectName/core/router/app_router.dart';
+import 'package:$projectName/core/theme/app_theme.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -623,17 +677,21 @@ class MyApp extends StatelessWidget {
 }
 ''';
 
-  static String mainDart(String? stateManager) {
+  static String mainDart(String? stateManager, String projectName) {
     String stateImport = '';
     String observer = '';
     String initArgs = "app: const MyApp(), stateManager: '$stateManager'";
 
     if (stateManager == 'bloc') {
-      stateImport = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'core/utils/logger.dart';\n";
+      stateImport =
+          "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:$projectName/core/utils/logger.dart';\n";
       observer = r'''
 class AppBlocObserver extends BlocObserver {
   @override
-  void onChange(BlocBase bloc, Change change) {
+  void onChange(
+    BlocBase bloc,
+    Change change,
+  ) {
     super.onChange(bloc, change);
     logger.info('BLOC: ${bloc.runtimeType} -> $change');
   }
@@ -648,9 +706,9 @@ class AppBlocObserver extends BlocObserver {
 
     return '''
 import 'package:flutter/material.dart';
-import 'core/config/app_bootstrap.dart';
+import 'package:$projectName/core/config/app_bootstrap.dart';
 $stateImport
-import 'app.dart';
+import 'package:$projectName/app.dart';
 
 void main() async {
   final (:app) = await AppBootstrap.init(
@@ -707,16 +765,47 @@ class AppLogger {
 final logger = AppLogger();
 ''';
 
-  static String typedefs() => r'''
+  static String typedefs(String projectName) => '''
 import 'package:fpdart/fpdart.dart';
-import '../error/app_error.dart';
+import 'package:$projectName/core/error/app_error.dart';
 
 typedef Result<T> = Either<AppError, T>;
 typedef VoidResult = Either<AppError, Unit>;
 ''';
 
   static String analysisOptions() => r'''
-include: package:lints/recommended.yaml
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "lib/**.g.dart"
+    - "lib/**.freezed.dart"
+    - "lib/generated_plugin_registrant.dart"
+    - "bin/**.g.dart"
+    - "bin/**.freezed.dart"
+    - "android/**"
+    - "ios/**"
+    - "windows/**"
+    - "linux/**"
+    - "macos/**"
+    - "web/**"
+    - ".dart_tool/**"
+    - "build/**"
+  plugins:
+    - clean_feature_arch
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+formatter:
+  page_width: 150
+
+linter:
+  rules:
+    prefer_single_quotes: true
+    require_trailing_commas: true
+    always_use_package_imports: true
 
 plugins:
   clean_feature_arch:

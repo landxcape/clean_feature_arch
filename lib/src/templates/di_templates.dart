@@ -10,7 +10,13 @@ class DiTemplates {
 
     if (stateManager == 'bloc') {
       stateImport = "import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';\n";
-      stateRegistration = "\n    sl.registerFactory(() => ${pascal}Bloc(sl()));";
+      stateRegistration = '''
+
+    sl.registerFactory(
+      () => ${pascal}Bloc(
+        sl(),
+      ),
+    );''';
     }
 
     return '''
@@ -24,14 +30,29 @@ $stateImport
 class ${pascal}DI {
   static void init(GetIt sl) {
     // --- Data Sources ---
-    sl.registerLazySingleton<${pascal}RemoteDataSource>(() => ${pascal}RemoteDataSourceImpl());
-    sl.registerLazySingleton<${pascal}LocalDataSource>(() => ${pascal}LocalDataSourceImpl(${storageType != null ? 'sl()' : ''}));
+    sl.registerLazySingleton<${pascal}RemoteDataSource>(
+      () => ${pascal}RemoteDataSourceImpl(),
+    );
+    sl.registerLazySingleton<${pascal}LocalDataSource>(
+      () => ${pascal}LocalDataSourceImpl(
+        ${storageType != null ? 'sl(),' : ''}
+      ),
+    );
 
     // --- Repositories ---
-    sl.registerLazySingleton<${pascal}Repository>(() => ${pascal}RepositoryImpl(sl(), sl()));
+    sl.registerLazySingleton<${pascal}Repository>(
+      () => ${pascal}RepositoryImpl(
+        sl(),
+        sl(),
+      ),
+    );
 
     // --- Use Cases ---
-    sl.registerLazySingleton<Get${pascal}UseCase>(() => Get${pascal}UseCase(sl()));
+    sl.registerLazySingleton<Get${pascal}UseCase>(
+      () => Get${pascal}UseCase(
+        sl(),
+      ),
+    );
 
     // --- Blocs / Providers ---$stateRegistration
   }

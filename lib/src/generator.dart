@@ -176,6 +176,7 @@ class FeatureGenerator {
     _strategy = force ? OverwriteStrategy.always : OverwriteStrategy.ask;
     _logger.info('Initializing core architecture...');
     final progress = _logger.progress('Generating core structure');
+    final projectName = _getProjectName();
 
     try {
       final dirs = [
@@ -211,17 +212,18 @@ class FeatureGenerator {
 
       await _createFile('lib/core/error/app_error.dart', CoreTemplates.appError());
       await _createFile(
-          'lib/core/error/error_handler.dart', CoreTemplates.errorHandler());
+          'lib/core/error/error_handler.dart', CoreTemplates.errorHandler(projectName));
       await _createFile('lib/core/di/injection_container.dart',
-          CoreTemplates.injectionContainer(stateManager));
-      await _createFile('lib/core/network/api_client.dart', CoreTemplates.apiClient());
+          CoreTemplates.injectionContainer(projectName));
+      await _createFile('lib/core/di/modules/core_module.dart', CoreTemplates.coreModuleFile(projectName));
+      await _createFile('lib/core/network/api_client.dart', CoreTemplates.apiClient(projectName));
       await _createFile(
           'lib/core/network/base_response.dart', CoreTemplates.baseResponse());
       await _createFile('lib/core/network/network_info.dart', CoreTemplates.networkInfo());
       await _createFile(
-          'lib/core/network/network_info_impl.dart', CoreTemplates.networkInfoImpl());
+          'lib/core/network/network_info_impl.dart', CoreTemplates.networkInfoImpl(projectName));
       await _createFile('lib/core/network/interceptors/auth_interceptor.dart',
-          CoreTemplates.authInterceptor());
+          CoreTemplates.authInterceptor(projectName));
       await _createFile('lib/core/network/interceptors/logging_interceptor.dart',
           CoreTemplates.loggingInterceptor());
       await _createFile(
@@ -233,7 +235,7 @@ class FeatureGenerator {
       await _createFile(
           'lib/core/config/app_flavor.dart', CoreTemplates.appFlavor());
       await _createFile(
-          'lib/core/router/app_router.dart', CoreTemplates.appRouter());
+          'lib/core/router/app_router.dart', CoreTemplates.appRouter(projectName));
       await _createFile('lib/core/constants/route_constants.dart',
           CoreTemplates.routeConstants());
       await _createFile('lib/core/constants/asset_constants.dart',
@@ -244,8 +246,8 @@ class FeatureGenerator {
           'lib/core/localization/app_locales.dart', CoreTemplates.appLocales());
       await _createFile('lib/core/localization/app_strings.dart',
           CoreTemplates.appStrings());
-      await _createFile('lib/core/config/app_bootstrap.dart', CoreTemplates.appBootstrap());
-      await _createFile('lib/core/theme/app_theme.dart', CoreTemplates.appTheme());
+      await _createFile('lib/core/config/app_bootstrap.dart', CoreTemplates.appBootstrap(projectName, stateManager));
+      await _createFile('lib/core/theme/app_theme.dart', CoreTemplates.appTheme(projectName));
       await _createFile('lib/core/theme/app_colors.dart', CoreTemplates.appColors());
       await _createFile('lib/core/theme/app_spacing.dart', CoreTemplates.appSpacing());
       await _createFile(
@@ -261,13 +263,13 @@ class FeatureGenerator {
       await _createFile('lib/core/utils/permission_service.dart',
           CoreTemplates.permissionService());
       await _createFile('lib/core/utils/logger.dart', CoreTemplates.logger());
-      await _createFile('lib/core/types/typedefs.dart', CoreTemplates.typedefs());
+      await _createFile('lib/core/types/typedefs.dart', CoreTemplates.typedefs(projectName));
       await _createFile('lib/shared/widgets/buttons/primary_button.dart',
           CoreTemplates.sharedButton());
       await _createFile('lib/shared/widgets/layout/app_scaffold.dart',
           CoreTemplates.appScaffold());
-      await _createFile('lib/main.dart', CoreTemplates.mainDart(stateManager));
-      await _createFile('lib/app.dart', CoreTemplates.appDart());
+      await _createFile('lib/main.dart', CoreTemplates.mainDart(stateManager, projectName));
+      await _createFile('lib/app.dart', CoreTemplates.appDart(projectName));
       await _createFile('analysis_options.yaml', CoreTemplates.analysisOptions());
       await _createFile('build.yaml', CoreTemplates.buildYaml());
       await _createFile(
@@ -342,22 +344,27 @@ class FeatureGenerator {
       return;
     }
     var content = await file.readAsString();
+    final projectName = _getProjectName();
     if (type == 'drift') {
       if (!content.contains('app_database.dart')) {
-        content = "import '../storage/app_database.dart';\n$content";
+        content = "import 'package:$projectName/core/storage/app_database.dart';\n$content";
       }
       if (!content.contains('AppDatabase')) {
-        content = content.replaceFirst('configureDependencies() async {',
-            'configureDependencies() async {\n  sl.registerLazySingleton<AppDatabase>(() => AppDatabase());');
+        content = content.replaceFirst(
+          'configureDependencies() async {',
+          "configureDependencies() async {\n  sl.registerLazySingleton<AppDatabase>(() => AppDatabase());",
+        );
       }
     } else if (type == 'shared') {
       if (!content.contains('shared_preferences.dart')) {
         content =
-            "import 'package:shared_preferences/shared_preferences.dart';\nimport '../storage/local_settings.dart';\n$content";
+            "import 'package:shared_preferences/shared_preferences.dart';\nimport 'package:$projectName/core/storage/local_settings.dart';\n$content";
       }
       if (!content.contains('LocalSettings')) {
-        content = content.replaceFirst('configureDependencies() async {',
-            'configureDependencies() async {\n  final sharedPreferences = await SharedPreferences.getInstance();\n  sl.registerSingleton<LocalSettings>(LocalSettingsImpl(sharedPreferences));');
+        content = content.replaceFirst(
+          'configureDependencies() async {',
+          "configureDependencies() async {\n  final sharedPreferences = await SharedPreferences.getInstance();\n  sl.registerSingleton<LocalSettings>(LocalSettingsImpl(sharedPreferences));",
+        );
       }
     }
     await file.writeAsString(content);
@@ -373,27 +380,28 @@ class FeatureGenerator {
       return;
     }
     var content = await file.readAsString();
+    final projectName = _getProjectName();
 
     // Remove old empty constructor if it exists
     content = content.replaceFirst('const ${pascal}LocalDataSourceImpl();', '');
 
     if (engine == 'drift' && !content.contains('AppDatabase')) {
       content =
-          "import 'package:drift/drift.dart';\nimport 'package:${_getProjectName()}/core/storage/app_database.dart';\n$content";
+          "import 'package:drift/drift.dart';\nimport 'package:$projectName/core/storage/app_database.dart';\n$content";
       final tableDef =
-          '\nclass ${pascal}Table extends Table {\n  IntColumn get id => integer().autoIncrement()();\n}\n';
+          "\nclass ${pascal}Table extends Table {\n  IntColumn get id => integer().autoIncrement()();\n}\n";
       content = content.replaceFirst(
           'abstract interface class', '$tableDef\nabstract interface class');
       content = content.replaceFirst(
         'class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {',
-        'class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {\n  final AppDatabase _db;\n  const ${pascal}LocalDataSourceImpl(this._db);',
+        "class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {\n  final AppDatabase _db;\n  const ${pascal}LocalDataSourceImpl(this._db);",
       );
     } else if (engine == 'shared' && !content.contains('LocalSettings')) {
       content =
-          "import 'package:${_getProjectName()}/core/storage/local_settings.dart';\n$content";
+          "import 'package:$projectName/core/storage/local_settings.dart';\n$content";
       content = content.replaceFirst(
         'class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {',
-        'class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {\n  final LocalSettings _localSettings;\n  const ${pascal}LocalDataSourceImpl(this._localSettings);',
+        "class ${pascal}LocalDataSourceImpl implements ${pascal}LocalDataSource {\n  final LocalSettings _localSettings;\n  const ${pascal}LocalDataSourceImpl(this._localSettings);",
       );
     }
     await file.writeAsString(content);
@@ -410,7 +418,7 @@ class FeatureGenerator {
     final pascal = featureName.pascalCase;
 
     final oldReg = '${pascal}LocalDataSourceImpl()';
-    final newReg = '${pascal}LocalDataSourceImpl(sl())';
+    final newReg = '${pascal}LocalDataSourceImpl(\n        sl(),\n      )';
 
     if (content.contains(oldReg)) {
       content = content.replaceFirst(oldReg, newReg);
@@ -433,12 +441,12 @@ class FeatureGenerator {
     final match = tablePattern.firstMatch(content);
 
     if (match != null && !match.group(1)!.contains('${pascal}Table')) {
-      final import =
+      final importStmt =
           "import 'package:$projectName/features/$snake/data/data_sources/local_data_sources/${snake}_local_data_source.dart';";
-      if (!content.contains(import)) {
-        content = "$import\n$content";
+      if (!content.contains(importStmt)) {
+        content = "$importStmt\n$content";
       }
-      content = content.replaceFirst('tables: [', 'tables: [${pascal}Table, ');
+      content = content.replaceFirst('tables: [', "tables: [${pascal}Table, ");
     }
     await file.writeAsString(content);
   }
@@ -458,16 +466,16 @@ class FeatureGenerator {
       return;
     }
 
-    final import =
+    final importStmt =
         "import 'package:$projectName/features/$snake/di/${snake}_di.dart';";
 
-    if (!content.contains(import)) {
-      content = "$import\n$content";
+    if (!content.contains(importStmt)) {
+      content = "$importStmt\n$content";
     }
 
-    final call = '\n  ${pascal}DI.init(sl);';
+    final call = "\n  ${pascal}DI.init(sl);";
     content = content.replaceFirst('configureDependencies() async {',
-        'configureDependencies() async {$call');
+        "configureDependencies() async {$call");
 
     await file.writeAsString(content);
   }
@@ -509,8 +517,7 @@ class FeatureGenerator {
       final projectName = _getProjectName();
       await _createFile(
           'test/core/network/api_client_test.dart',
-          CoreTemplates.apiClientTest()
-              .replaceFirst('your_project', projectName));
+          CoreTemplates.apiClientTest(projectName));
       progress.complete();
     } catch (e) {
       progress.fail('Failed: $e');
@@ -549,9 +556,14 @@ class FeatureGenerator {
         state = 'riverpod';
       }
 
-      await _createFile('test/integration/live_api/${snake}_api_test.dart', TestTemplates.liveApiTest(snake, projectName));
-      await _createFile('test/features/$snake/data/repositories/${snake}_repository_impl_test.dart', TestTemplates.repositoryTest(snake, projectName));
-      await _createFile('test/features/$snake/domain/usecases/get_${snake}_usecase_test.dart', TestTemplates.usecaseTest(snake, projectName));
+      await _createFile('test/integration/live_api/${snake}_api_test.dart',
+          TestTemplates.liveApiTest(snake, projectName));
+      await _createFile(
+          'test/features/$snake/data/repositories/${snake}_repository_impl_test.dart',
+          TestTemplates.repositoryTest(snake, projectName));
+      await _createFile(
+          'test/features/$snake/domain/usecases/get_${snake}_usecase_test.dart',
+          TestTemplates.usecaseTest(snake, projectName));
       if (state == 'bloc') {
         await _createFile(
             'test/features/$snake/presentation/$stateFolderName/${snake}_bloc_test.dart',
@@ -627,7 +639,7 @@ class FeatureGenerator {
     }
     if (!c.contains('request$p() async')) {
       final impl =
-          '\n  @override\n  Future<bool> request$p() async {\n    final status = await Permission.$name.request();\n    return status.isGranted;\n  }';
+          "\n  @override\n  Future<bool> request$p() async {\n    final status = await Permission.$name.request();\n    return status.isGranted;\n  }";
       c = c.replaceFirst('openAppSettings();\n  }', 'openAppSettings();\n  }$impl');
     }
     await file.writeAsString(c);
