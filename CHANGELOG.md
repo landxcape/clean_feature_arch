@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0
+- Feat: Migrated dependency injection to a Modular Registry pattern.
+- Feat: Each feature now generates a dedicated `di/` folder with its own registration logic.
+- Refactor: Updated `injection_container.dart` to act as a dispatcher for feature-level DI modules.
+- Refactor: Standardized absolute imports across all DI templates for better feature isolation.
+
 ## 1.4.9
 - Docs: Refactored entire changelog for technical clarity and professional tone.
 - Docs: Verified and aligned historical version summaries with official publication records.

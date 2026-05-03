@@ -8,6 +8,7 @@ import 'templates/data_templates.dart';
 import 'templates/presentation_templates.dart';
 import 'templates/core_templates.dart';
 import 'templates/test_templates.dart';
+import 'templates/di_templates.dart';
 import 'commands/permission_command.dart';
 
 /// Overwrite strategy for file conflicts.
@@ -145,7 +146,13 @@ class FeatureGenerator {
           break;
       }
 
-      // 5. Auto-Wiring
+      // 5. DI Layer
+      await _createFile(
+          p.join(baseDir, 'di', '${snakeCaseName}_di.dart'),
+          DiTemplates.featureDi(snakeCaseName, projectName,
+              stateManager: stateManager, storageType: storageSelection));
+
+      // 6. Auto-Wiring
       if (storageSelection == 'drift') {
         await _patchDatabase(snakeCaseName);
       }
@@ -386,7 +393,8 @@ class FeatureGenerator {
 
   Future<void> _patchDIForFeatureStorage(
       String featureName, String engine) async {
-    final file = File('lib/core/di/injection_container.dart');
+    final snake = featureName.snakeCase;
+    final file = File('lib/features/$snake/di/${snake}_di.dart');
     if (!await file.exists()) {
       return;
     }
@@ -438,45 +446,21 @@ class FeatureGenerator {
     final snake = featureName.snakeCase;
     final projectName = _getProjectName();
 
-    if (content.contains('// --- $pascal ---')) {
+    if (content.contains('${pascal}DI.init(sl)')) {
       return;
     }
 
-    final stateFolderName = stateManager == 'bloc'
-        ? 'bloc'
-        : (stateManager == 'riverpod' ? 'providers' : 'state');
+    final import =
+        "import 'package:$projectName/features/$snake/di/${snake}_di.dart';";
 
-    final imps = [
-      "import 'package:$projectName/features/$snake/data/data_sources/local_data_sources/${snake}_local_data_source.dart';",
-      "import 'package:$projectName/features/$snake/data/data_sources/remote_data_sources/${snake}_remote_data_source.dart';",
-      "import 'package:$projectName/features/$snake/data/repositories/${snake}_repository_impl.dart';",
-      "import 'package:$projectName/features/$snake/domain/repositories/${snake}_repository.dart';",
-      "import 'package:$projectName/features/$snake/domain/usecases/get_${snake}_usecase.dart';",
-    ];
-    if (stateManager == 'bloc') {
-      imps.add(
-          "import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';");
-    }
-    if (stateManager == 'riverpod') {
-      imps.add(
-          "import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_provider.dart';");
+    if (!content.contains(import)) {
+      content = "$import\n$content";
     }
 
-    for (final i in imps) {
-      if (!content.contains(i)) {
-        content = "$i\n$content";
-      }
-    }
-
-    final localArgs = (storageType != null) ? 'sl()' : '';
-    var regs =
-        '\n  // --- $pascal ---\n  sl.registerLazySingleton<${pascal}RemoteDataSource>(() => ${pascal}RemoteDataSourceImpl());\n  sl.registerLazySingleton<${pascal}LocalDataSource>(() => ${pascal}LocalDataSourceImpl($localArgs));\n  sl.registerLazySingleton<${pascal}Repository>(() => ${pascal}RepositoryImpl(sl(), sl()));\n  sl.registerLazySingleton<Get${pascal}UseCase>(() => Get${pascal}UseCase(sl()));';
-    if (stateManager == 'bloc') {
-      regs += '\n  sl.registerFactory(() => ${pascal}Bloc(sl()));';
-    }
-
+    final call = '\n  ${pascal}DI.init(sl);';
     content = content.replaceFirst('configureDependencies() async {',
-        'configureDependencies() async {$regs');
+        'configureDependencies() async {$call');
+
     await file.writeAsString(content);
   }
 
