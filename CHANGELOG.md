@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.3
+- Refactor: Optimized `AppRunner` template to generate state-manager-specific code during scaffolding, removing runtime switch redundancies.
+
 ## 1.6.2
 - Feat: Implemented "Scoped Lifecycle" for Dependency Injection.
 - Feat: Added `resetDependencies()` to `injection_container.dart` for orchestrating state re-initialization (e.g., on Logout).

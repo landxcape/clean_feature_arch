@@ -302,10 +302,19 @@ enum AppFlavor {
 ''';
 
   static String appRunner(String projectName, String? stateManager) {
-    final riverpodImport = stateManager == 'riverpod' 
+    final isRiverpod = stateManager == 'riverpod';
+    final riverpodImport = isRiverpod 
         ? "import 'package:flutter_riverpod/flutter_riverpod.dart';\n" 
         : "";
     
+    final wrappingLogic = isRiverpod
+        ? 'final stateApp = ProviderScope(child: app);'
+        : 'final stateApp = stateWrapper?.call(app) ?? app;';
+
+    final initParams = isRiverpod
+        ? 'required Widget app,'
+        : 'required Widget app,\n    Widget Function(Widget)? stateWrapper,';
+
     return '''
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -318,19 +327,13 @@ typedef RunnerResult = ({Widget app});
 class AppRunner {
   /// Initializes core services and returns the configured root widget.
   static Future<RunnerResult> init({
-    required Widget app,
-    String? stateManager,
-    Widget Function(Widget)? stateWrapper,
+    $initParams
   }) async {
     WidgetsFlutterBinding.ensureInitialized();
     await EasyLocalization.ensureInitialized();
     await configureDependencies();
 
-    // Use Switch Expression for state management wrapping
-    final stateApp = switch (stateManager) {
-      'riverpod' => _wrapRiverpod(app),
-      _ => stateWrapper?.call(app) ?? app,
-    };
+    $wrappingLogic
 
     final localizedApp = EasyLocalization(
       supportedLocales: AppLocales.supported,
@@ -340,10 +343,6 @@ class AppRunner {
     );
 
     return (app: localizedApp);
-  }
-
-  static Widget _wrapRiverpod(Widget child) {
-    return ${stateManager == 'riverpod' ? 'ProviderScope(child: child)' : 'child'};
   }
 }
 ''';
@@ -689,7 +688,7 @@ class MyApp extends StatelessWidget {
   static String mainDart(String? stateManager, String projectName) {
     String stateImport = '';
     String observer = '';
-    String initArgs = "app: const MyApp(), stateManager: '$stateManager'";
+    String initArgs = "app: const MyApp()";
 
     if (stateManager == 'bloc') {
       stateImport =
