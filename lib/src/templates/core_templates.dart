@@ -411,6 +411,7 @@ class CoreModule {
     // --- Network ---
     sl.registerLazySingleton<Dio>(
       () => ApiClient.create(),
+      dispose: (client) => client.close(),
     );
   }
 }
@@ -427,6 +428,13 @@ Future<void> configureDependencies() async {
   await CoreModule.init(sl);
 
   // --- Features ---
+}
+
+/// Resets all DI registrations and re-runs the initialization sequence.
+/// Use this for deep state resets (e.g., User Logout, Kiosk un-assign).
+Future<void> resetDependencies() async {
+  await sl.reset();
+  await configureDependencies();
 }
 ''';
 

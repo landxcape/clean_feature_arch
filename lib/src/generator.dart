@@ -351,7 +351,7 @@ class FeatureGenerator {
       if (!content.contains('AppDatabase')) {
         content = content.replaceFirst(
           'static Future<void> init(GetIt sl) async {',
-          "static Future<void> init(GetIt sl) async {\n    sl.registerLazySingleton<AppDatabase>(() => AppDatabase());",
+          "static Future<void> init(GetIt sl) async {\n    sl.registerLazySingleton<AppDatabase>(() => AppDatabase(), dispose: (db) => db.close());",
         );
       }
     } else if (type == 'shared') {

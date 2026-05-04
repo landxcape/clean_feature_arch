@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.2
+- Feat: Implemented "Scoped Lifecycle" for Dependency Injection.
+- Feat: Added `resetDependencies()` to `injection_container.dart` for orchestrating state re-initialization (e.g., on Logout).
+- Refactor: Added automatic `dispose` callbacks for `AppDatabase` and `Dio` to prevent resource leaks during resets.
+
 ## 1.6.1
 - Refactor: Finalized core module integration by moving storage engine registrations to `CoreModule`.
 - Refactor: Optimized `injection_container.dart` to act as a pure dispatcher for modular registries.
