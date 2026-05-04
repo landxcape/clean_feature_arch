@@ -338,7 +338,7 @@ class FeatureGenerator {
   }
 
   Future<void> _patchDIForStorage(String type) async {
-    final file = File('lib/core/di/injection_container.dart');
+    final file = File('lib/core/di/modules/core_module.dart');
     if (!await file.exists()) {
       return;
     }
@@ -350,8 +350,8 @@ class FeatureGenerator {
       }
       if (!content.contains('AppDatabase')) {
         content = content.replaceFirst(
-          'configureDependencies() async {',
-          "configureDependencies() async {\n  sl.registerLazySingleton<AppDatabase>(() => AppDatabase());",
+          'static Future<void> init(GetIt sl) async {',
+          "static Future<void> init(GetIt sl) async {\n    sl.registerLazySingleton<AppDatabase>(() => AppDatabase());",
         );
       }
     } else if (type == 'shared') {
@@ -361,8 +361,8 @@ class FeatureGenerator {
       }
       if (!content.contains('LocalSettings')) {
         content = content.replaceFirst(
-          'configureDependencies() async {',
-          "configureDependencies() async {\n  final sharedPreferences = await SharedPreferences.getInstance();\n  sl.registerSingleton<LocalSettings>(LocalSettingsImpl(sharedPreferences));",
+          'static Future<void> init(GetIt sl) async {',
+          "static Future<void> init(GetIt sl) async {\n    final sharedPreferences = await SharedPreferences.getInstance();\n    sl.registerSingleton<LocalSettings>(LocalSettingsImpl(sharedPreferences));",
         );
       }
     }

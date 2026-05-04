@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.1
+- Refactor: Finalized core module integration by moving storage engine registrations to `CoreModule`.
+- Refactor: Optimized `injection_container.dart` to act as a pure dispatcher for modular registries.
+
 ## 1.6.0
 - Feat: Implemented modern declarative AppRunner process using Record destructuring and high-level abstraction.
 - Feat: Modernized all templates to utilize Dart 3.x features, including native Switch Expressions for UI state rendering.
