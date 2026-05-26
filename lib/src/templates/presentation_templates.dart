@@ -1,7 +1,8 @@
 import 'package:recase/recase.dart';
 
 class PresentationTemplates {
-  static String screen(String featureName, String projectName, {String? stateManager, String stateFolderName = 'state'}) {
+  static String screen(String featureName, String projectName,
+      {String? stateManager, String stateFolderName = 'state'}) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
@@ -9,7 +10,8 @@ class PresentationTemplates {
     String body = "const Center(child: Text('$pascal Screen'))";
 
     if (stateManager == 'bloc') {
-      imports = "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';";
+      imports =
+          "import 'package:flutter_bloc/flutter_bloc.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';";
       body = '''BlocBuilder<${pascal}Bloc, ${pascal}State>(
         builder: (context, state) => switch (state) {
           ${pascal}Initial() => const Center(
@@ -49,7 +51,8 @@ class PresentationTemplates {
         },
       )''';
     } else {
-      imports = "import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';";
+      imports =
+          "import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_state.dart';";
     }
 
     return '''

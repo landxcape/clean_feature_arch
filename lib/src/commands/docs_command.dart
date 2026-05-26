@@ -11,7 +11,8 @@ class DocsCommand extends Command<int> {
   String get name => 'docs';
 
   @override
-  String get description => 'Access Absolute Rule documentation and references.';
+  String get description =>
+      'Access Absolute Rule documentation and references.';
 
   final Logger _logger;
 
@@ -92,9 +93,10 @@ class DocsCommand extends Command<int> {
     final progress = _logger.progress('Loading reference');
     try {
       // Find the package root
-      final uri = Uri.parse('package:clean_feature_arch/clean_feature_arch.dart');
+      final uri =
+          Uri.parse('package:clean_feature_arch/clean_feature_arch.dart');
       final resolvedUri = await Isolate.resolvePackageUri(uri);
-      
+
       if (resolvedUri == null) {
         progress.fail('Could not locate package path.');
         return;
@@ -102,7 +104,8 @@ class DocsCommand extends Command<int> {
 
       // Move up from lib/clean_feature_arch.dart to the package root
       final packageRoot = File.fromUri(resolvedUri).parent.parent.path;
-      final docFile = File(p.join(packageRoot, 'doc', 'flutter_architecture.md'));
+      final docFile =
+          File(p.join(packageRoot, 'doc', 'flutter_architecture.md'));
 
       if (!await docFile.exists()) {
         progress.fail('Documentation file not found at ${docFile.path}');
@@ -123,14 +126,14 @@ class DocsCommand extends Command<int> {
       if (endIndex == -1) {
         endIndex = content.indexOf('\n---', startIndex + header.length);
       }
-      
-      var section = endIndex == -1 
-          ? content.substring(startIndex) 
+
+      var section = endIndex == -1
+          ? content.substring(startIndex)
           : content.substring(startIndex, endIndex);
 
       // Clean up the output
       section = section.replaceFirst(header, '').trim();
-      
+
       progress.complete('Reference loaded.');
       _logger.info('\n${lightCyan.wrap('--- REFERENCE ---')}\n');
       _logger.info(section);

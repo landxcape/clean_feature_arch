@@ -9,7 +9,8 @@ class CICommand extends Command<int> {
   String get name => 'ci';
 
   @override
-  String get description => 'Scaffold CI/CD configurations for various platforms.';
+  String get description =>
+      'Scaffold CI/CD configurations for various platforms.';
 
   final Logger _logger;
 

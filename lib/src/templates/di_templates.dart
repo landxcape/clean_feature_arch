@@ -1,15 +1,19 @@
 import 'package:recase/recase.dart';
 
 class DiTemplates {
-  static String featureDi(String snake, String projectName, {String? stateManager, String? storageType}) {
+  static String featureDi(String snake, String projectName,
+      {String? stateManager, String? storageType}) {
     final pascal = snake.pascalCase;
-    
+
     String stateImport = '';
     String stateRegistration = '';
-    final stateFolderName = stateManager == 'bloc' ? 'bloc' : (stateManager == 'riverpod' ? 'providers' : 'state');
+    final stateFolderName = stateManager == 'bloc'
+        ? 'bloc'
+        : (stateManager == 'riverpod' ? 'providers' : 'state');
 
     if (stateManager == 'bloc') {
-      stateImport = "import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';\n";
+      stateImport =
+          "import 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_bloc.dart';\n";
       stateRegistration = '''
 
     sl.registerFactory(

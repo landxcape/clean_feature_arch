@@ -199,7 +199,8 @@ void main() {
 ''';
   }
 
-  static String blocTest(String featureName, String projectName, {String stateFolderName = 'bloc'}) {
+  static String blocTest(String featureName, String projectName,
+      {String stateFolderName = 'bloc'}) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
@@ -238,7 +239,8 @@ void main() {
 ''';
   }
 
-  static String riverpodTest(String featureName, String projectName, {String stateFolderName = 'providers'}) {
+  static String riverpodTest(String featureName, String projectName,
+      {String stateFolderName = 'providers'}) {
     final pascal = featureName.pascalCase;
     final camel = featureName.camelCase;
     final snake = featureName.snakeCase;

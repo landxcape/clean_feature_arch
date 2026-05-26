@@ -17,7 +17,8 @@ class EnforceDataSourceFolderStructure extends AnalysisRule {
   static const _code = LintCode(
     'absolute_rule_enforce_data_source_folder_structure',
     'Data sources must be organized into local_data_sources/ or remote_data_sources/ subdirectories.',
-    correctionMessage: 'Move the data source file into the appropriate subdirectory.',
+    correctionMessage:
+        'Move the data source file into the appropriate subdirectory.',
   );
 
   @override
@@ -32,8 +33,9 @@ class EnforceDataSourceFolderStructure extends AnalysisRule {
     if (path == null || !path.contains('/data/data_sources/')) return;
 
     // Check if the file is directly under data_sources/
-    final containsValidSubdir = path.contains('/data_sources/local_data_sources/') ||
-        path.contains('/data_sources/remote_data_sources/');
+    final containsValidSubdir =
+        path.contains('/data_sources/local_data_sources/') ||
+            path.contains('/data_sources/remote_data_sources/');
 
     if (!containsValidSubdir) {
       registry.addCompilationUnit(this, _Visitor(this));

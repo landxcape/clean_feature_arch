@@ -47,8 +47,10 @@ class TestCommand extends Command<int> {
 
     if (argResults?.rest.isEmpty ?? true) {
       _logger.info('Usage:');
-      _logger.info('  clean_feature_arch test --init (Scaffold infrastructure)');
-      _logger.info('  clean_feature_arch test <feature_name> (Scaffold feature tests)');
+      _logger
+          .info('  clean_feature_arch test --init (Scaffold infrastructure)');
+      _logger.info(
+          '  clean_feature_arch test <feature_name> (Scaffold feature tests)');
       return ExitCode.usage.code;
     }
 

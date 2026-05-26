@@ -31,7 +31,8 @@ class StorageInitCommand extends Command<int> {
   String get name => 'init';
 
   @override
-  String get description => 'Initialize a global storage engine (Drift or Shared Preferences).';
+  String get description =>
+      'Initialize a global storage engine (Drift or Shared Preferences).';
 
   @override
   String get invocation => 'clean_feature_arch storage init [engine]';
@@ -41,7 +42,9 @@ class StorageInitCommand extends Command<int> {
   @override
   Future<int> run() async {
     final force = argResults?['force'] as bool? ?? false;
-    var engine = argResults?.rest.isNotEmpty ?? false ? argResults!.rest.first.toLowerCase() : null;
+    var engine = argResults?.rest.isNotEmpty ?? false
+        ? argResults!.rest.first.toLowerCase()
+        : null;
 
     if (engine == null) {
       final choices = ['Drift (SQL)', 'Shared Preferences'];
@@ -85,7 +88,8 @@ class StorageFeatureCommand extends Command<int> {
   String get name => 'feature';
 
   @override
-  String get description => 'Surgically add a storage engine to an existing feature.';
+  String get description =>
+      'Surgically add a storage engine to an existing feature.';
 
   @override
   String get invocation => 'clean_feature_arch storage feature <name> [engine]';
@@ -100,7 +104,8 @@ class StorageFeatureCommand extends Command<int> {
     }
 
     final featureName = argResults!.rest.first;
-    var type = argResults!.rest.length > 1 ? argResults!.rest[1].toLowerCase() : null;
+    var type =
+        argResults!.rest.length > 1 ? argResults!.rest[1].toLowerCase() : null;
     final force = argResults?['force'] as bool? ?? false;
 
     if (type == null) {

@@ -66,7 +66,10 @@ const contactsPermission = PermissionMetadata(
 
 const bluetoothPermission = PermissionMetadata(
   name: 'bluetooth',
-  android: ['android.permission.BLUETOOTH_CONNECT', 'android.permission.BLUETOOTH_SCAN'],
+  android: [
+    'android.permission.BLUETOOTH_CONNECT',
+    'android.permission.BLUETOOTH_SCAN'
+  ],
   iosKey: 'NSBluetoothAlwaysUsageDescription',
   iosDesc: 'This app needs bluetooth access to connect to devices.',
 );
@@ -78,7 +81,8 @@ class PermissionCommand extends Command<int> {
   String get name => 'permission';
 
   @override
-  String get description => 'Add and configure system permissions across all platforms.';
+  String get description =>
+      'Add and configure system permissions across all platforms.';
 
   final Logger _logger;
 
@@ -100,7 +104,8 @@ class PermissionCommand extends Command<int> {
       final name = argResults!.rest.first.toLowerCase();
       selected = permissions.firstWhere(
         (p) => p.name == name,
-        orElse: () => throw UsageException('Permission "$name" not supported.', usage),
+        orElse: () =>
+            throw UsageException('Permission "$name" not supported.', usage),
       );
     } else {
       final choice = _logger.chooseOne(

@@ -42,7 +42,8 @@ class FeatureGenerator {
 
     try {
       // 1. Detect Available Storage
-      final dbExists = await File('lib/core/storage/app_database.dart').exists();
+      final dbExists =
+          await File('lib/core/storage/app_database.dart').exists();
       final prefsExists =
           await File('lib/core/storage/local_settings.dart').exists();
 
@@ -83,7 +84,8 @@ class FeatureGenerator {
               '${snakeCaseName}_repository.dart'),
           DomainTemplates.repository(snakeCaseName, projectName));
       await _createFile(
-          p.join(baseDir, 'domain', 'usecases', 'get_${snakeCaseName}_usecase.dart'),
+          p.join(baseDir, 'domain', 'usecases',
+              'get_${snakeCaseName}_usecase.dart'),
           DomainTemplates.usecase(snakeCaseName, projectName));
 
       // 3. Data Layer
@@ -120,7 +122,8 @@ class FeatureGenerator {
           : (stateManager == 'riverpod' ? 'providers' : 'state');
 
       await _createFile(
-          p.join(baseDir, 'presentation', 'screens', '${snakeCaseName}_screen.dart'),
+          p.join(baseDir, 'presentation', 'screens',
+              '${snakeCaseName}_screen.dart'),
           PresentationTemplates.screen(snakeCaseName, projectName,
               stateManager: stateManager, stateFolderName: stateFolderName));
 
@@ -210,45 +213,55 @@ class FeatureGenerator {
         }
       }
 
-      await _createFile('lib/core/error/app_error.dart', CoreTemplates.appError());
       await _createFile(
-          'lib/core/error/error_handler.dart', CoreTemplates.errorHandler(projectName));
+          'lib/core/error/app_error.dart', CoreTemplates.appError());
+      await _createFile('lib/core/error/error_handler.dart',
+          CoreTemplates.errorHandler(projectName));
       await _createFile('lib/core/di/injection_container.dart',
           CoreTemplates.injectionContainer(projectName));
-      await _createFile('lib/core/di/modules/core_module.dart', CoreTemplates.coreModuleFile(projectName));
-      await _createFile('lib/core/network/api_client.dart', CoreTemplates.apiClient(projectName));
+      await _createFile('lib/core/di/modules/core_module.dart',
+          CoreTemplates.coreModuleFile(projectName));
+      await _createFile('lib/core/network/api_client.dart',
+          CoreTemplates.apiClient(projectName));
       await _createFile(
           'lib/core/network/base_response.dart', CoreTemplates.baseResponse());
-      await _createFile('lib/core/network/network_info.dart', CoreTemplates.networkInfo());
       await _createFile(
-          'lib/core/network/network_info_impl.dart', CoreTemplates.networkInfoImpl(projectName));
+          'lib/core/network/network_info.dart', CoreTemplates.networkInfo());
+      await _createFile('lib/core/network/network_info_impl.dart',
+          CoreTemplates.networkInfoImpl(projectName));
       await _createFile('lib/core/network/interceptors/auth_interceptor.dart',
           CoreTemplates.authInterceptor(projectName));
-      await _createFile('lib/core/network/interceptors/logging_interceptor.dart',
-          CoreTemplates.loggingInterceptor());
       await _createFile(
-          'lib/core/storage/secure_storage.dart', CoreTemplates.secureStorage());
+          'lib/core/network/interceptors/logging_interceptor.dart',
+          CoreTemplates.loggingInterceptor());
+      await _createFile('lib/core/storage/secure_storage.dart',
+          CoreTemplates.secureStorage());
       await _createFile('lib/core/storage/secure_storage_impl.dart',
           CoreTemplates.secureStorageImpl(projectName));
-      await _createFile(          'lib/core/config/app_config.dart', CoreTemplates.appConfig());
+      await _createFile(
+          'lib/core/config/app_config.dart', CoreTemplates.appConfig());
       await _createFile(
           'lib/core/config/app_flavor.dart', CoreTemplates.appFlavor());
-      await _createFile(
-          'lib/core/router/app_router.dart', CoreTemplates.appRouter(projectName));
+      await _createFile('lib/core/router/app_router.dart',
+          CoreTemplates.appRouter(projectName));
       await _createFile('lib/core/constants/route_constants.dart',
           CoreTemplates.routeConstants());
       await _createFile('lib/core/constants/asset_constants.dart',
           CoreTemplates.assetConstants());
-      await _createFile(
-          'lib/core/constants/app_constants.dart', CoreTemplates.appConstants());
+      await _createFile('lib/core/constants/app_constants.dart',
+          CoreTemplates.appConstants());
       await _createFile(
           'lib/core/localization/app_locales.dart', CoreTemplates.appLocales());
-      await _createFile('lib/core/localization/app_strings.dart',
-          CoreTemplates.appStrings());
-      await _createFile('lib/core/config/app_runner.dart', CoreTemplates.appRunner(projectName, stateManager));
-      await _createFile('lib/core/theme/app_theme.dart', CoreTemplates.appTheme(projectName));
-      await _createFile('lib/core/theme/app_colors.dart', CoreTemplates.appColors());
-      await _createFile('lib/core/theme/app_spacing.dart', CoreTemplates.appSpacing());
+      await _createFile(
+          'lib/core/localization/app_strings.dart', CoreTemplates.appStrings());
+      await _createFile('lib/core/config/app_runner.dart',
+          CoreTemplates.appRunner(projectName, stateManager));
+      await _createFile(
+          'lib/core/theme/app_theme.dart', CoreTemplates.appTheme(projectName));
+      await _createFile(
+          'lib/core/theme/app_colors.dart', CoreTemplates.appColors());
+      await _createFile(
+          'lib/core/theme/app_spacing.dart', CoreTemplates.appSpacing());
       await _createFile(
           'lib/core/theme/app_text_theme.dart', CoreTemplates.appTextTheme());
       await _createFile('lib/core/extensions/context_extensions.dart',
@@ -257,19 +270,22 @@ class FeatureGenerator {
           CoreTemplates.stringExtensions());
       await _createFile('lib/core/utils/validator_utils.dart',
           CoreTemplates.validatorUtils());
-      await _createFile(
-          'lib/core/utils/responsive_utils.dart', CoreTemplates.responsiveUtils());
+      await _createFile('lib/core/utils/responsive_utils.dart',
+          CoreTemplates.responsiveUtils());
       await _createFile('lib/core/utils/permission_service.dart',
           CoreTemplates.permissionService());
       await _createFile('lib/core/utils/logger.dart', CoreTemplates.logger());
-      await _createFile('lib/core/types/typedefs.dart', CoreTemplates.typedefs(projectName));
+      await _createFile(
+          'lib/core/types/typedefs.dart', CoreTemplates.typedefs(projectName));
       await _createFile('lib/shared/widgets/buttons/primary_button.dart',
           CoreTemplates.sharedButton());
       await _createFile('lib/shared/widgets/layout/app_scaffold.dart',
           CoreTemplates.appScaffold());
-      await _createFile('lib/main.dart', CoreTemplates.mainDart(stateManager, projectName));
+      await _createFile(
+          'lib/main.dart', CoreTemplates.mainDart(stateManager, projectName));
       await _createFile('lib/app.dart', CoreTemplates.appDart(projectName));
-      await _createFile('analysis_options.yaml', CoreTemplates.analysisOptions());
+      await _createFile(
+          'analysis_options.yaml', CoreTemplates.analysisOptions());
       await _createFile('build.yaml', CoreTemplates.buildYaml());
       await _createFile(
           'assets/translations/en-US.json', CoreTemplates.emptyJson());
@@ -346,7 +362,8 @@ class FeatureGenerator {
     final projectName = _getProjectName();
     if (type == 'drift') {
       if (!content.contains('app_database.dart')) {
-        content = "import 'package:$projectName/core/storage/app_database.dart';\n$content";
+        content =
+            "import 'package:$projectName/core/storage/app_database.dart';\n$content";
       }
       if (!content.contains('AppDatabase')) {
         content = content.replaceFirst(
@@ -489,8 +506,8 @@ class FeatureGenerator {
     if (!content.contains('assets:')) {
       const assetsBlock =
           '\n  assets:\n    - assets/images/\n    - assets/icons/\n    - assets/fonts/\n    - assets/animations/\n    - assets/translations/\n';
-      content = content.replaceFirst(
-          'uses-material-design: true', 'uses-material-design: true$assetsBlock');
+      content = content.replaceFirst('uses-material-design: true',
+          'uses-material-design: true$assetsBlock');
       await file.writeAsString(content);
     }
   }
@@ -514,8 +531,7 @@ class FeatureGenerator {
     final progress = _logger.progress('Scaffolding tests');
     try {
       final projectName = _getProjectName();
-      await _createFile(
-          'test/core/network/api_client_test.dart',
+      await _createFile('test/core/network/api_client_test.dart',
           CoreTemplates.apiClientTest(projectName));
       progress.complete();
     } catch (e) {
@@ -603,8 +619,8 @@ class FeatureGenerator {
     bool mod = false;
     for (final p in ps) {
       if (!c.contains(p)) {
-        c = c.replaceFirst(
-            '<application', '    <uses-permission android:name="$p" />\n    <application');
+        c = c.replaceFirst('<application',
+            '    <uses-permission android:name="$p" />\n    <application');
         mod = true;
       }
     }
@@ -634,12 +650,14 @@ class FeatureGenerator {
     var c = await file.readAsString();
     final p = name.pascalCase;
     if (!c.contains('request$p()')) {
-      c = c.replaceFirst('openSettings();', 'openSettings();\n  Future<bool> request$p();');
+      c = c.replaceFirst(
+          'openSettings();', 'openSettings();\n  Future<bool> request$p();');
     }
     if (!c.contains('request$p() async')) {
       final impl =
           "\n  @override\n  Future<bool> request$p() async {\n    final status = await Permission.$name.request();\n    return status.isGranted;\n  }";
-      c = c.replaceFirst('openAppSettings();\n  }', 'openAppSettings();\n  }$impl');
+      c = c.replaceFirst(
+          'openAppSettings();\n  }', 'openAppSettings();\n  }$impl');
     }
     await file.writeAsString(c);
   }
@@ -714,8 +732,8 @@ class FeatureGenerator {
     bool mod = false;
     for (final e in ps.entries) {
       if (!c.contains(e.key)) {
-        c = c.replaceFirst(
-            '<dict>', '<dict>\n\t<key>${e.key}</key>\n\t<string>${e.value}</string>');
+        c = c.replaceFirst('<dict>',
+            '<dict>\n\t<key>${e.key}</key>\n\t<string>${e.value}</string>');
         mod = true;
       }
     }

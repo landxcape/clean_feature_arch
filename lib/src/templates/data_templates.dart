@@ -133,7 +133,8 @@ class ${pascal}RemoteDataSourceImpl implements ${pascal}RemoteDataSource {
 ''';
   }
 
-  static String localDataSource(String featureName, String projectName, {String? storageType}) {
+  static String localDataSource(String featureName, String projectName,
+      {String? storageType}) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
@@ -143,7 +144,8 @@ class ${pascal}RemoteDataSourceImpl implements ${pascal}RemoteDataSource {
     String params = '';
 
     if (storageType == 'drift') {
-      imports = "\nimport 'package:drift/drift.dart';\nimport 'package:$projectName/core/storage/app_database.dart';";
+      imports =
+          "\nimport 'package:drift/drift.dart';\nimport 'package:$projectName/core/storage/app_database.dart';";
       tableDef = '''
 
 /// Local database table for $pascal.
@@ -154,8 +156,10 @@ class ${pascal}Table extends Table {
       fields = "\n  // ignore: unused_field\n  final AppDatabase _db;";
       params = "this._db";
     } else if (storageType == 'shared') {
-      imports = "\nimport 'package:$projectName/core/storage/local_settings.dart';";
-      fields = "\n  // ignore: unused_field\n  final LocalSettings _localSettings;";
+      imports =
+          "\nimport 'package:$projectName/core/storage/local_settings.dart';";
+      fields =
+          "\n  // ignore: unused_field\n  final LocalSettings _localSettings;";
       params = "this._localSettings";
     }
 

@@ -303,10 +303,10 @@ enum AppFlavor {
 
   static String appRunner(String projectName, String? stateManager) {
     final isRiverpod = stateManager == 'riverpod';
-    final riverpodImport = isRiverpod 
-        ? "import 'package:flutter_riverpod/flutter_riverpod.dart';\n" 
+    final riverpodImport = isRiverpod
+        ? "import 'package:flutter_riverpod/flutter_riverpod.dart';\n"
         : "";
-    
+
     final wrappingLogic = isRiverpod
         ? 'final stateApp = ProviderScope(child: app);'
         : 'final stateApp = stateWrapper?.call(app) ?? app;';
