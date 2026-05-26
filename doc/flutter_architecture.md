@@ -57,7 +57,7 @@ The `init` command generates a centralized resource ecosystem in `core/` to prev
 
 ---
 
-## Folder Structure
+## Part 1 — Folder Structure
 
 ```
 lib/
@@ -73,41 +73,43 @@ lib/
 │   ├── di/
 │   │   ├── injection_container.dart     # get_it root registration
 │   │   └── modules/
-│   │       ├── network_module.dart
-│   │       ├── storage_module.dart
-│   │       └── [feature]_module.dart    # one module per feature
+│   │       └── core_module.dart         # combined network and storage registration
 │   ├── error/
 │   │   ├── app_error.dart               # sealed class AppError
 │   │   └── error_handler.dart           # exception → AppError mapping
 │   ├── extensions/
 │   │   ├── context_extensions.dart
-│   │   ├── string_extensions.dart
-│   │   └── datetime_extensions.dart
+│   │   └── string_extensions.dart
+│   ├── localization/
+│   │   ├── app_locales.dart             # supported locales configuration
+│   │   └── app_strings.dart             # type-safe localization keys/getters
 │   ├── network/
-│   │   ├── api_client.dart              # Dio factory
-│   │   ├── interceptors/
-│   │   │   ├── auth_interceptor.dart
-│   │   │   ├── logging_interceptor.dart
-│   │   │   └── retry_interceptor.dart
-│   │   └── network_info.dart
+│   │   ├── api_client.dart              # Dio client factory
+│   │   ├── base_response.dart           # standard response model wrapper
+│   │   ├── network_info.dart            # abstract network checker
+│   │   ├── network_info_impl.dart       # implementation of network checker
+│   │   └── interceptors/
+│   │       ├── auth_interceptor.dart    # attaches secure token
+│   │       └── logging_interceptor.dart # pretty logs HTTP calls
 │   ├── router/
-│   │   ├── app_router.dart
-│   │   └── router_guards.dart
+│   │   └── app_router.dart              # GoRouter configuration
 │   ├── storage/
-│   │   ├── secure_storage.dart
-│   │   └── local_storage.dart
+│   │   ├── secure_storage.dart          # abstract secure credentials interface
+│   │   ├── secure_storage_impl.dart     # implementation using flutter_secure_storage
+│   │   ├── app_database.dart            # central SQLite engine (if Drift is enabled)
+│   │   └── local_settings.dart          # key-value settings (if SharedPreferences is enabled)
 │   ├── theme/
-│   │   ├── app_theme.dart
-│   │   ├── app_colors.dart
-│   │   ├── app_text_styles.dart
-│   │   └── app_spacing.dart
+│   │   ├── app_theme.dart               # ThemeData configurations
+│   │   ├── app_colors.dart              # central color palette
+│   │   ├── app_spacing.dart             # margins, paddings, and border radius
+│   │   └── app_text_theme.dart          # typography configurations
 │   ├── types/
-│   │   ├── typedefs.dart                # Result<T>, VoidResult
-│   │   └── paginated.dart               # Paginated<T> wrapper
+│   │   └── typedefs.dart                # Result<T> and VoidResult definition
 │   └── utils/
-│       ├── date_utils.dart
-│       ├── validator_utils.dart
-│       └── logger.dart
+│       ├── logger.dart                  # central logger wrapper
+│       ├── permission_service.dart      # system permissions handler
+│       ├── responsive_utils.dart        # screen sizing utilities
+│       └── validator_utils.dart         # regex validator utilities
 │
 ├── features/
 │   └── [feature_name]/
@@ -118,12 +120,12 @@ lib/
 │       │   │   └── remote_data_sources/
 │       │   │       └── [feature]_remote_data_source.dart
 │       │   ├── models/
+│       │   │   ├── local/
+│       │   │   │   └── [feature]_local_model.dart
 │       │   │   ├── requests/
 │       │   │   │   └── [feature]_request_model.dart
-│       │   │   ├── responses/
-│       │   │   │   └── [feature]_response_model.dart
-│       │   │   └── local/
-│       │   │       └── [feature]_local_model.dart
+│       │   │   └── responses/
+│       │   │       └── [feature]_response_model.dart
 │       │   └── repositories/
 │       │       └── [feature]_repository_impl.dart
 │       ├── domain/
@@ -132,34 +134,28 @@ lib/
 │       │   ├── repositories/
 │       │   │   └── [feature]_repository.dart    # abstract interface
 │       │   └── usecases/
-│       │       ├── get_[thing]_usecase.dart
-│       │       ├── create_[thing]_usecase.dart
-│       │       └── delete_[thing]_usecase.dart
-└── presentation/
-    ├── [bloc|providers|state]/         # Dynamic based on state manager
-    ├── screens/                         # smart widgets — own state, callbacks
-    └── widgets/                         # dumb widgets — pure UI
+│       │       └── get_[feature]_usecase.dart
+│       ├── presentation/
+│       │   ├── [bloc|providers|state]/         # state manager (e.g. bloc, providers, or state)
+│       │   │   ├── [feature]_bloc.dart
+│       │   │   ├── [feature]_event.dart
+│       │   │   └── [feature]_state.dart
+│       │   └── screens/                         # smart widgets containing own state and callbacks
+│       │       └── [feature]_screen.dart
+│       └── di/
+│           └── [feature]_di.dart                # feature dependency injection registry
 │
 ├── shared/
-│   ├── widgets/
-│   │   ├── buttons/
-│   │   │   ├── primary_button.dart
-│   │   │   └── secondary_button.dart
-│   │   ├── inputs/
-│   │   │   └── app_text_field.dart
-│   │   ├── overlays/
-│   │   │   ├── app_dialog.dart
-│   │   │   └── app_bottom_sheet.dart
-│   │   ├── feedback/
-│   │   │   ├── loading_indicator.dart
-│   │   │   └── error_widget.dart
-│   │   └── layout/
-│   │       └── app_scaffold.dart
-## Part 1 — Folder Structure
-
+│   └── widgets/
+│       ├── buttons/
+│       │   └── primary_button.dart              # shared custom primary button
+│       └── layout/
+│           └── app_scaffold.dart                # shared layout scaffold
+│
+├── app.dart                             # MaterialApp root widget configuration
+└── main.dart                            # App startup point with AppRunner
 ```
-lib/
-...
+
 ---
 
 ## The Absolute Rules

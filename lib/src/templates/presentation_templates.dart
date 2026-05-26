@@ -31,7 +31,7 @@ class PresentationTemplates {
           "import 'package:flutter_riverpod/flutter_riverpod.dart';\nimport 'package:$projectName/features/$snake/presentation/$stateFolderName/${snake}_provider.dart';";
       body = '''Consumer(
         builder: (context, ref, child) {
-          final state = ref.watch(${snake.camelCase}Provider);
+          final state = ref.watch(${snake.camelCase}NotifierProvider);
           return switch (state) {
             AsyncData() => const Center(
               child: Text('Success'),

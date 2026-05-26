@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.4
+- Fix: Corrected Riverpod screen template to watch the proper generated `NotifierProvider` instead of the non-existent raw provider.
+- Fix: Resolved AOT plugin compilation error (`Failed to compile plugin.dart to an AOT snapshot`) by restoring `lib/main.dart` entry point.
+- Fix: Fixed CLI `docs skeleton` rendering by removing duplicate section headers and visual discrepancies in `flutter_architecture.md`.
+- Docs: Corrected folder structure guide indentation and synchronized core file listings to match generated output.
+
 ## 1.6.3
 - Refactor: Optimized `AppRunner` template to generate state-manager-specific code during scaffolding, removing runtime switch redundancies.
 
