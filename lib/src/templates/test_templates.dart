@@ -291,11 +291,11 @@ void main() {
           addTearDown(container.dispose);
 
           // Act
-          await container.read(${camel}Provider.notifier).fetchData();
+          await container.read(${camel}NotifierProvider.notifier).fetchData();
 
           // Assert
           expect(
-            container.read(${camel}Provider).hasValue,
+            container.read(${camel}NotifierProvider).hasValue,
             true,
           );
         },
