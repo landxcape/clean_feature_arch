@@ -35,7 +35,9 @@ class ${pascal}DI {
   static void init(GetIt sl) {
     // --- Data Sources ---
     sl.registerLazySingleton<${pascal}RemoteDataSource>(
-      () => ${pascal}RemoteDataSourceImpl(),
+      () => ${pascal}RemoteDataSourceImpl(
+        sl(),
+      ),
     );
     sl.registerLazySingleton<${pascal}LocalDataSource>(
       () => ${pascal}LocalDataSourceImpl(

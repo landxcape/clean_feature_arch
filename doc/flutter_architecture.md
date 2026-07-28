@@ -85,6 +85,7 @@ lib/
 │   │   └── app_strings.dart             # type-safe localization keys/getters
 │   ├── network/
 │   │   ├── api_client.dart              # Dio client factory
+│   │   ├── api_endpoints.dart           # Core system/auth endpoint constants
 │   │   ├── base_response.dart           # standard response model wrapper
 │   │   ├── network_info.dart            # abstract network checker
 │   │   ├── network_info_impl.dart       # implementation of network checker
@@ -118,6 +119,7 @@ lib/
 │       │   │   ├── local_data_sources/
 │       │   │   │   └── [feature]_local_data_source.dart
 │       │   │   └── remote_data_sources/
+│       │   │       ├── [feature]_endpoints.dart
 │       │   │       └── [feature]_remote_data_source.dart
 │       │   ├── models/
 │       │   │   ├── local/

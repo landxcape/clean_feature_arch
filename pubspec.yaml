@@ -1,6 +1,6 @@
 name: clean_feature_arch
 description: Professional toolkit for scaffolding and enforcing Clean Architecture in Flutter projects with modern Dart 3.x patterns and automated architectural verification.
-version: 1.6.4
+version: 1.7.0
 repository: https://github.com/landxcape/clean_feature_arch
 homepage: https://github.com/landxcape/clean_feature_arch
 

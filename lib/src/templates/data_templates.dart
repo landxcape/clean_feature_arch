@@ -105,11 +105,27 @@ sealed class ${pascal}LocalModel with _\$${pascal}LocalModel {
 ''';
   }
 
+  static String featureEndpoints(String featureName) {
+    final pascal = featureName.pascalCase;
+    final snake = featureName.snakeCase;
+
+    return '''
+abstract final class ${pascal}Endpoints {
+  const ${pascal}Endpoints._();
+
+  static const String root = '/v1/$snake';
+  static String byId(String id) => '/v1/$snake/\$id';
+}
+''';
+  }
+
   static String remoteDataSource(String featureName, String projectName) {
     final pascal = featureName.pascalCase;
     final snake = featureName.snakeCase;
 
     return '''
+import 'package:dio/dio.dart';
+import 'package:$projectName/features/$snake/data/data_sources/remote_data_sources/${snake}_endpoints.dart';
 import 'package:$projectName/features/$snake/data/models/requests/${snake}_request_model.dart';
 import 'package:$projectName/features/$snake/data/models/responses/${snake}_response_model.dart';
 
@@ -120,14 +136,19 @@ abstract interface class ${pascal}RemoteDataSource {
 }
 
 class ${pascal}RemoteDataSourceImpl implements ${pascal}RemoteDataSource {
-  // TODO: Add HTTP client (Dio) dependency via DI.
-  
+  const ${pascal}RemoteDataSourceImpl(this._client);
+
+  final Dio _client;
+
   @override
   Future<${pascal}ResponseModel> get$pascal(
     ${pascal}RequestModel request,
   ) async {
-    // TODO: Implement the network request.
-    throw UnimplementedError();
+    final response = await _client.get<Map<String, dynamic>>(
+      ${pascal}Endpoints.root,
+      queryParameters: {'id': request.id},
+    );
+    return ${pascal}ResponseModel.fromJson(response.data!);
   }
 }
 ''';

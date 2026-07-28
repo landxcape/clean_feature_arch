@@ -104,6 +104,10 @@ class FeatureGenerator {
 
       await _createFile(
           p.join(baseDir, 'data', 'data_sources', 'remote_data_sources',
+              '${snakeCaseName}_endpoints.dart'),
+          DataTemplates.featureEndpoints(snakeCaseName));
+      await _createFile(
+          p.join(baseDir, 'data', 'data_sources', 'remote_data_sources',
               '${snakeCaseName}_remote_data_source.dart'),
           DataTemplates.remoteDataSource(snakeCaseName, projectName));
       await _createFile(
@@ -223,6 +227,8 @@ class FeatureGenerator {
           CoreTemplates.coreModuleFile(projectName));
       await _createFile('lib/core/network/api_client.dart',
           CoreTemplates.apiClient(projectName));
+      await _createFile('lib/core/network/api_endpoints.dart',
+          CoreTemplates.apiEndpoints());
       await _createFile(
           'lib/core/network/base_response.dart', CoreTemplates.baseResponse());
       await _createFile(

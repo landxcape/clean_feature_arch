@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.0
+- Feat: Implemented type-safe, feature-isolated API endpoint scaffolding.
+- Feat: `init` command now scaffolds `lib/core/network/api_endpoints.dart` for core/system routes.
+- Feat: `feature` command scaffolds co-located `${feature}_endpoints.dart` inside feature remote data sources.
+- Refactor: Updated `RemoteDataSource` templates to inject `Dio` and consume structured feature endpoint constants.
+- Docs: Updated architecture guides with core vs. feature endpoint standards.
+
 ## 1.6.4
 - Fix: Corrected Riverpod screen template to watch the proper generated `NotifierProvider` instead of the non-existent raw provider.
 - Fix: Resolved AOT plugin compilation error (`Failed to compile plugin.dart to an AOT snapshot`) by restoring `lib/main.dart` entry point.

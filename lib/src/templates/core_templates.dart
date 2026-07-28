@@ -108,6 +108,15 @@ class ErrorHandler {
 ''';
 
   // --- Networking ---
+  static String apiEndpoints() => r'''
+abstract final class ApiEndpoints {
+  const ApiEndpoints._();
+
+  // --- Core / System Endpoints ---
+  static const String refreshToken = '/auth/refresh';
+}
+''';
+
   static String apiClient(String projectName) => '''
 import 'package:dio/dio.dart';
 import 'package:$projectName/core/config/app_config.dart';
