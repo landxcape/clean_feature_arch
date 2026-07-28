@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.1
+- Chore: Expanded `analyzer` dependency constraint to `<15.0.0` to support the latest `analyzer 14.1.0`.
+- Chore: Upgraded direct dependencies (`analysis_server_plugin 0.3.20`, `analyzer_plugin 0.14.14`).
+
 ## 1.7.0
 - Feat: Implemented type-safe, feature-isolated API endpoint scaffolding.
 - Feat: `init` command now scaffolds `lib/core/network/api_endpoints.dart` for core/system routes.
