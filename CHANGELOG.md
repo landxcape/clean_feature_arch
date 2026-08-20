@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.2
+- Chore: Upgraded `example` dev dependency `lints` from `^3.0.0` to `^6.1.0`.
+- Chore: Updated transitive dependencies across main package and example (`vm_service`, `source_maps`, `meta`, `analyzer`, and more).
+- Chore: Added platform folder exclusions (`android/`, `ios/`, `web/`, etc.) to `example/analysis_options.yaml` to suppress false-positive analyzer warnings.
+
 ## 1.7.1
 - Chore: Expanded `analyzer` dependency constraint to `<15.0.0` to support the latest `analyzer 14.1.0`.
 - Chore: Upgraded direct dependencies (`analysis_server_plugin 0.3.20`, `analyzer_plugin 0.14.14`).
