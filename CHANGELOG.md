@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.3
+- Added official pub.dev `topics` (`clean-architecture`, `cli`, `code-generator`, `scaffolding`, `architecture`) for category discoverability.
+- Added `issue_tracker` repository URL.
+- Added `.pubignore` to prevent bundling build artifacts and caches.
+
 ## 1.7.2
 - Chore: Upgraded `example` dev dependency `lints` from `^3.0.0` to `^6.1.0`.
 - Chore: Updated transitive dependencies across main package and example (`vm_service`, `source_maps`, `meta`, `analyzer`, and more).
