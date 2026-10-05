@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.4
+- Feat: Migrated analyzer plugin to Dart 3.13+ Analysis Server Plugin API (`package:analysis_server_plugin`).
+- Refactor: Standardized plugin entry point in `lib/main.dart` per official analysis server plugin specifications.
+- Refactor: Removed legacy `analyzer: plugins:` declaration from scaffolded `analysis_options.yaml` in CLI template generator to resolve `analysis_options_deprecated_plugins`.
+- Chore: Removed unused legacy `package:analyzer_plugin` dependency.
+- Chore: Modernized package and scaffolded `analysis_options.yaml` with strict language mode flags (`strict-casts`, `strict-inference`, `strict-raw-types`).
+- Docs: Updated documentation and example app to demonstrate automatic plugin discovery via `dev_dependencies`.
+
 ## 1.7.3
 - Added official pub.dev `topics` (`clean-architecture`, `cli`, `code-generator`, `scaffolding`, `architecture`) for category discoverability.
 - Added `issue_tracker` repository URL.

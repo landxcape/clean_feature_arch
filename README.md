@@ -100,20 +100,32 @@ dart run clean_feature_arch docs skeleton
 
 ## Static Analysis
 
-A native analyzer plugin enforces architectural boundaries and standards.
+A modern Dart Analysis Server plugin (`package:analysis_server_plugin`) automatically enforces architectural boundaries and standards.
 
-### Configuration
-Add the plugin to your `analysis_options.yaml`:
+### Automatic Discovery
+In Dart 3.13+, analyzer plugins are discovered automatically when added to `dev_dependencies` in `pubspec.yaml`. No deprecated `analyzer: plugins:` configuration in `analysis_options.yaml` is needed:
 
 ```yaml
-plugins:
-  clean_feature_arch:
-    diagnostics:
-      absolute_rule_avoid_illegal_layer_imports: true
-      absolute_rule_enforce_feature_isolation: true
-      absolute_rule_enforce_model_folder_structure: true
-      absolute_rule_prefer_sealed_freezed_models: true
-      absolute_rule_enforce_data_source_folder_structure: true
+dev_dependencies:
+  clean_feature_arch: ^1.7.4
+```
+
+### Architectural Rules Enforced
+The plugin automatically validates:
+- `absolute_rule_avoid_illegal_layer_imports`: Domain layer cannot import from Data or Presentation layers.
+- `absolute_rule_enforce_feature_isolation`: Features cannot cross-import internal implementation files from other features.
+- `absolute_rule_enforce_model_folder_structure`: Model files must reside within designated layer directories.
+- `absolute_rule_prefer_sealed_freezed_models`: Domain models and states must use sealed classes or `@freezed`.
+- `absolute_rule_enforce_data_source_folder_structure`: Data sources must be organized in `local_data_sources` and `remote_data_sources`.
+
+### Severity Customization (Optional)
+To elevate or suppress specific rules, configure them via the standard `analyzer: errors:` section in `analysis_options.yaml`:
+
+```yaml
+analyzer:
+  errors:
+    absolute_rule_avoid_illegal_layer_imports: error
+    absolute_rule_enforce_feature_isolation: warning
 ```
 
 ---

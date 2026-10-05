@@ -808,8 +808,6 @@ analyzer:
     - "web/**"
     - ".dart_tool/**"
     - "build/**"
-  plugins:
-    - clean_feature_arch
   language:
     strict-casts: true
     strict-inference: true
@@ -823,15 +821,6 @@ linter:
     prefer_single_quotes: true
     require_trailing_commas: true
     always_use_package_imports: true
-
-plugins:
-  clean_feature_arch:
-    diagnostics:
-      absolute_rule_avoid_illegal_layer_imports: true
-      absolute_rule_enforce_feature_isolation: true
-      absolute_rule_enforce_model_folder_structure: true
-      absolute_rule_prefer_sealed_freezed_models: true
-      absolute_rule_enforce_data_source_folder_structure: true
 ''';
 
   static String buildYaml() => r'''
