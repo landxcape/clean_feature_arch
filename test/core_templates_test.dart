@@ -3,7 +3,8 @@ import 'package:test/test.dart';
 
 void main() {
   group('CoreTemplates', () {
-    test('analysisOptions does not contain deprecated analyzer: plugins block', () {
+    test('analysisOptions does not contain deprecated analyzer: plugins block',
+        () {
       final content = CoreTemplates.analysisOptions();
 
       expect(content.contains('analyzer:\n  plugins:'), isFalse);

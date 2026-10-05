@@ -227,8 +227,8 @@ class FeatureGenerator {
           CoreTemplates.coreModuleFile(projectName));
       await _createFile('lib/core/network/api_client.dart',
           CoreTemplates.apiClient(projectName));
-      await _createFile('lib/core/network/api_endpoints.dart',
-          CoreTemplates.apiEndpoints());
+      await _createFile(
+          'lib/core/network/api_endpoints.dart', CoreTemplates.apiEndpoints());
       await _createFile(
           'lib/core/network/base_response.dart', CoreTemplates.baseResponse());
       await _createFile(
