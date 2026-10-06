@@ -38,6 +38,10 @@ class DocsCommand extends Command<int> {
       case 'skeleton':
         await _printSection('## Part 1 — Folder Structure');
         return ExitCode.success.code;
+      case 'verification':
+      case 'plugin':
+        await _printSection('## Automated Verification');
+        return ExitCode.success.code;
       case 'arch':
       case 'core':
         await _openLink(_links['Core Architecture']!);
@@ -56,6 +60,7 @@ class DocsCommand extends Command<int> {
       choices: [
         'Terminal: 11 Absolute Rules',
         'Terminal: Project Skeleton',
+        'Terminal: Automated Verification',
         'Browser: Core Architecture Guide',
         'Browser: State Management (Common)',
         'Browser: State Management (BLoC)',
@@ -70,6 +75,9 @@ class DocsCommand extends Command<int> {
         break;
       case 'Terminal: Project Skeleton':
         await _printSection('## Part 1 — Folder Structure');
+        break;
+      case 'Terminal: Automated Verification':
+        await _printSection('## Automated Verification');
         break;
       case 'Browser: Core Architecture Guide':
         await _openLink(_links['Core Architecture']!);
@@ -121,10 +129,16 @@ class DocsCommand extends Command<int> {
         return;
       }
 
-      // Find the end of the section (the next header or separator)
-      int endIndex = content.indexOf('\n##', startIndex + header.length);
-      if (endIndex == -1) {
-        endIndex = content.indexOf('\n---', startIndex + header.length);
+      // Find the end of the section (the nearest next header or separator)
+      final nextHeader = content.indexOf('\n##', startIndex + header.length);
+      final nextSep = content.indexOf('\n---', startIndex + header.length);
+      int endIndex = -1;
+      if (nextHeader != -1 && nextSep != -1) {
+        endIndex = nextHeader < nextSep ? nextHeader : nextSep;
+      } else if (nextHeader != -1) {
+        endIndex = nextHeader;
+      } else {
+        endIndex = nextSep;
       }
 
       var section = endIndex == -1
@@ -133,6 +147,9 @@ class DocsCommand extends Command<int> {
 
       // Clean up the output
       section = section.replaceFirst(header, '').trim();
+      if (section.endsWith('---')) {
+        section = section.substring(0, section.length - 3).trim();
+      }
 
       progress.complete('Reference loaded.');
       _logger.info('\n${lightCyan.wrap('--- REFERENCE ---')}\n');

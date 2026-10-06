@@ -175,3 +175,16 @@ lib/
 | 9 | **Implement strongly-typed error handling throughout the application.** |
 | 10 | **The repository implementation serves as the boundary for model-entity translation.** |
 | 11 | **UseCases are required for all domain operations.** |
+
+---
+
+## Automated Verification
+
+A native Dart Analysis Server plugin (`package:analysis_server_plugin`) enforces these architectural boundaries during `dart analyze`:
+
+- **Layer Boundaries:** Prohibits domain layer from importing data or presentation layers.
+- **Feature Isolation:** Restricts cross-feature imports outside authorized public contracts.
+- **Structural Integrity:** Enforces model placement and data source partitioning (`local_data_sources` / `remote_data_sources`).
+- **Type Safety:** Mandates sealed classes or Freezed for domain entities and states.
+
+Activated automatically when `clean_feature_arch` is included in `dev_dependencies`.
