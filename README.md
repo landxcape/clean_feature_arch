@@ -107,7 +107,7 @@ In Dart 3.13+, analyzer plugins are discovered automatically when added to `dev_
 
 ```yaml
 dev_dependencies:
-  clean_feature_arch: ^1.7.4
+  clean_feature_arch: ^1.7.5
 ```
 
 ### Architectural Rules Enforced

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.5
+- Docs: Added `Automated Verification` reference section to `doc/flutter_architecture.md`.
+- Feat: Added `clean_feature_arch docs verification` (and `docs plugin`) terminal documentation command and interactive menu option.
+- Fix: Refined documentation delimiter parsing in `docs` CLI command to cleanly segment architecture sections.
+
 ## 1.7.4
 - Feat: Migrated analyzer plugin to Dart 3.13+ Analysis Server Plugin API (`package:analysis_server_plugin`).
 - Refactor: Standardized plugin entry point in `lib/main.dart` per official analysis server plugin specifications.
