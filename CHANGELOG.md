@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.6
+- Docs: Clarified architectural lint rule evaluation based on import URI paths and project directory conventions.
+- Docs: Refined package description and README dependency snippets.
+
 ## 1.7.5
 - Docs: Added `Automated Verification` reference section to `doc/flutter_architecture.md`.
 - Feat: Added `clean_feature_arch docs verification` (and `docs plugin`) terminal documentation command and interactive menu option.
