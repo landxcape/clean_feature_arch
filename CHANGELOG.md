@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.7
+- Docs: Added package badges and interactive architecture explorer sandbox link.
+- Docs: Removed stale version references in README.
+
 ## 1.7.6
 - Docs: Clarified architectural lint rule evaluation based on import URI paths and project directory conventions.
 - Docs: Refined package description and README dependency snippets.
