@@ -5,9 +5,9 @@ CLI and analyzer for scaffolding and enforcing Feature-First Clean Architecture 
 [![pub package](https://img.shields.io/pub/v/clean_feature_arch.svg)](https://pub.dev/packages/clean_feature_arch)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-dart%20%7C%20flutter-blue)](https://pub.dev/packages/clean_feature_arch)
-[![Interactive Sandbox](https://img.shields.io/badge/demo-interactive%20sandbox-0284C7.svg)](https://shakyapurna.com.np/#/lab/clean_feature_arch/sandbox)
+[![Interactive Sandbox](https://img.shields.io/badge/demo-interactive%20sandbox-0284C7.svg)](https://shakyapurna.com.np/lab/clean_feature_arch/sandbox)
 
-An [interactive sandbox](https://shakyapurna.com.np/#/lab/clean_feature_arch/sandbox) is available to explore Feature-First Clean Architecture layers and dependency boundaries.
+An [interactive sandbox](https://shakyapurna.com.np/lab/clean_feature_arch/sandbox) is available to explore Feature-First Clean Architecture layers and dependency boundaries.
 
 ## Installation
 
